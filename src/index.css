@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-maroon-primary: #7A1126;
+    --color-maroon-dark: #500A18;
+    --color-gold-temple: #F4A62A;
+    --color-gold-accent: #D98C1F;
+    --color-cream-bg: #FFF8F0;
+    --color-text-dark: #2B1A16;
+  }
+
+  body {
+    background-color: #FFF8F0;
+    color: #2B1A16;
+    font-family: 'Poppins', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  select,
+  textarea {
+    min-height: 46px;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  button,
+  .btn {
+    min-height: 46px;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, .font-serif-temple {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .font-poppins {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .font-open-sans {
+    font-family: 'Open Sans', sans-serif;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .bg-cream-pattern {
+    background-color: #FFF8F0;
+    background-image: radial-gradient(#7A1126 0.4px, transparent 0.4px), radial-gradient(#F4A62A 0.4px, #FFF8F0 0.4px);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
+    background-opacity: 0.03;
+  }
+
+  .glass-card {
+    background: rgba(255, 248, 240, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(244, 166, 42, 0.25);
+    border-radius: 12px;
+  }
+
+  .glass-maroon {
+    background: rgba(122, 17, 38, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(244, 166, 42, 0.35);
+    border-radius: 12px;
+  }
+
+  .temple-border {
+    position: relative;
+  }
+  
+  .temple-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #F4A62A, #7A1126, #F4A62A, transparent);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(244, 166, 42, 0.35);
+  }
+  
+  .gold-glow-sm {
+    box-shadow: 0 0 10px rgba(244, 166, 42, 0.25);
+  }
+
+  .maroon-glow {
+    box-shadow: 0 10px 30px -5px rgba(122, 17, 38, 0.3);
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.animate-shine {
+  animation: shine 2s infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(244,166,42,0.1) 0%, rgba(244,166,42,0.35) 50%, rgba(244,166,42,0.1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+/* Minimalist Custom Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(244, 166, 42, 0.3) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 166, 42, 0.3);
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 166, 42, 0.85);
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-10deg); }
+  20% { transform: rotate(10deg); }
+  30% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  50% { transform: rotate(0deg); }
+}
+
+.animate-shake {
+  animation: shake 2s infinite;
+}

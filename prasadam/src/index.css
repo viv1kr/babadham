@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    font-family: 'Poppins', sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(244, 166, 42, 0.3) transparent;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+.font-serif-temple {
+  font-family: 'Poppins', 'Cinzel', sans-serif;
+}
+
+/* Minimalist Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 166, 42, 0.3);
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 166, 42, 0.85);
+}
+
+.gold-glow {
+  box-shadow: 0 0 20px rgba(244, 166, 42, 0.35);
+}
+
+.temple-border {
+  border-image: linear-gradient(to right, #7A1126, #F4A62A, #7A1126) 1;
+}
