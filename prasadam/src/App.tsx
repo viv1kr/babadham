@@ -5,6 +5,9 @@ import { AdminSidebar } from './components/layout/AdminSidebar';
 import { AdminFooter } from './components/layout/AdminFooter';
 import { AdminLogin } from './components/auth/AdminLogin';
 import { AnalyticsView } from './components/dashboard/AnalyticsView';
+import { OrdersView } from './components/orders/OrdersView';
+import { PaymentsShippingView } from './components/payments/PaymentsShippingView';
+import { EmailWhatsappView } from './components/settings/EmailWhatsappView';
 import { ProductsView, ProductSubTab } from './components/products/ProductsView';
 import { CouponsView } from './components/coupons/CouponsView';
 import { BrandingView } from './components/branding/BrandingView';
@@ -55,6 +58,9 @@ export const AdminContent: React.FC = () => {
         {/* Dynamic Workplace Tab View */}
         <main className={`flex-1 bg-[#120508] ${activeTab === 'branding' || isPolicyTab || isProductTab ? 'p-0' : 'p-4 sm:p-6'} overflow-y-auto`}>
           {activeTab === 'analytics' && <AnalyticsView />}
+          {activeTab === 'orders' && <OrdersView />}
+          {activeTab === 'payments' && <PaymentsShippingView />}
+          {activeTab === 'email-whatsapp' && <EmailWhatsappView />}
           {activeTab === 'content' && <ContentView />}
           {isProductTab && <ProductsView key={currentProductSubTab} initialSubTab={currentProductSubTab} />}
           {activeTab === 'coupons' && <CouponsView />}

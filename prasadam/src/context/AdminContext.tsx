@@ -30,6 +30,10 @@ interface AdminContextType {
   
   // Actions
   updateOrderStatus: (orderId: string, status: Order['orderStatus']) => void;
+  updateOrderPaymentStatus: (orderId: string, status: Order['paymentStatus']) => void;
+  updateOrderNotes: (orderId: string, notes: string) => void;
+  updateOrderAddress: (orderId: string, addressType: 'shipping' | 'billing', address: Partial<OrderAddress>) => void;
+  addTimelineEvent: (orderId: string, event: Omit<TimelineEvent, 'id' | 'createdAt'>) => void;
   addProduct: (product: Omit<Product, 'id'>) => Product | void;
   updateProduct: (id: string, updates: Partial<Product>) => Product | void | undefined;
   deleteProduct: (id: string) => void;
@@ -184,6 +188,29 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Order ${orderId} status updated to ${status}`);
   };
 
+  const updateOrderPaymentStatus = (orderId: string, status: Order['paymentStatus']) => {
+    db.updateOrderPaymentStatus(orderId, status);
+    setOrders([...db.getOrders()]);
+    showToast(`Order payment status updated to ${status}`);
+  };
+
+  const updateOrderNotes = (orderId: string, notes: string) => {
+    db.updateOrderNotes(orderId, notes);
+    setOrders([...db.getOrders()]);
+    showToast(`Order notes updated successfully`);
+  };
+
+  const updateOrderAddress = (orderId: string, addressType: 'shipping' | 'billing', address: Partial<OrderAddress>) => {
+    db.updateOrderAddress(orderId, addressType, address);
+    setOrders([...db.getOrders()]);
+    showToast(`Customer ${addressType} address updated`);
+  };
+
+  const addTimelineEvent = (orderId: string, event: Omit<TimelineEvent, 'id' | 'createdAt'>) => {
+    db.addTimelineEvent(orderId, event);
+    setOrders([...db.getOrders()]);
+  };
+
   const addProduct = (product: Omit<Product, 'id'>) => {
     const newProduct = db.addProduct(product);
     setProducts([...db.getProducts()]);
@@ -283,7 +310,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         brandSettings,
         adminProfile,
         loginLogs,
+        // Actions
         updateOrderStatus,
+        updateOrderPaymentStatus,
+        updateOrderNotes,
+        updateOrderAddress,
+        addTimelineEvent,
         addProduct,
         updateProduct,
         deleteProduct,

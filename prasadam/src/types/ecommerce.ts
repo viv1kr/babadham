@@ -111,7 +111,15 @@ export interface TrackingStep {
   timestamp: string;
   completed: boolean;
   active: boolean;
-  iconName: string;
+}
+
+export interface TimelineEvent {
+  id: string;
+  author: string;
+  content: string;
+  createdAt: string;
+  type: 'system' | 'comment';
+  attachments?: string[];
 }
 
 export interface Order {
@@ -124,9 +132,12 @@ export interface Order {
   shipping: number;
   totalAmount: number;
   paymentMethod: 'UPI' | 'CARD' | 'COD';
-  paymentStatus: 'PAID' | 'PENDING';
+  paymentStatus: 'PAID' | 'PENDING' | 'REFUNDED';
   orderStatus: 'ORDER_PLACED' | 'TEMPLE_BLESSING' | 'PACKED' | 'IN_TRANSIT' | 'DELIVERED';
   trackingSteps: TrackingStep[];
+  notes?: string;
+  billingAddress?: OrderAddress;
+  timelineEvents?: TimelineEvent[];
 }
 
 export interface DevoteeReview {
@@ -174,6 +185,46 @@ export interface PrasadiRequestItem {
   timeAgo: string;
 }
 
+export interface PaymentGatewayConfig {
+  globalPaymentMode: 'TEST' | 'LIVE';
+  
+  isRazorpayActive: boolean;
+  razorpayKeyId: string;
+  razorpayKeySecret: string;
+  razorpayWebhookSecret: string;
+  
+  isPayUMoneyActive: boolean;
+  payUMerchantKey: string;
+  payUSalt: string;
+  payUWebhookSecret: string;
+  
+  isCodActive: boolean;
+}
+
+export interface StateShippingTax {
+  stateName: string;
+  taxPercent: number;
+  shippingCost: number;
+}
+
+export interface EmailWhatsappConfig {
+  emailProvider: 'smtp' | 'sendgrid' | 'aws-ses';
+  smtpHost: string;
+  smtpPort: string;
+  smtpUser: string;
+  smtpPass: string;
+  fromEmail: string;
+  fromName: string;
+  
+  whatsappProvider: 'meta' | 'interakt' | 'wati' | 'twilio';
+  whatsappApiKey: string;
+  whatsappPhoneNumberId?: string;
+  whatsappBusinessAccountId?: string;
+  whatsappOtpTemplateId?: string;
+  whatsappOrderConfirmationTemplateId?: string;
+  whatsappShippingUpdateTemplateId?: string;
+}
+
 export interface BrandSettings {
   brandName: string;
   tagline: string;
@@ -211,6 +262,9 @@ export interface BrandSettings {
   termsConditionPolicy?: string;
   manufacturingDetailsPolicy?: string;
   shippingPolicy?: string;
+  paymentGateways?: PaymentGatewayConfig;
+  stateShippingRates?: StateShippingTax[];
+  emailWhatsappConfig?: EmailWhatsappConfig;
 }
 
 export interface AdminUserProfile {

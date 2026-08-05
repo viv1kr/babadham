@@ -10,6 +10,9 @@ import {
   Code,
   LogOut,
   User,
+  ShoppingBag,
+  CreditCard,
+  Settings,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
@@ -43,11 +46,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   
   // Desktop Admin Sidebar State (Default: true so text labels & accordion submenus are easily visible)
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-  const [isPolicyAccordionOpen, setIsPolicyAccordionOpen] = useState(true);
-  const [isProductAccordionOpen, setIsProductAccordionOpen] = useState(true);
+  const [isProductAccordionOpen, setIsProductAccordionOpen] = useState(false);
+  const [isPolicyAccordionOpen, setIsPolicyAccordionOpen] = useState(false);
+  const [isSettingsAccordionOpen, setIsSettingsAccordionOpen] = useState(false);
 
   const menuItems: { id: string; label: string; icon: any; count?: number }[] = [
     { id: 'analytics', label: 'Dashboard & Analytics', icon: LayoutDashboard },
+    { id: 'orders', label: 'Orders', icon: ShoppingBag },
     { id: 'content', label: 'Content & Media Library', icon: FolderOpen },
     { id: 'coupons', label: 'Coupons & Discounts', icon: Tag },
     { id: 'branding', label: 'Brand & Header Editor', icon: Palette },
@@ -74,6 +79,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { id: 'userProfile', label: 'User Profile & Security', icon: User },
     { id: 'scripts', label: 'Custom Scripts & Tags', icon: Code },
     { id: 'database', label: 'MySQL Database Console', icon: Database },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const isPolicyActive = activeTab.startsWith('policy');
@@ -137,7 +143,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       </div>
 
       {/* Navigation Tabs Container with Micro-Slim Golden Scrollbar */}
-      <div className="py-3 px-2 space-y-1.5 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
+      <div className="pt-3 pb-24 px-2 space-y-1.5 flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
         
         {/* Standard Menu Items */}
         {menuItems.map(item => {
@@ -191,8 +197,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 )}
               </button>
 
-              {/* PRODUCTS COLLAPSIBLE ACCORDION RIGHT UNDER ANALYTICS */}
-              {item.id === 'analytics' && (
+              {/* PRODUCTS COLLAPSIBLE ACCORDION RIGHT UNDER ORDERS */}
+              {item.id === 'orders' && (
                 <div className="pt-1 pb-1 relative group/product">
                   {/* Parent Header Card: "Products" */}
                   <button
@@ -434,10 +440,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           const isActive = activeTab === item.id;
 
           return (
+            <React.Fragment key={item.id}>
             <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all group relative cursor-pointer ${
+              onClick={() => {
+                if (item.id === 'settings') {
+                  if (!isSidebarExpanded) {
+                    setIsSidebarExpanded(true);
+                    setIsSettingsAccordionOpen(true);
+                  } else {
+                    setIsSettingsAccordionOpen(!isSettingsAccordionOpen);
+                  }
+                } else {
+                  setActiveTab(item.id);
+                }
+              }}
+              className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all group relative cursor-pointer ${
                 isActive 
                   ? 'text-[#F4A62A] font-extrabold bg-transparent border-none' 
                   : 'text-[#FFF8F0]/70 hover:text-[#F4A62A] bg-transparent border-none'
@@ -448,18 +465,30 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-gradient-to-b from-[#F4A62A] to-[#D98C1F] rounded-r-full shadow-[0_0_10px_#F4A62A]" />
               )}
 
-              <div 
-                className={`w-8 h-8 flex items-center justify-center shrink-0 rounded-lg transition-transform group-hover:scale-110 ${
-                  isActive ? 'text-[#F4A62A]' : 'text-[#FFF8F0]/60 group-hover:text-[#F4A62A]'
-                }`}
-              >
-                <IconComp className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div 
+                  className={`w-8 h-8 flex items-center justify-center shrink-0 rounded-lg transition-transform group-hover:scale-110 ${
+                    isActive ? 'text-[#F4A62A]' : 'text-[#FFF8F0]/60 group-hover:text-[#F4A62A]'
+                  }`}
+                >
+                  <IconComp className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
+                </div>
+
+                {isSidebarExpanded && (
+                  <span className="text-left whitespace-nowrap truncate text-xs sm:text-[13px] tracking-wide">
+                    {item.label}
+                  </span>
+                )}
               </div>
 
-              {isSidebarExpanded && (
-                <span className="flex-1 text-left whitespace-nowrap truncate text-xs sm:text-[13px] tracking-wide">
-                  {item.label}
-                </span>
+              {isSidebarExpanded && item.id === 'settings' && (
+                <div className={`shrink-0 ${isActive ? 'text-[#F4A62A]' : 'text-[#FFF8F0]/60 group-hover:text-[#F4A62A]'}`}>
+                  {isSettingsAccordionOpen ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </div>
               )}
 
               {!isSidebarExpanded && (
@@ -468,6 +497,91 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 </span>
               )}
             </button>
+            
+            {/* SETTINGS ACCORDION RIGHT UNDER SETTINGS MENU */}
+            {item.id === 'settings' && (
+              <div className="pt-1 pb-1 relative group/settings">
+                {/* Connected Submenu Tree List (In Expanded Sidebar Mode) */}
+                {isSidebarExpanded && isSettingsAccordionOpen && (
+                  <div className="ml-5 mt-1 pl-3 border-l border-[#F4A62A]/40 space-y-1 relative">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('payments')}
+                      className={`w-full flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-left transition-all text-xs cursor-pointer relative group/item ${
+                        activeTab === 'payments' 
+                          ? 'text-[#F4A62A] font-extrabold bg-transparent' 
+                          : 'text-[#FFF8F0]/70 hover:text-[#F4A62A] bg-transparent'
+                      }`}
+                    >
+                      <span className={`absolute -left-[16.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[#F4A62A] transition-colors ${
+                        activeTab === 'payments' ? 'bg-[#F4A62A] shadow-[0_0_8px_#F4A62A]' : 'bg-[#120508] group-hover/item:bg-[#F4A62A]'
+                      }`} />
+                      <span className="truncate">Payments & Shipping</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('email-whatsapp')}
+                      className={`w-full flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-left transition-all text-xs cursor-pointer relative group/item ${
+                        activeTab === 'email-whatsapp' 
+                          ? 'text-[#F4A62A] font-extrabold bg-transparent' 
+                          : 'text-[#FFF8F0]/70 hover:text-[#F4A62A] bg-transparent'
+                      }`}
+                    >
+                      <span className={`absolute -left-[16.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[#F4A62A] transition-colors ${
+                        activeTab === 'email-whatsapp' ? 'bg-[#F4A62A] shadow-[0_0_8px_#F4A62A]' : 'bg-[#120508] group-hover/item:bg-[#F4A62A]'
+                      }`} />
+                      <span className="truncate">Email & WhatsApp API Integration</span>
+                    </button>
+                  </div>
+                )}
+                
+                {/* HOVER FLYOUT POPUP SUBMENU (When Sidebar is Collapsed) */}
+                {!isSidebarExpanded && (
+                  <div className="absolute left-16 top-0 ml-2 w-64 bg-[#1A0B0E] border border-[#F4A62A]/40 rounded-2xl shadow-2xl p-4 opacity-0 pointer-events-none group-hover/settings:opacity-100 group-hover/settings:pointer-events-auto transition-all duration-300 z-50">
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-[#F4A62A]/20 mb-3">
+                      <div className="w-7 h-7 rounded-lg bg-transparent flex items-center justify-center">
+                        <Settings className="w-4 h-4 text-[#F4A62A]" />
+                      </div>
+                      <span className="font-serif-temple font-bold text-[#F4A62A] text-sm">Settings</span>
+                    </div>
+                    <div className="space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('payments')}
+                        className={`w-full flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-left transition-all text-xs font-medium cursor-pointer relative group/item ${
+                          activeTab === 'payments' 
+                            ? 'text-[#F4A62A] font-extrabold bg-transparent' 
+                            : 'text-[#FFF8F0]/80 hover:text-[#F4A62A] bg-transparent'
+                        }`}
+                      >
+                        <span className={`absolute -left-[16.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[#F4A62A] transition-colors ${
+                          activeTab === 'payments' ? 'bg-[#F4A62A] shadow-[0_0_8px_#F4A62A]' : 'bg-[#120508] group-hover/item:bg-[#F4A62A]'
+                        }`} />
+                        <span className="truncate">Payments & Shipping</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('email-whatsapp')}
+                        className={`w-full flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-left transition-all text-xs font-medium cursor-pointer relative group/item ${
+                          activeTab === 'email-whatsapp' 
+                            ? 'text-[#F4A62A] font-extrabold bg-transparent' 
+                            : 'text-[#FFF8F0]/80 hover:text-[#F4A62A] bg-transparent'
+                        }`}
+                      >
+                        <span className={`absolute -left-[16.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[#F4A62A] transition-colors ${
+                          activeTab === 'email-whatsapp' ? 'bg-[#F4A62A] shadow-[0_0_8px_#F4A62A]' : 'bg-[#120508] group-hover/item:bg-[#F4A62A]'
+                        }`} />
+                        <span className="truncate">Email & WhatsApp API Integration</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            </React.Fragment>
           );
         })}
 

@@ -257,7 +257,22 @@ class MySQLSim {
       savedFavicon = localStorage.getItem('babadham_favicon_image') || '';
     } catch {}
 
-    return {
+    const defaultStates = [
+      'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 
+      'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 
+      'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 
+      'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+      'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 
+      'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+    ];
+
+    const defaultShippingRates = defaultStates.map(state => ({
+      stateName: state,
+      taxPercent: 0,
+      shippingCost: 49
+    }));
+
+    const defaultSettings = {
       brandName: 'BABA BAIDYANATH PRASADAM',
       tagline: 'aastha | seva | samarpan',
       topBarSacredText: 'ॐ हर हर महादेव ॐ',
@@ -271,8 +286,44 @@ class MySQLSim {
       logoIcon: 'ॐ',
       logoImageUrl: savedLogo || '/assets/logo.svg',
       faviconUrl: savedFavicon || '/assets/favicon.svg',
+      paymentGateways: {
+        globalPaymentMode: 'TEST',
+        isRazorpayActive: false,
+        razorpayKeyId: '',
+        razorpayKeySecret: '',
+        razorpayWebhookSecret: '',
+        isPayUMoneyActive: false,
+        payUMerchantKey: '',
+        payUSalt: '',
+        payUWebhookSecret: '',
+        isCodActive: true
+      },
+      emailWhatsappConfig: {
+        emailProvider: 'smtp' as const,
+        smtpHost: 'smtp.gmail.com',
+        smtpPort: '587',
+        smtpUser: 'support@babadham.org',
+        smtpPass: '',
+        fromEmail: 'support@babadham.org',
+        fromName: 'Babadham Prasad',
+        whatsappProvider: 'meta' as const,
+        whatsappApiKey: '',
+        whatsappPhoneNumberId: '',
+        whatsappBusinessAccountId: '',
+        whatsappOtpTemplateId: 'user_registration_otp',
+        whatsappOrderConfirmationTemplateId: 'order_confirmation',
+        whatsappShippingUpdateTemplateId: 'order_shipping_update'
+      },
+      stateShippingRates: defaultShippingRates
+    };
+
+    return {
+      ...defaultSettings,
       ...settings,
       ...savedBrand,
+      stateShippingRates: (settings.stateShippingRates && settings.stateShippingRates.length > 0)
+        ? settings.stateShippingRates
+        : defaultShippingRates,
       ...(savedLogo ? { logoImageUrl: savedLogo } : {}),
       ...(savedFavicon ? { faviconUrl: savedFavicon } : {})
     };
@@ -313,6 +364,52 @@ class MySQLSim {
     const order = this.store.orders.find(o => o.id === orderId);
     if (order) {
       order.orderStatus = status;
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public updateOrderPaymentStatus(orderId: string, status: Order['paymentStatus']): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      order.paymentStatus = status;
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public updateOrderNotes(orderId: string, notes: string): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      order.notes = notes;
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public updateOrderAddress(orderId: string, addressType: 'shipping' | 'billing', address: Partial<OrderAddress>): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      if (addressType === 'shipping') {
+        order.address = { ...order.address, ...address };
+      } else {
+        order.billingAddress = { ...(order.billingAddress || order.address), ...address };
+      }
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public addTimelineEvent(orderId: string, event: Omit<TimelineEvent, 'id' | 'createdAt'>): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      if (!order.timelineEvents) order.timelineEvents = [];
+      const newEvent: TimelineEvent = {
+        ...event,
+        id: `ev-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        createdAt: new Date().toISOString()
+      };
+      order.timelineEvents.unshift(newEvent);
       this.saveToStorage();
     }
     return order;
