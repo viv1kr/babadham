@@ -98,15 +98,15 @@ export const OrderRequestPage: React.FC = () => {
         playTempleBell();
         setShowLiveBooking(true);
         
-        // Hide after 5 seconds
+        // Hide after 6 seconds
         setTimeout(() => {
           setShowLiveBooking(false);
-          // Wait for 2.5s exit animation to finish before swapping index
+          // Wait for fast exit animation to finish before swapping index
           setTimeout(() => {
             setLiveBookingIndex((prev) => (prev + 1) % 5);
             scheduleNextBooking();
-          }, 2500);
-        }, 5000);
+          }, 800);
+        }, 6000);
       }, randomDelay);
     };
 
@@ -364,7 +364,7 @@ export const OrderRequestPage: React.FC = () => {
             initial={{ opacity: 0, y: -100, scale: 0.95 }}
             animate={{ opacity: 1, y: 120, scale: 1 }}
             exit={{ opacity: 0, y: -100, scale: 0.95 }}
-            transition={{ duration: 2.5, ease: [0.25, 1, 0.5, 1] }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="fixed top-0 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm pointer-events-none"
           >
             <div className="bg-white/95 backdrop-blur-xl border border-[#F4E1D2] shadow-2xl rounded-[20px] p-3 flex items-center gap-3">
