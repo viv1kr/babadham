@@ -11,7 +11,8 @@ import {
   BookOpen,
   ChevronRight,
   CreditCard,
-  SmartphoneNfc
+  SmartphoneNfc,
+  HeartHandshake
 } from 'lucide-react';
 import { PolicyModal, type StorefrontPolicyType } from '../modals/PolicyModal';
 
