@@ -728,101 +728,124 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={handleSubmit} 
                   className="space-y-4 text-xs"
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[#500A18] font-bold mb-1.5">
-                        {lang === 'hi' ? 'पूरा नाम *' : 'Devotee Name *'}
-                      </label>
-                      <div className="relative group">
-                        <User className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
-                        <input
-                          type="text"
-                          required
-                          value={devoteeName}
-                          onChange={e => setDevoteeName(e.target.value)}
-                          placeholder={lang === 'hi' ? 'उदा. रामेश्वर नाथ शर्मा' : 'e.g. Rameshwar Nath Sharma'}
-                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                        />
+                  {/* Personal Details Block */}
+                  <div className="bg-[#F4F9F4] p-4 sm:p-5 rounded-[24px] border border-[#DCECDC] shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#E5F2E5] to-[#DCECDC] flex items-center justify-center shrink-0 shadow-inner">
+                        <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#2E7D32]" />
                       </div>
+                      <h3 className="font-extrabold text-[#500A18] text-base sm:text-lg">
+                        {lang === 'hi' ? 'व्यक्तिगत विवरण' : 'Personal Details'}
+                      </h3>
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[#500A18] font-bold mb-1.5">
+                          {lang === 'hi' ? 'पूरा नाम *' : 'Devotee Name *'}
+                        </label>
+                        <div className="relative group">
+                          <User className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
+                          <input
+                            type="text"
+                            required
+                            value={devoteeName}
+                            onChange={e => setDevoteeName(e.target.value)}
+                            placeholder={lang === 'hi' ? 'उदा. रामेश्वर नाथ शर्मा' : 'e.g. Rameshwar Nath Sharma'}
+                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          />
+                        </div>
+                      </div>
 
-                    <div>
-                      <label className="block text-[#500A18] font-bold mb-1.5">
-                        {lang === 'hi' ? 'व्हाट्सएप नंबर *' : 'WhatsApp Number *'}
-                      </label>
-                      <div className="relative group">
-                        <Phone className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
-                        <input
-                          type="tel"
-                          required
-                          value={whatsappNumber}
-                          onChange={e => setWhatsappNumber(e.target.value)}
-                          placeholder="+91 98765 43210"
-                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                        />
+                      <div>
+                        <label className="block text-[#500A18] font-bold mb-1.5">
+                          {lang === 'hi' ? 'व्हाट्सएप नंबर *' : 'WhatsApp Number *'}
+                        </label>
+                        <div className="relative group">
+                          <Phone className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
+                          <input
+                            type="tel"
+                            required
+                            value={whatsappNumber}
+                            onChange={e => setWhatsappNumber(e.target.value)}
+                            placeholder="+91 98765 43210"
+                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-[#500A18] font-bold mb-1.5">
-                        {lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
-                      </label>
-                      <div className="relative group">
-                        <MapPin className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
-                        <input
-                          type="text"
-                          required
-                          maxLength={6}
-                          value={pincode}
-                          onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
-                          placeholder="e.g. 814112"
-                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                        />
-                        {isFetchingPin && <Loader2 className="w-4 h-4 text-[#500A18] absolute right-3.5 top-3 animate-spin" />}
+                  {/* Delivery Address Block */}
+                  <div className="bg-[#FFF4F4] p-4 sm:p-5 rounded-[24px] border border-[#F2D6D6] shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
                       </div>
+                      <h3 className="font-extrabold text-[#500A18] text-base sm:text-lg">
+                        {lang === 'hi' ? 'वितरण का पता' : 'Delivery Address'}
+                      </h3>
                     </div>
                     
-                    <div>
-                      <label className="block text-[#500A18] font-bold mb-1.5">
-                        {lang === 'hi' ? 'शहर / ज़िला' : 'City / District'}
-                      </label>
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={e => setCity(e.target.value)}
-                        placeholder={lang === 'hi' ? 'शहर दर्ज करें' : 'Enter City'}
-                        className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <label className="block text-[#500A18] font-bold mb-1.5">
+                          {lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
+                        </label>
+                        <div className="relative group">
+                          <MapPin className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            value={pincode}
+                            onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
+                            placeholder="e.g. 814112"
+                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          />
+                          {isFetchingPin && <Loader2 className="w-4 h-4 text-[#500A18] absolute right-3.5 top-3 animate-spin" />}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-[#500A18] font-bold mb-1.5">
+                          {lang === 'hi' ? 'शहर / ज़िला' : 'City / District'}
+                        </label>
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={e => setCity(e.target.value)}
+                          placeholder={lang === 'hi' ? 'शहर दर्ज करें' : 'Enter City'}
+                          className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[#500A18] font-bold mb-1.5">
+                          {lang === 'hi' ? 'राज्य' : 'State'}
+                        </label>
+                        <input
+                          type="text"
+                          value={stateName}
+                          onChange={e => setStateName(e.target.value)}
+                          placeholder={lang === 'hi' ? 'राज्य दर्ज करें' : 'Enter State'}
+                          className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                        />
+                      </div>
                     </div>
 
                     <div>
                       <label className="block text-[#500A18] font-bold mb-1.5">
-                        {lang === 'hi' ? 'राज्य' : 'State'}
+                        {lang === 'hi' ? 'सड़क का पता / लैंडमार्क *' : 'Street Address / Landmark *'}
                       </label>
-                      <input
-                        type="text"
-                        value={stateName}
-                        onChange={e => setStateName(e.target.value)}
-                        placeholder={lang === 'hi' ? 'राज्य दर्ज करें' : 'Enter State'}
-                        className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                      <textarea
+                        rows={3}
+                        required
+                        value={streetAddress}
+                        onChange={e => setStreetAddress(e.target.value)}
+                        placeholder={lang === 'hi' ? 'घर का नंबर, गली, या कोई पहचान...' : 'House No, Street, or Landmark...'}
+                        className="w-full p-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all leading-relaxed shadow-none"
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[#500A18] font-bold mb-1.5">
-                      {lang === 'hi' ? 'सड़क का पता / लैंडमार्क *' : 'Street Address / Landmark *'}
-                    </label>
-                    <textarea
-                      rows={3}
-                      required
-                      value={streetAddress}
-                      onChange={e => setStreetAddress(e.target.value)}
-                      placeholder={lang === 'hi' ? 'घर का नंबर, गली, या कोई पहचान...' : 'House No, Street, or Landmark...'}
-                      className="w-full p-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all leading-relaxed shadow-none"
-                    />
                   </div>
 
                   {/* Special Message Box (Moved to Step 2) */}
