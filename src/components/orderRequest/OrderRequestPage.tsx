@@ -720,45 +720,6 @@ export const OrderRequestPage: React.FC = () => {
 
       </div>
 
-      {/* Trust Badges Strip */}
-      <div className="bg-[#4A0813] w-full py-8 mt-12 sm:mt-16 border-t border-[#F4A62A]/20">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 divide-y lg:divide-y-0 divide-[#F4A62A]/10 lg:divide-x lg:divide-[#F4A62A]/20">
-          
-          <div className="flex items-center gap-4 justify-center lg:px-4 pt-4 lg:pt-0 first:pt-0 first:border-0">
-            <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
-            <div className="flex flex-col text-left flex-1 lg:flex-none">
-              <span className="text-white font-bold text-sm sm:text-base leading-tight">100% Authentic</span>
-              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">प्रामाणिक प्रसाद</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 justify-center lg:px-4 pt-4 lg:pt-0">
-            <Package className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
-            <div className="flex flex-col text-left flex-1 lg:flex-none">
-              <span className="text-white font-bold text-sm sm:text-base leading-tight">Secure Packaging</span>
-              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">सुरक्षित पैकिंग</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 justify-center lg:px-4 pt-4 lg:pt-0">
-            <Truck className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
-            <div className="flex flex-col text-left flex-1 lg:flex-none">
-              <span className="text-white font-bold text-sm sm:text-base leading-tight">Pan India Delivery</span>
-              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">संपूर्ण भारत में डिलीवरी</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 justify-center lg:px-4 pt-4 lg:pt-0">
-            <HeartHandshake className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
-            <div className="flex flex-col text-left flex-1 lg:flex-none">
-              <span className="text-white font-bold text-sm sm:text-base leading-tight">Baba's Blessings</span>
-              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">बाबा का आशीर्वाद</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      
     </div>
   );
 };
