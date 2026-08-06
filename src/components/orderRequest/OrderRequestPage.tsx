@@ -98,7 +98,7 @@ export const OrderRequestPage: React.FC = () => {
         playTempleBell();
         setShowLiveBooking(true);
         
-        // Hide after 4 seconds
+        // Hide after 5 seconds
         setTimeout(() => {
           setShowLiveBooking(false);
           // Wait for 2.5s exit animation to finish before swapping index
@@ -106,7 +106,7 @@ export const OrderRequestPage: React.FC = () => {
             setLiveBookingIndex((prev) => (prev + 1) % 5);
             scheduleNextBooking();
           }, 2500);
-        }, 4000);
+        }, 5000);
       }, randomDelay);
     };
 
