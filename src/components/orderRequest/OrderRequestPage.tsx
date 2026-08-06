@@ -878,23 +878,22 @@ export const OrderRequestPage: React.FC = () => {
                         exit={{ opacity: 0, height: 0, marginTop: 0 }}
                         className="bg-[#FFF8F0] border border-[#F4E1D2] rounded-[16px] p-3 flex items-center justify-between shadow-sm overflow-hidden"
                       >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FDF1D9] flex items-center justify-center shrink-0 border border-[#F3E5C8]">
-                              <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
-                            </div>
-                            <div>
-                              <p className="text-sm sm:text-base font-bold text-[#500A18] leading-tight">{lang === 'hi' ? 'प्री-बुकिंग शुल्क' : 'Pre-booking Charge'}</p>
-                              <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">{lang === 'hi' ? 'बुकिंग कन्फर्म करने के लिए' : 'To confirm your booking'}</p>
-                            </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FDF1D9] flex items-center justify-center shrink-0 border border-[#F3E5C8]">
+                            <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
                           </div>
-                          <div className="text-xl sm:text-2xl font-black text-[#500A18] text-right drop-shadow-sm">
-                            {bookingDiscountPercent > 0 && (
-                              <span className="line-through text-gray-400 text-xs sm:text-sm mr-1.5 font-medium">
-                                ₹{bookingAmount}
-                              </span>
-                            )}
-                            ₹{finalBookingAmount}
+                          <div>
+                            <p className="text-sm sm:text-base font-bold text-[#500A18] leading-tight">{lang === 'hi' ? 'प्री-बुकिंग शुल्क' : 'Pre-booking Charge'}</p>
+                            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">{lang === 'hi' ? 'बुकिंग कन्फर्म करने के लिए' : 'To confirm your booking'}</p>
                           </div>
+                        </div>
+                        <div className="text-xl sm:text-2xl font-black text-[#500A18] text-right drop-shadow-sm">
+                          {bookingDiscountPercent > 0 && (
+                            <span className="line-through text-gray-400 text-xs sm:text-sm mr-1.5 font-medium">
+                              ₹{bookingAmount}
+                            </span>
+                          )}
+                          ₹{finalBookingAmount}
                         </div>
                       </motion.div>
                     )}
