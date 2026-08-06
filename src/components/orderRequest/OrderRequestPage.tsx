@@ -91,22 +91,22 @@ export const OrderRequestPage: React.FC = () => {
     let timeoutId: NodeJS.Timeout;
 
     const scheduleNextBooking = () => {
-      // Random delay between 4 and 10 seconds
-      const randomDelay = Math.floor(Math.random() * (10000 - 4000 + 1)) + 4000;
+      // Random delay between 5 and 8 seconds
+      const randomDelay = Math.floor(Math.random() * (8000 - 5000 + 1)) + 5000;
       
       timeoutId = setTimeout(() => {
         playTempleBell();
         setShowLiveBooking(true);
         
-        // Hide after 3.5 seconds
+        // Hide after 4 seconds
         setTimeout(() => {
           setShowLiveBooking(false);
-          // Wait for exit animation to finish before swapping index
+          // Wait for 2.5s exit animation to finish before swapping index
           setTimeout(() => {
             setLiveBookingIndex((prev) => (prev + 1) % 5);
             scheduleNextBooking();
-          }, 1500);
-        }, 3500);
+          }, 2500);
+        }, 4000);
       }, randomDelay);
     };
 
@@ -364,7 +364,7 @@ export const OrderRequestPage: React.FC = () => {
             initial={{ opacity: 0, y: -100, scale: 0.95 }}
             animate={{ opacity: 1, y: 120, scale: 1 }}
             exit={{ opacity: 0, y: -100, scale: 0.95 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 2.5, ease: [0.25, 1, 0.5, 1] }}
             className="fixed top-0 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm pointer-events-none"
           >
             <div className="bg-white/95 backdrop-blur-xl border border-[#F4E1D2] shadow-2xl rounded-[20px] p-3 flex items-center gap-3">
