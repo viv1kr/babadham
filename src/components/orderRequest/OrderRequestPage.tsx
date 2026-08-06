@@ -347,10 +347,10 @@ export const OrderRequestPage: React.FC = () => {
         {showLiveBooking && (
           <motion.div
             initial={{ opacity: 0, y: -100 }}
-            animate={{ opacity: 1, y: 16 }}
+            animate={{ opacity: 1, y: 85 }}
             exit={{ opacity: 0, y: -100 }}
             transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
-            className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm pointer-events-none"
+            className="fixed top-0 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm pointer-events-none"
           >
             <div className="bg-white/95 backdrop-blur-xl border border-[#F4E1D2] shadow-2xl rounded-[20px] p-3 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C16200] to-[#E59210] flex items-center justify-center shrink-0 shadow-inner text-white">
