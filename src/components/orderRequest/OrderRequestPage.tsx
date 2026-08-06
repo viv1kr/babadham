@@ -597,21 +597,7 @@ export const OrderRequestPage: React.FC = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Play / Pause Toggle Icon Button Only */}
-        {slides.length > 1 && (
-          <button
-            onClick={() => setIsPlaying(prev => !prev)}
-            className="absolute bottom-4 right-4 z-20 w-10 h-10 rounded-full aspect-square flex-shrink-0 bg-white/20 hover:bg-white/40 text-white border border-white/50 flex items-center justify-center shadow-lg backdrop-blur-md transition-all cursor-pointer"
-            aria-label={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
-            title={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
-          >
-            {isPlaying ? (
-              <Pause className="w-4 h-4 fill-current" />
-            ) : (
-              <Play className="w-4 h-4 fill-current ml-0.5" />
-            )}
-          </button>
-        )}
+
       </div>
 
       <div className="w-full px-2 sm:px-4 md:px-8 relative z-10 -mt-6 sm:-mt-10">
