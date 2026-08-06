@@ -467,15 +467,17 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
                   className="space-y-4"
                 >
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner mt-0.5">
-                      <Landmark className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
-                    </div>
-                    <div className="flex-1 space-y-3">
-                      <label className="text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <Landmark className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
+                      </div>
+                      <label className="flex-1 text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
                         {lang === 'hi' ? 'क्या आपने कभी बाबा धाम (देवघर) की यात्रा की है?' : 'Have you ever visited Baba Dham (Deoghar)?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex flex-row gap-2 sm:gap-3 w-full">
+                    </div>
+                    <hr className="my-4 border-[#E8E1D5]" />
+                    <div className="flex flex-row gap-2 sm:gap-3 w-full">
                         <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-sm transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
                           {hasVisited === 'yes' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />} 
                           {lang === 'hi' ? 'हाँ, गया हूँ' : 'Yes, I have'}
@@ -488,15 +490,17 @@ export const OrderRequestPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner mt-0.5">
-                      <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
-                    </div>
-                    <div className="flex-1 space-y-3">
-                      <label className="text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
+                      </div>
+                      <label className="flex-1 text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
                         {lang === 'hi' ? 'आपकी आयु क्या है?' : 'What is your age?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="relative">
+                    </div>
+                    <hr className="my-4 border-[#E8E1D5]" />
+                    <div className="relative w-full">
                         <input
                           type="number"
                           required
@@ -510,15 +514,17 @@ export const OrderRequestPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner mt-0.5">
-                      <Package className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
-                    </div>
-                    <div className="flex-1 space-y-3">
-                      <label className="text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <Package className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
+                      </div>
+                      <label className="flex-1 text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
                         {lang === 'hi' ? 'आपका उद्देश्य क्या है?' : 'What is your intent?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex flex-row gap-2 sm:gap-3 w-full">
+                    </div>
+                    <hr className="my-4 border-[#E8E1D5]" />
+                    <div className="flex flex-row gap-2 sm:gap-3 w-full">
                         <button type="button" onClick={() => setIntent('prasadi')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'prasadi' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
                           {intent === 'prasadi' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
                           {lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}
