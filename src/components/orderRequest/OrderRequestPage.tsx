@@ -380,22 +380,46 @@ export const OrderRequestPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="flex flex-col items-center justify-center text-center mb-6 gap-3 relative -mx-4 sm:-mx-8 -mt-4 sm:-mt-8 pt-12 sm:pt-16 pb-4 overflow-hidden rounded-t-[22px]">
+              <div className="relative overflow-hidden rounded-t-[22px] -mx-4 sm:-mx-8 -mt-4 sm:-mt-8 mb-6 bg-gradient-to-br from-[#500A18] via-[#7A1323] to-[#4A0815] p-6 sm:p-8 flex flex-col items-center text-center shadow-inner">
+                {/* Background Pattern / Glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-lg bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#C16200]/50 via-transparent to-transparent opacity-90 mix-blend-screen" />
                 <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-[0.12] mix-blend-multiply" 
+                  className="absolute inset-0 bg-cover bg-center opacity-[0.06] mix-blend-overlay" 
                   style={{ backgroundImage: `url(${slides?.[0]?.imageUrl || '/assets/babadham_hero_slide-1785849874982_desk.webp'})` }} 
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/80 to-[#500A18]/10" />
                 
-                <div className="relative z-10 flex items-center justify-center gap-3">
-                   <h3 className="font-serif-temple text-3xl sm:text-4xl font-extrabold text-[#500A18] leading-tight">
-                     {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request'}
-                   </h3>
+                {/* Shravan Maas Ends Badge */}
+                <div className="relative z-10 flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 mb-4 shadow-2xl">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+                  <span className="text-white/90 text-[10px] sm:text-xs font-bold tracking-widest uppercase">
+                    {lang === 'hi' ? 'श्रावण मास बुकिंग समाप्त: २५ अगस्त' : 'Shravan Maas Booking Ends: Aug 25'}
+                  </span>
                 </div>
                 
-                <p className="relative z-10 text-xs sm:text-sm text-gray-700 font-bold">
-                  {lang === 'hi' ? 'कृपया अपनी जानकारी भरें, हमारी टीम आपसे संपर्क करेगी।' : 'Please fill in your details, our team will contact you.'}
-                </p>
+                {/* Main Heading */}
+                <h3 className="relative z-10 font-serif-temple text-2xl sm:text-3xl font-black text-[#FDF1D9] leading-tight mb-2 drop-shadow-lg">
+                   {lang === 'hi' ? 'सीमित समय शेष' : 'Limited Time Remaining'}
+                </h3>
+                
+                {/* Booking Slots Bar */}
+                <div className="relative z-10 w-full max-w-sm mt-5">
+                  <div className="flex justify-between text-[#FDF1D9] text-xs font-medium mb-2 px-1">
+                    <span>{lang === 'hi' ? 'कुल उपलब्ध स्लॉट:' : 'Available Slots:'}</span>
+                    <span className="text-[#F5B642] font-black text-sm drop-shadow-md">54 / 1000</span>
+                  </div>
+                  <div className="w-full bg-black/50 rounded-full h-2.5 backdrop-blur-sm border border-white/10 overflow-hidden shadow-inner">
+                    <div 
+                      className="bg-gradient-to-r from-[#F5B642] to-[#ff3b3b] h-full rounded-full relative shadow-[0_0_12px_rgba(245,182,66,0.8)] transition-all duration-1000 ease-out" 
+                      style={{ width: '5.4%' }}
+                    >
+                      <div className="absolute inset-0 bg-white/30 w-full h-full animate-pulse" />
+                    </div>
+                  </div>
+                  <p className="text-white/60 text-[10px] sm:text-xs mt-3 tracking-wide font-medium flex items-center justify-center gap-1">
+                    <Sparkles className="w-3 h-3 text-[#F5B642]" /> 
+                    {lang === 'hi' ? 'स्लॉट बहुत तेजी से भर रहे हैं, जल्द बुक करें' : 'Slots are filling up fast, book soon'}
+                  </p>
+                </div>
               </div>
 
               {/* Promotional Banner */}
