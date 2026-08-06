@@ -56,6 +56,25 @@ export const OrderRequestPage: React.FC = () => {
   const [streetAddress, setStreetAddress] = useState('');
   const [isFetchingPin, setIsFetchingPin] = useState(false);
 
+  const [timeLeft, setTimeLeft] = useState({ days: 18, hours: 14, minutes: 22, seconds: 45 });
+
+  useEffect(() => {
+    const targetDate = new Date(new Date().getFullYear(), 7, 25, 23, 59, 59).getTime();
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (pincode.length === 6) {
       setIsFetchingPin(true);
@@ -388,12 +407,36 @@ export const OrderRequestPage: React.FC = () => {
                   style={{ backgroundImage: `url(${slides?.[0]?.imageUrl || '/assets/babadham_hero_slide-1785849874982_desk.webp'})` }} 
                 />
                 
-                {/* Shravan Maas Ends Badge */}
-                <div className="relative z-10 flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-3 py-1 mb-4 shadow-2xl">
-                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-                  <span className="text-white/90 text-[10px] sm:text-xs font-bold tracking-widest uppercase">
-                    {lang === 'hi' ? 'श्रावण मास बुकिंग समाप्त: २५ अगस्त' : 'Shravan Maas Booking Ends: Aug 25'}
+                {/* Book Now Blinking Badge */}
+                <div className="relative z-10 flex items-center gap-2 bg-red-600/90 backdrop-blur-md border border-red-400/50 rounded-full px-4 py-1.5 mb-5 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-pulse">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white animate-bounce" />
+                  <span className="text-white text-xs sm:text-sm font-black tracking-widest uppercase drop-shadow-md">
+                    {lang === 'hi' ? 'अभी बुक करें, फास्ट बुकिंग!' : 'BOOK NOW, FAST BOOKING!'}
                   </span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+                
+                {/* Countdown Timer */}
+                <div className="relative z-10 flex gap-2 sm:gap-4 mb-6">
+                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
+                    <span className="text-2xl sm:text-3xl font-black text-white">{timeLeft.days}</span>
+                    <span className="text-[9px] sm:text-[10px] text-white/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'दिन' : 'Days'}</span>
+                  </div>
+                  <span className="text-2xl sm:text-3xl font-black text-white/30 self-start mt-2 sm:mt-3">:</span>
+                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
+                    <span className="text-2xl sm:text-3xl font-black text-white">{timeLeft.hours}</span>
+                    <span className="text-[9px] sm:text-[10px] text-white/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'घंटे' : 'Hrs'}</span>
+                  </div>
+                  <span className="text-2xl sm:text-3xl font-black text-white/30 self-start mt-2 sm:mt-3">:</span>
+                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
+                    <span className="text-2xl sm:text-3xl font-black text-white">{timeLeft.minutes}</span>
+                    <span className="text-[9px] sm:text-[10px] text-white/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'मिनट' : 'Mins'}</span>
+                  </div>
+                  <span className="text-2xl sm:text-3xl font-black text-white/30 self-start mt-2 sm:mt-3">:</span>
+                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
+                    <span className="text-2xl sm:text-3xl font-black text-[#F5B642]">{timeLeft.seconds}</span>
+                    <span className="text-[9px] sm:text-[10px] text-[#F5B642]/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'सेकंड' : 'Secs'}</span>
+                  </div>
                 </div>
                 
                 {/* Main Heading */}
