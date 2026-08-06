@@ -883,24 +883,24 @@ export const OrderRequestPage: React.FC = () => {
                   </div>
 
                   {/* Special Message Box (Moved to Step 2) */}
-                  <div className="bg-[#FCF1ED] p-4 sm:p-5 rounded-[24px] border border-[#F6DFD7] flex gap-4 shadow-sm items-center mt-6">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#F6DFD7] flex items-center justify-center shrink-0 shadow-inner">
-                      <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-[#6E1120]" />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <label className="text-sm sm:text-base font-bold text-[#6E1120] block">
-                        {lang === 'hi' ? 'विशेष अनुरोध या संदेश (वैकल्पिक)' : 'Special Request (Optional)'}
+                  <div className="bg-[#FCF1ED] p-4 sm:p-5 rounded-[24px] border border-[#F6DFD7] shadow-sm mt-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#FDF1D9] flex items-center justify-center shrink-0 shadow-inner">
+                        <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-[#500A18]" />
+                      </div>
+                      <label className="text-base sm:text-lg font-extrabold text-[#500A18] block">
+                        {lang === 'hi' ? 'विशेष अनुरोध (वैकल्पिक)' : 'Special Request (Optional)'}
                       </label>
+                    </div>
+                    
+                    <div className="border-t border-[#F6DFD7] pt-4">
                       <input
                         type="text"
                         value={specialRequest}
                         onChange={e => setSpecialRequest(e.target.value)}
                         placeholder={lang === 'hi' ? 'अगर आपका कोई विशेष अनुरोध है तो यहाँ लिखें...' : 'Write any special requests...'}
-                        className="w-full bg-white/80 border border-[#6E1120]/20 focus:border-[#6E1120]/50 focus:bg-white text-xs sm:text-sm text-[#6E1120] placeholder-[#6E1120]/50 focus:outline-none px-3 py-2.5 rounded-xl transition-all shadow-sm"
+                        className="w-full bg-white border border-[#F6DFD7] focus:border-[#500A18]/50 focus:ring-2 focus:ring-[#500A18]/10 text-sm sm:text-base text-[#2B1A16] placeholder-[#500A18]/40 focus:outline-none px-4 py-3.5 rounded-xl transition-all shadow-sm"
                       />
-                    </div>
-                    <div className="shrink-0 pl-1 pr-2">
-                      <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8 text-[#FF4B4B] fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </div>
                   </div>
 
