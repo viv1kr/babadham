@@ -321,7 +321,7 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-0 sm:px-6 pt-0 space-y-8">
         {/* Main Request Form or Confirmation Card */}
-        <div className="bg-[#2B1217] rounded-none sm:rounded-3xl border-y-2 sm:border-2 border-[#F4A62A]/40 p-4 sm:p-8 shadow-2xl space-y-6 text-[#FFF8F0]">
+        <div className="bg-gradient-to-br from-[#2B1217] to-[#120508] rounded-none sm:rounded-3xl border-y-2 sm:border-2 border-[#F4A62A]/40 p-4 sm:p-8 shadow-2xl space-y-6 text-[#FFF8F0]">
           
           {isSubmitted ? (
             <div className="text-center space-y-6 py-6 animate-in fade-in">
@@ -370,22 +370,38 @@ export const OrderRequestPage: React.FC = () => {
             <div>
               <div className="border-b border-[#F4A62A]/20 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="font-serif-temple text-lg sm:text-xl font-bold text-[#F4A62A] flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-[#F4A62A]" /> 
+                  <h3 className="font-serif-temple text-lg sm:text-xl font-bold text-[#F4A62A]">
                     {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request Specifications'}
                   </h3>
                   <p className="text-xs text-[#FFF8F0]/70 mt-0.5">
                     {lang === 'hi' ? 'कृपया नीचे दिया गया फॉर्म भरें। तारांकित (*) फ़ील्ड अनिवार्य हैं।' : 'Please fill out the form below. Required fields are marked with an asterisk (*).'}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setLang(prev => prev === 'en' ? 'hi' : 'en')}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1A0B0E] border border-[#F4A62A]/30 text-[#F4A62A] text-xs font-bold hover:bg-[#F4A62A] hover:text-[#2B1A16] transition-colors self-start sm:self-auto shrink-0 cursor-pointer"
-                >
-                  <Globe className="w-4 h-4" />
-                  {lang === 'en' ? 'हिंदी में भरें' : 'Fill in English'}
-                </button>
+                
+                <div className="flex bg-[#120508] p-1 rounded-xl border border-[#F4A62A]/20 shadow-inner self-start sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setLang('hi')}
+                    className={`px-5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      lang === 'hi' 
+                        ? 'bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-[#2B1A16] shadow-md' 
+                        : 'text-[#FFF8F0]/70 hover:text-[#F4A62A]'
+                    }`}
+                  >
+                    हिंदी
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLang('en')}
+                    className={`px-5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      lang === 'en' 
+                        ? 'bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-[#2B1A16] shadow-md' 
+                        : 'text-[#FFF8F0]/70 hover:text-[#F4A62A]'
+                    }`}
+                  >
+                    English
+                  </button>
+                </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4 text-xs">
