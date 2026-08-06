@@ -450,17 +450,24 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
                   className="space-y-4"
                 >
-                  {/* Language Toggle */}
-                  <div className="flex items-center gap-2 mb-2 ml-1">
-                    <span className={`text-[10px] sm:text-xs tracking-wider ${lang === 'hi' ? 'font-extrabold text-[#500A18]' : 'text-gray-400 font-medium'}`}>हिंदी</span>
+                  {/* Premium Language Toggle */}
+                  <div className="flex items-center mb-4 ml-1 bg-white/60 backdrop-blur-md p-1 rounded-full border border-[#E8E1D5]/80 shadow-[0_4px_12px_rgba(0,0,0,0.03)] w-fit self-start">
                     <button 
                       type="button"
-                      onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
-                      className="w-8 h-4 sm:w-10 sm:h-5 bg-[#E8E1D5] rounded-full relative shadow-inner cursor-pointer"
+                      onClick={() => setLang('hi')}
+                      className={`relative px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-300 ${lang === 'hi' ? 'text-[#500A18] shadow-[0_2px_8px_rgba(0,0,0,0.06)]' : 'text-gray-400 hover:text-gray-600'}`}
                     >
-                      <div className={`absolute top-[2px] w-3 h-3 sm:w-4 sm:h-4 bg-[#500A18] rounded-full transition-all ${lang === 'hi' ? 'left-[2px]' : 'left-[18px] sm:left-[22px]'}`} />
+                      {lang === 'hi' && <div className="absolute inset-0 bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] rounded-full -z-10 border border-[#F5B642]/30" />}
+                      हिंदी
                     </button>
-                    <span className={`text-[10px] sm:text-xs tracking-wider ${lang === 'en' ? 'font-extrabold text-[#500A18]' : 'text-gray-400 font-medium'}`}>ENG</span>
+                    <button 
+                      type="button"
+                      onClick={() => setLang('en')}
+                      className={`relative px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-300 ${lang === 'en' ? 'text-[#500A18] shadow-[0_2px_8px_rgba(0,0,0,0.06)]' : 'text-gray-400 hover:text-gray-600'}`}
+                    >
+                      {lang === 'en' && <div className="absolute inset-0 bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] rounded-full -z-10 border border-[#F5B642]/30" />}
+                      ENG
+                    </button>
                   </div>
 
                   <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
