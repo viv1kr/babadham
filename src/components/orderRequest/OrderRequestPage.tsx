@@ -278,7 +278,7 @@ export const OrderRequestPage: React.FC = () => {
         {slides.length > 1 && (
           <button
             onClick={() => setIsPlaying(prev => !prev)}
-            className="absolute bottom-3 right-4 z-20 w-9 h-9 rounded-full bg-[#1A0B0E]/85 hover:bg-[#F4A62A] text-[#F4A62A] hover:text-[#2B1A16] border border-[#F4A62A]/50 flex items-center justify-center shadow-lg backdrop-blur-md transition-all cursor-pointer"
+            className="absolute bottom-3 right-4 z-20 w-9 h-9 rounded-full bg-white/20 hover:bg-white/40 text-white border border-white/50 flex items-center justify-center shadow-lg backdrop-blur-md transition-all cursor-pointer"
             aria-label={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
             title={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
           >
@@ -290,79 +290,6 @@ export const OrderRequestPage: React.FC = () => {
           </button>
         )}
       </div>
-
-      {/* Top Banner Breadcrumbs & Title */}
-      <div className="bg-gradient-to-r from-[#2B1217] via-[#500A18] to-[#2B1217] text-[#FFF8F0] py-8 px-4 sm:px-8 border-b-2 border-[#F4A62A]/40 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,166,42,0.15),transparent_70%)] pointer-events-none"></div>
-        
-        <div className="max-w-4xl mx-auto space-y-3 relative z-10">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-            <button
-              onClick={() => { setActivePage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1A0B0E] text-[#F4A62A] hover:bg-[#7A1126] hover:text-white border border-[#F4A62A]/30 text-xs font-bold transition-all cursor-pointer shadow-md"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back to Storefront
-            </button>
-
-            <button
-              onClick={handleCopyFunnelLink}
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#F4A62A] text-[#2B1A16] hover:bg-white text-xs font-extrabold transition-all cursor-pointer shadow-md"
-              title="Copy direct funnel URL to share anywhere"
-            >
-              {copiedLink ? <Check className="w-4 h-4 text-emerald-800" /> : <Share2 className="w-4 h-4" />}
-              {copiedLink ? 'Funnel Link Copied!' : 'Copy Direct Funnel Link'}
-            </button>
-          </div>
-
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#120508]/70 border border-[#F4A62A]/40 text-[#F4A62A] text-xs font-extrabold uppercase tracking-widest shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" /> Baidyanath Seva Kendra
-          </div>
-
-          <h1 className="font-serif-temple text-2xl sm:text-4xl font-extrabold text-[#F4A62A] drop-shadow-md">
-            Devotee Custom Order & Puja Request
-          </h1>
-          <p className="text-xs sm:text-sm text-[#FFF8F0]/90 max-w-2xl leading-relaxed">
-            विशेष प्रसाद, थोक पेड़ा प्रसाद, स्पर्श संस्पर्श पूजा सामग्री अथवा अनुष्ठान हेतु अपना अनुकूलित अनुरोध भेजें।
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
-        
-
-
-        {/* Guarantees Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-[#F4A62A]/30 shadow-md flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#500A18] text-[#F4A62A] flex items-center justify-center shrink-0">
-              <Award className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-[#2B1A16] text-xs">100% Authentic Prasad</div>
-              <div className="text-[11px] text-[#2B1A16]/60">Pure Cow Milk Peda from Deoghar</div>
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-[#F4A62A]/30 shadow-md flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#500A18] text-[#F4A62A] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-[#2B1A16] text-xs">Garbhagriha Touch Blessed</div>
-              <div className="text-[11px] text-[#2B1A16]/60">Offered at Shinghasan before dispatch</div>
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded-2xl border border-[#F4A62A]/30 shadow-md flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#500A18] text-[#F4A62A] flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-[#2B1A16] text-xs">Quick Callback & Advice</div>
-              <div className="text-[11px] text-[#2B1A16]/60">Seva team connects within 1 hour</div>
-            </div>
-          </div>
-        </div>
 
         {/* Main Request Form or Confirmation Card */}
         <div className="bg-[#2B1217] rounded-3xl border-2 border-[#F4A62A]/40 p-6 sm:p-8 shadow-2xl space-y-6 text-[#FFF8F0]">
