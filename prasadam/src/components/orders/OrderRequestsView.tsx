@@ -971,6 +971,9 @@ export const OrderRequestsView: React.FC = () => {
                               setMediaConfig(updatedMedia);
                               const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia };
                               saveBrandSettings({ orderRequestMediaConfig: updatedMedia });
+                              try {
+                                localStorage.setItem('babadham_brand_settings', JSON.stringify(updatedSettings));
+                              } catch (err) {}
                               syncToStorefront(updatedSettings);
                               showToast('Video file uploaded & saved successfully!', 'success');
                             };

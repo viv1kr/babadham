@@ -80,9 +80,7 @@ export const OrderRequestPage: React.FC = () => {
       const localStr = localStorage.getItem('babadham_brand_settings');
       if (localStr) {
         const parsed = JSON.parse(localStr);
-        if (parsed.orderRequestHeroSlides && parsed.orderRequestHeroSlides.length > 0) {
-          return { ...brandSettings, ...parsed };
-        }
+        return { ...brandSettings, ...parsed };
       }
     } catch (e) {}
     return brandSettings;
