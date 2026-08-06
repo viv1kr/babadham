@@ -491,28 +491,7 @@ export const OrderRequestPage: React.FC = () => {
                       </div>
                   </div>
 
-                  <div className="bg-[#FFF9E6] p-4 sm:p-5 rounded-[24px] border border-[#F2E6C6] shadow-sm">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
-                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
-                      </div>
-                      <label className="flex-1 text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
-                        {lang === 'hi' ? 'आपकी आयु क्या है?' : 'What is your age?'} <span className="text-red-500">*</span>
-                      </label>
-                    </div>
-                    <hr className="my-4 border-[#E8E1D5]" />
-                    <div className="relative w-full">
-                        <input
-                          type="number"
-                          required
-                          value={age}
-                          onChange={e => setAge(e.target.value)}
-                          placeholder={lang === 'hi' ? 'उदाहरण: 25' : 'Example: 25'}
-                          className="w-full px-4 py-3 rounded-xl bg-white border border-[#E8E1D5] text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#C16200] transition-colors pr-10"
-                        />
-                        <User className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
-                  </div>
+
 
                   <div className="bg-[#F4F9F4] p-4 sm:p-5 rounded-[24px] border border-[#DCECDC] shadow-sm">
                     <div className="flex items-center gap-4">
