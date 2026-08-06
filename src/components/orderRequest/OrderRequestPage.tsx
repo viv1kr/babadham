@@ -195,18 +195,18 @@ export const OrderRequestPage: React.FC = () => {
   );
 
   const renderUpiLogos = () => (
-    <div className="flex items-center -space-x-1.5 shrink-0 bg-white/95 p-1 rounded-full border border-white/50 shadow-md">
+    <div className="flex items-center -space-x-1.5 shrink-0 bg-transparent p-0 select-none">
       {/* Paytm */}
-      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E0F7FA] border border-cyan-300 flex items-center justify-center overflow-hidden shadow-sm">
-        <span className="font-black text-[7px] sm:text-[8px] text-[#002E6E] tracking-tighter">paytm</span>
+      <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-[#E0F7FA] border border-cyan-200 flex items-center justify-center overflow-hidden shadow-sm">
+        <span className="font-black text-[6px] text-[#002E6E] tracking-tighter">paytm</span>
       </div>
       {/* PhonePe */}
-      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#5F259F] text-white flex items-center justify-center font-black text-xs shadow-sm border border-purple-400">
+      <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-[#5F259F] text-white flex items-center justify-center font-black text-[9px] shadow-sm border border-purple-300">
         पे
       </div>
       {/* GPay */}
-      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E8F0FE] border border-blue-300 flex items-center justify-center shadow-sm p-0.5">
-        <svg viewBox="0 0 24 24" className="w-4 h-4">
+      <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-[#E8F0FE] border border-blue-200 flex items-center justify-center shadow-sm p-0.5">
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5">
           <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
           <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/>
           <path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/>
@@ -214,11 +214,11 @@ export const OrderRequestPage: React.FC = () => {
         </svg>
       </div>
       {/* Amazon Pay */}
-      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#131921] border border-gray-600 text-white flex items-center justify-center text-[7px] font-black leading-none shadow-sm">
+      <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-[#131921] border border-gray-600 text-white flex items-center justify-center text-[6px] font-black leading-none shadow-sm">
         <span className="text-[#FF9900]">pay</span>
       </div>
       {/* BHIM UPI */}
-      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E8F5E9] border border-emerald-400 flex items-center justify-center font-black text-[7px] text-[#2E7D32] shadow-sm">
+      <div className="w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-[#E8F5E9] border border-emerald-300 flex items-center justify-center font-black text-[6px] text-[#2E7D32] shadow-sm">
         UPI
       </div>
     </div>
