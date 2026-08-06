@@ -938,62 +938,187 @@ export const OrderRequestsView: React.FC = () => {
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {/* Video Embed & File Upload Config */}
-                <div className="bg-[#120508] p-4 rounded-xl border border-[#F4A62A]/30 space-y-3">
-                  <label className="block text-xs font-bold text-[#F4A62A] flex items-center justify-between">
-                    <span className="flex items-center gap-1.5"><Video className="w-4 h-4 text-[#F4A62A]" /> Temple & Prasad Video (YouTube Link or Upload MP4 / WebM File)</span>
-                    {mediaConfig.videoUrl && (
-                      <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">✓ Video Active</span>
-                    )}
-                  </label>
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <input
-                      type="text"
-                      value={mediaConfig.videoUrl || ''}
-                      onChange={e => setMediaConfig({ ...mediaConfig, videoUrl: e.target.value })}
-                      placeholder="Upload MP4 video file or enter YouTube/MP4 URL..."
-                      className="flex-1 bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                    />
-                    <label className="px-3.5 py-2.5 bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/40 rounded-xl cursor-pointer text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-md">
-                      <Upload className="w-3.5 h-3.5" /> Upload Video File
-                      <input
-                        type="file"
-                        accept="video/*"
-                        className="hidden"
-                        onChange={e => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              const dataUrl = event.target?.result as string;
-                              const updatedMedia = { ...mediaConfig, videoUrl: dataUrl };
-                              setMediaConfig(updatedMedia);
-                              const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia };
-                              saveBrandSettings({ orderRequestMediaConfig: updatedMedia });
-                              
-                              try {
-                                localStorage.setItem('babadham_uploaded_video', dataUrl);
-                              } catch (err) {
-                                try {
-                                  sessionStorage.setItem('babadham_uploaded_video', dataUrl);
-                                } catch (e2) {}
-                              }
+    <div className="space-y-5">
+      
+      {/* Active Source Selector Tabs: Option 1 (YouTube URL) vs Option 2 (Upload File) */}
+      <div className="bg-[#120508] p-4 rounded-xl border border-[#F4A62A]/30 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#F4A62A]/20 pb-3">
+          <label className="text-xs font-bold text-[#F4A62A] flex items-center gap-2">
+            <Video className="w-4 h-4 text-[#F4A62A]" /> Choose Active Video Source
+          </label>
 
-                              try {
-                                localStorage.setItem('babadham_brand_settings', JSON.stringify(updatedSettings));
-                              } catch (err) {}
+          <div className="flex items-center gap-2 bg-[#1A0B0E] p-1 rounded-xl border border-[#F4A62A]/30">
+            <button
+              type="button"
+              onClick={() => {
+                const updated = { 
+                  ...mediaConfig, 
+                  videoSourceType: 'youtube' as const, 
+                  videoUrl: mediaConfig.youtubeUrl || (mediaConfig.videoUrl && !mediaConfig.videoUrl.startsWith('data:') ? mediaConfig.videoUrl : '') 
+                };
+                setMediaConfig(updated);
+                saveBrandSettings({ orderRequestMediaConfig: updated });
+                syncToStorefront(updated);
+                showToast('Switched active video source to YouTube URL', 'info');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                (mediaConfig.videoSourceType === 'youtube' || (!mediaConfig.videoSourceType && !mediaConfig.uploadedVideoUrl))
+                  ? 'bg-[#F4A62A] text-[#2B1A16] shadow-md'
+                  : 'text-[#FFF8F0]/70 hover:text-white'
+              }`}
+            >
+              📺 YouTube URL Link
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const updated = { 
+                  ...mediaConfig, 
+                  videoSourceType: 'upload' as const, 
+                  videoUrl: mediaConfig.uploadedVideoUrl || mediaConfig.videoUrl || '' 
+                };
+                setMediaConfig(updated);
+                saveBrandSettings({ orderRequestMediaConfig: updated });
+                syncToStorefront(updated);
+                showToast('Switched active video source to Uploaded Video File', 'info');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                (mediaConfig.videoSourceType === 'upload' || (!mediaConfig.videoSourceType && Boolean(mediaConfig.uploadedVideoUrl)))
+                  ? 'bg-[#F4A62A] text-[#2B1A16] shadow-md'
+                  : 'text-[#FFF8F0]/70 hover:text-white'
+              }`}
+            >
+              📁 Uploaded Video File
+            </button>
+          </div>
+        </div>
 
-                              syncToStorefront(updatedSettings);
-                              showToast('Video file uploaded & saved successfully!', 'success');
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
+        {/* OPTION 1: YouTube / External Video Embed Link */}
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-[#FFF8F0]/90">
+            Option 1: YouTube / External Video URL Link
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={mediaConfig.youtubeUrl || (mediaConfig.videoUrl && !mediaConfig.videoUrl.startsWith('data:') ? mediaConfig.videoUrl : '')}
+              onChange={e => {
+                const val = e.target.value;
+                const updated = {
+                  ...mediaConfig,
+                  youtubeUrl: val,
+                  videoUrl: (mediaConfig.videoSourceType === 'upload' && mediaConfig.uploadedVideoUrl) ? mediaConfig.uploadedVideoUrl : val
+                };
+                setMediaConfig(updated);
+              }}
+              placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtu.be/..."
+              className="flex-1 bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
+            />
+            {(mediaConfig.youtubeUrl || (mediaConfig.videoUrl && !mediaConfig.videoUrl.startsWith('data:'))) && (
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = {
+                    ...mediaConfig,
+                    youtubeUrl: '',
+                    videoUrl: mediaConfig.videoSourceType === 'youtube' ? '' : (mediaConfig.uploadedVideoUrl || '')
+                  };
+                  setMediaConfig(updated);
+                  saveBrandSettings({ orderRequestMediaConfig: updated });
+                  syncToStorefront(updated);
+                  showToast('YouTube URL link cleared', 'info');
+                }}
+                className="px-3 py-2.5 bg-red-950/80 hover:bg-red-900 text-red-300 rounded-xl text-xs font-bold border border-red-500/30 shrink-0 cursor-pointer"
+              >
+                Clear Link
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* OPTION 2: Local Video File Upload (MP4 / WebM) */}
+        <div className="space-y-1.5 pt-2 border-t border-[#F4A62A]/15">
+          <label className="block text-xs font-bold text-[#FFF8F0]/90 flex items-center justify-between">
+            <span>Option 2: Upload Video File directly from computer (MP4 / WebM)</span>
+            {mediaConfig.uploadedVideoUrl && (
+              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/90 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                ✓ Local Video File Uploaded
+              </span>
+            )}
+          </label>
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <label className="flex-1 px-4 py-2.5 bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/40 rounded-xl cursor-pointer text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md">
+              <Upload className="w-4 h-4" /> Click to Select & Upload MP4 Video File
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const dataUrl = event.target?.result as string;
+                      const updatedMedia = { 
+                        ...mediaConfig, 
+                        uploadedVideoUrl: dataUrl, 
+                        videoUrl: dataUrl,
+                        videoSourceType: 'upload' as const
+                      };
+                      setMediaConfig(updatedMedia);
+                      const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia };
+                      saveBrandSettings({ orderRequestMediaConfig: updatedMedia });
+                      
+                      try {
+                        localStorage.setItem('babadham_uploaded_video', dataUrl);
+                      } catch (err) {
+                        try {
+                          sessionStorage.setItem('babadham_uploaded_video', dataUrl);
+                        } catch (e2) {}
+                      }
+
+                      try {
+                        localStorage.setItem('babadham_brand_settings', JSON.stringify(updatedSettings));
+                      } catch (err) {}
+
+                      syncToStorefront(updatedSettings);
+                      showToast('Video file uploaded & set as active video!', 'success');
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+            </label>
+
+            {mediaConfig.uploadedVideoUrl && (
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('babadham_uploaded_video');
+                    sessionStorage.removeItem('babadham_uploaded_video');
+                  } catch (e) {}
+                  const updated = {
+                    ...mediaConfig,
+                    uploadedVideoUrl: '',
+                    videoUrl: mediaConfig.youtubeUrl || '',
+                    videoSourceType: 'youtube' as const
+                  };
+                  setMediaConfig(updated);
+                  saveBrandSettings({ orderRequestMediaConfig: updated });
+                  syncToStorefront(updated);
+                  showToast('Uploaded video file removed', 'info');
+                }}
+                className="px-3 py-2.5 bg-red-950/80 hover:bg-red-900 text-red-300 rounded-xl text-xs font-bold border border-red-500/30 shrink-0 cursor-pointer flex items-center justify-center gap-1"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Remove Uploaded File
+              </button>
+            )}
+          </div>
+        </div>
+
+      </div>
 
                 {/* Temple Bell Ring Sound Audio Config */}
                 <div className="bg-[#120508] p-4 rounded-xl border border-[#F4A62A]/30 space-y-3">

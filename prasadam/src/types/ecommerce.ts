@@ -311,6 +311,9 @@ export interface OrderRequestTrustBadge {
 
 export interface OrderRequestMediaConfig {
   videoUrl?: string;
+  youtubeUrl?: string;
+  uploadedVideoUrl?: string;
+  videoSourceType?: 'youtube' | 'upload';
   videoTitle?: string;
   videoSubtitle?: string;
   bannerBgImageUrl?: string;

@@ -110,7 +110,20 @@ export const OrderRequestPage: React.FC = () => {
 
   const mediaConfig = (() => {
     const baseConfig = activeSettings?.orderRequestMediaConfig || brandSettings?.orderRequestMediaConfig || {};
-    let url = baseConfig.videoUrl !== undefined ? baseConfig.videoUrl : '';
+    let url = '';
+
+    if (baseConfig.videoSourceType === 'upload' && baseConfig.uploadedVideoUrl) {
+      url = baseConfig.uploadedVideoUrl;
+    } else if (baseConfig.videoSourceType === 'youtube' && baseConfig.youtubeUrl) {
+      url = baseConfig.youtubeUrl;
+    } else if (baseConfig.uploadedVideoUrl) {
+      url = baseConfig.uploadedVideoUrl;
+    } else if (baseConfig.youtubeUrl) {
+      url = baseConfig.youtubeUrl;
+    } else {
+      url = baseConfig.videoUrl || '';
+    }
+
     if (!url || url.trim().length === 0) {
       try {
         const stored = localStorage.getItem('babadham_uploaded_video') || sessionStorage.getItem('babadham_uploaded_video');
