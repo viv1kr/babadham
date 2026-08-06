@@ -377,55 +377,97 @@ export const OrderRequestPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="flex flex-col items-center justify-center text-center mb-8 gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#6E1120] rounded-full flex items-center justify-center border-4 border-[#FDFBF7] shadow-lg shrink-0 relative">
-                     <div className="absolute inset-0 rounded-full border border-[#6E1120]/30 scale-[1.15]" />
-                     <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-serif-temple text-xl sm:text-2xl font-bold text-[#6E1120] leading-tight">
-                      {lang === 'hi' ? 'भक्त विवरण और\nअनुरोध निर्दिष्टीकरण' : 'Devotee Details &\nRequest Specifications'}
-                    </h3>
-                  </div>
+              <div className="flex flex-col items-center justify-center text-center mb-6 gap-3">
+                <div className="flex items-center justify-center gap-3">
+                   <span className="text-3xl text-[#D4AF37] leading-none drop-shadow-sm">🔱</span>
+                   <h3 className="font-serif-temple text-2xl sm:text-3xl font-bold text-[#500A18] leading-tight">
+                     {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request'}
+                   </h3>
+                   <span className="text-3xl text-[#D4AF37] leading-none drop-shadow-sm">🔱</span>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600 mt-2 font-medium">
+                
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">
                   {lang === 'hi' ? 'कृपया अपनी जानकारी भरें, हमारी टीम आपसे संपर्क करेगी।' : 'Please fill in your details, our team will contact you.'}
                 </p>
-                <div className="flex items-center gap-2 text-[#D4AF37] opacity-60 mt-1">
-                  <div className="w-6 h-[1px] bg-[#D4AF37]" />
-                  <Sparkles className="w-3 h-3" />
-                  <div className="w-6 h-[1px] bg-[#D4AF37]" />
+
+                {/* Divider */}
+                <div className="flex items-center justify-center gap-2 text-[#D4AF37] opacity-90 mt-2">
+                  <div className="flex gap-2">
+                    {[1,2,3,4].map(i => <div key={i} className={`w-1.5 h-1.5 rounded-full bg-[#D4AF37] ${i === 1 ? 'opacity-40' : i === 2 ? 'opacity-60' : i === 3 ? 'opacity-80' : 'opacity-100'}`} />)}
+                  </div>
+                  <Landmark className="w-7 h-7 mx-1 text-[#D4AF37]" />
+                  <div className="flex gap-2">
+                    {[1,2,3,4].map(i => <div key={i} className={`w-1.5 h-1.5 rounded-full bg-[#D4AF37] ${i === 4 ? 'opacity-40' : i === 3 ? 'opacity-60' : i === 2 ? 'opacity-80' : 'opacity-100'}`} />)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Promotional Banner */}
+              <div className="bg-gradient-to-r from-[#FFF4D9] to-[#FFF9EB] border border-[#F4E1A1] rounded-[24px] p-4 sm:p-5 flex items-center justify-between shadow-sm mb-8 mx-auto max-w-2xl">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#F5B642] to-[#E59210] flex items-center justify-center shrink-0 shadow-inner">
+                    <Gift className="w-7 h-7 text-[#6E1120]" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[#2B1A16] text-sm sm:text-base">
+                      {lang === 'hi' ? 'बाबा का प्रसाद आपके लिए' : 'Baba\'s Prasad For You'}
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                      {lang === 'hi' ? 'हर ऑर्डर के साथ पाएं बाबा का आशीर्वाद' : 'Get Baba\'s blessings with every order'}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Scalopped Seal Badge */}
+                <div className="w-[72px] h-[72px] shrink-0 relative flex items-center justify-center drop-shadow-md">
+                  {/* Create a scalloped/jagged edge effect using rotated squares */}
+                  <div className="absolute inset-0 bg-[#6E1120] rotate-0 rounded-sm" />
+                  <div className="absolute inset-0 bg-[#6E1120] rotate-[30deg] rounded-sm" />
+                  <div className="absolute inset-0 bg-[#6E1120] rotate-[60deg] rounded-sm" />
+                  <div className="absolute inset-0 bg-[#6E1120] rounded-full scale-[1.05]" />
+                  
+                  {/* Inner dashed circle */}
+                  <div className="absolute inset-1 rounded-full border border-dashed border-[#F5B642] opacity-80" />
+                  
+                  {/* Badge Content */}
+                  <div className="relative z-10 flex flex-col items-center justify-center text-[#F5B642] px-1">
+                     <span className="text-[10px] font-black leading-tight text-center tracking-wide">
+                       100% शुद्ध<br/>प्रामाणिक
+                     </span>
+                  </div>
                 </div>
               </div>
 
               {/* Language Selector */}
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+              <div className="mb-8 space-y-3 max-w-2xl mx-auto">
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
+                  <Globe className="w-4 h-4 text-gray-600" />
                   भाषा चुनें / Select Language
                 </label>
-                <div className="flex bg-white rounded-full border border-gray-300 overflow-hidden w-fit shadow-sm">
+                <div className="flex flex-row gap-3 w-full">
                   <button
                     type="button"
                     onClick={() => setLang('hi')}
-                    className={`px-8 py-2 text-sm font-bold transition-colors ${
+                    className={`flex-1 py-3.5 rounded-full text-sm font-bold transition-all flex items-center justify-center gap-2 border-2 ${
                       lang === 'hi' 
-                        ? 'bg-white text-gray-800' 
-                        : 'bg-[#6E1120] text-white hover:bg-[#8B1528]'
+                        ? 'bg-[#6E1120] text-white border-[#6E1120] shadow-md scale-[1.02]' 
+                        : 'bg-white text-gray-800 border-[#E8E1D5] hover:border-gray-400'
                     }`}
                   >
                     हिंदी
+                    {lang === 'hi' && <div className="bg-white rounded-full p-0.5 ml-1"><CheckCircle2 className="w-3.5 h-3.5 text-[#6E1120]" /></div>}
                   </button>
                   <button
                     type="button"
                     onClick={() => setLang('en')}
-                    className={`px-8 py-2 text-sm font-bold transition-colors ${
+                    className={`flex-1 py-3.5 rounded-full text-sm font-bold transition-all flex items-center justify-center gap-2 border-2 ${
                       lang === 'en' 
-                        ? 'bg-white text-gray-800' 
-                        : 'bg-[#6E1120] text-white hover:bg-[#8B1528]'
+                        ? 'bg-[#6E1120] text-white border-[#6E1120] shadow-md scale-[1.02]' 
+                        : 'bg-white text-gray-800 border-[#E8E1D5] hover:border-gray-400'
                     }`}
                   >
                     English
+                    {lang === 'en' && <div className="bg-white rounded-full p-0.5 ml-1"><CheckCircle2 className="w-3.5 h-3.5 text-[#6E1120]" /></div>}
                   </button>
                 </div>
               </div>
