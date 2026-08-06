@@ -64,7 +64,6 @@ export const OrderRequestPage: React.FC = () => {
   const [bookingAmount, setBookingAmount] = useState(251);
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(12);
   const [slotPeriodText, setSlotPeriodText] = useState('1St Week');
-  const [availableSlotsCount, setAvailableSlotsCount] = useState(300);
   const [totalSlotLimit, setTotalSlotLimit] = useState(500);
   const [sessionConfirmedBookings, setSessionConfirmedBookings] = useState(0);
 
@@ -167,7 +166,7 @@ export const OrderRequestPage: React.FC = () => {
   }, [brandSettings]);
 
   const finalBookingAmount = Math.max(0, Math.round(bookingAmount - (bookingAmount * (bookingDiscountPercent / 100))));
-  const liveTotalBookedSlots = Math.min(totalSlotLimit, Number(availableSlotsCount) + sessionConfirmedBookings);
+  const liveTotalBookedSlots = Math.min(totalSlotLimit, sessionConfirmedBookings);
 
   const blinkingTexts = [
     'BOOK NOW',
