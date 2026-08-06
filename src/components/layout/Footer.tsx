@@ -56,8 +56,44 @@ export const Footer: React.FC = () => {
       {/* Background Line Art Overlay */}
       <div className="absolute inset-0 opacity-5 pointer-events-none bg-cream-pattern" />
 
+      {/* 2x2 Trust Features Grid */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 border-b border-[#F4A62A]/10">
+        <div className="grid grid-cols-2 gap-y-10 gap-x-4 sm:gap-x-12 text-center">
+          
+          <div className="flex flex-col items-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
+              <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">100% Authentic</h4>
+            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Direct from Garbhagriha of Baidyanath Dham</p>
+          </div>
 
+          <div className="flex flex-col items-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">Pujari Blessed</h4>
+            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Chanted with Mahamrityunjaya Stotram</p>
+          </div>
 
+          <div className="flex flex-col items-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
+              <Truck className="w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">Express Air Courier</h4>
+            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Delivered across India in 24-48 Hours</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
+              <Package className="w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">Sacred Packaging</h4>
+            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Sealed in clean, air-tight food-grade containers</p>
+          </div>
+
+        </div>
+      </div>
 
 
       {/* Main Footer Links (4 Column Grid with 100% Identical DOM Structure for We Are Offering & Our Policies) */}
