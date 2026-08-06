@@ -56,78 +56,7 @@ export interface OrderRequest {
   notes?: string;
 }
 
-const INITIAL_REQUESTS: OrderRequest[] = [
-  {
-    id: 'req-1',
-    reqNo: 'REQ-2026-901',
-    devoteeName: 'Rameshwar Nath Prasad',
-    phone: '+91 94311 88210',
-    email: 'rameshwar.prasad@gmail.com',
-    address: 'Bari Bazaar, Deoghar, Jharkhand - 814112',
-    requestType: 'Special Mahaprasad & Rudrabhishek Bhog',
-    details: '5kg Pure Cow Milk Peda, 2 Litres Sacred Gangajal & Fresh Belpatra Garland for Somvar Special Puja.',
-    visited: 'Yes',
-    age: '45',
-    specialRequest: 'Morning garbhagriha touch blessing requested.',
-    preferredDate: '2026-08-10',
-    estimatedAmount: 3500,
-    status: 'Pending',
-    createdAt: '2026-08-06T09:30:00Z',
-    notes: 'Devotee requested morning garbhagriha touch blessing.'
-  },
-  {
-    id: 'req-2',
-    reqNo: 'REQ-2026-902',
-    devoteeName: 'Sunita Devi Singhania',
-    phone: '+91 98351 44520',
-    email: 'sunita.singhania@yahoo.com',
-    address: 'Kankurgachi, Kolkata, West Bengal - 700054',
-    requestType: 'Bulk Peda Prasad for Family Anushthan',
-    details: '15kg Special Peda Prasad packed in 250g tamper-proof sacred gift tins.',
-    visited: 'Yes',
-    age: '52',
-    specialRequest: 'Pack in sacred red gift tins.',
-    preferredDate: '2026-08-15',
-    estimatedAmount: 9600,
-    status: 'Approved',
-    createdAt: '2026-08-05T14:15:00Z',
-    notes: 'Payment confirmed via UPI. Dispatch on Aug 12 via Speed Post.'
-  },
-  {
-    id: 'req-3',
-    reqNo: 'REQ-2026-903',
-    devoteeName: 'Vikramaditya Roy',
-    phone: '+91 88772 11099',
-    email: 'v.roy@techmail.com',
-    address: 'Boring Road, Patna, Bihar - 800001',
-    requestType: 'Authentic Sphatik & Silver Shivalinga Pack',
-    details: '108 Bead Original Haridwar Sphatik Mala + Baidyanath Jyotirlinga Silver Idol for Griha Pravesh.',
-    visited: 'No',
-    age: '38',
-    specialRequest: 'Include energized bilva leaf.',
-    preferredDate: '2026-08-12',
-    estimatedAmount: 5400,
-    status: 'Processing',
-    createdAt: '2026-08-04T11:00:00Z'
-  },
-  {
-    id: 'req-4',
-    reqNo: 'REQ-2026-904',
-    devoteeName: 'Prof. Anil Kumar Jha',
-    phone: '+91 91223 99411',
-    email: 'akjha.deoghar@univ.ac.in',
-    address: 'VVIP Guest House Road, Deoghar, Jharkhand - 814112',
-    requestType: 'Chandi Path Prasad Box',
-    details: '2kg Kesar Peda, Silver Coin & Blessed Chunri.',
-    visited: 'Yes',
-    age: '61',
-    specialRequest: 'Direct pickup from temple desk.',
-    preferredDate: '2026-08-08',
-    estimatedAmount: 2800,
-    status: 'Completed',
-    createdAt: '2026-08-02T16:45:00Z'
-  }
-];
+const INITIAL_REQUESTS: OrderRequest[] = [];
 
 const STORAGE_KEY = 'babadham_order_requests';
 
@@ -137,7 +66,22 @@ export const OrderRequestsView: React.FC = () => {
 
   const [requests, setRequests] = useState<OrderRequest[]>([]);
 
-  const loadOrderRequests = () => {
+  const loadOrderRequests = async () => {
+    try {
+      const res = await fetch('/api/db?t=' + Date.now());
+      if (res.ok) {
+        const dbData = await res.json();
+        const serverRequests = dbData.babadham_order_requests || dbData.orderRequests;
+        if (Array.isArray(serverRequests) && serverRequests.length > 0) {
+          setRequests(serverRequests);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(serverRequests));
+          } catch (e) {}
+          return;
+        }
+      }
+    } catch (e) {}
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -151,16 +95,15 @@ export const OrderRequestsView: React.FC = () => {
       const dbStr = localStorage.getItem('babadham_mysql_db_v1');
       if (dbStr) {
         const parsedDb = JSON.parse(dbStr);
-        if (Array.isArray(parsedDb.orderRequests) && parsedDb.orderRequests.length > 0) {
-          setRequests(parsedDb.orderRequests);
+        const dbReqs = parsedDb.babadham_order_requests || parsedDb.orderRequests;
+        if (Array.isArray(dbReqs) && dbReqs.length > 0) {
+          setRequests(dbReqs);
           return;
         }
       }
+    } catch (e) {}
 
-      setRequests(INITIAL_REQUESTS);
-    } catch (e) {
-      setRequests(INITIAL_REQUESTS);
-    }
+    setRequests([]);
   };
 
   useEffect(() => {
@@ -184,7 +127,7 @@ export const OrderRequestsView: React.FC = () => {
     };
   }, []);
 
-  const persistRequests = (updatedRequests: OrderRequest[]) => {
+  const persistRequests = async (updatedRequests: OrderRequest[]) => {
     try {
       setRequests(updatedRequests);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRequests));
@@ -193,8 +136,22 @@ export const OrderRequestsView: React.FC = () => {
       if (dbStr) {
         const parsedDb = JSON.parse(dbStr);
         parsedDb.orderRequests = updatedRequests;
+        parsedDb.babadham_order_requests = updatedRequests;
         localStorage.setItem('babadham_mysql_db_v1', JSON.stringify(parsedDb));
       }
+
+      await fetch('/api/db', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'babadham_sec_token_882910',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ 
+          babadham_order_requests: updatedRequests,
+          orderRequests: updatedRequests 
+        })
+      }).catch(() => {});
 
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new Event('bbp_db_updated'));
