@@ -77,33 +77,33 @@ export const OrderRequestPage: React.FC = () => {
   const [showLiveBooking, setShowLiveBooking] = useState(false);
   const [liveBookingIndex, setLiveBookingIndex] = useState(0);
   
-  // Need to define it inside or memoize, but for simplicity, we can keep it outside effect.
-  // Actually let's use useMemo or just put it in a ref/constant.
-  const liveBookings = [
+  const [liveBookings, setLiveBookings] = useState([
     { name: 'Ramesh K.', state: 'Bihar', intent: 'booking', time: 'Just now' },
     { name: 'Suresh M.', state: 'Jharkhand', intent: 'prasadi', time: '1 min ago' },
     { name: 'Priya S.', state: 'Delhi', intent: 'booking', time: '2 mins ago' },
     { name: 'Amit V.', state: 'Maharashtra', intent: 'booking', time: '5 mins ago' },
     { name: 'Neha G.', state: 'Uttar Pradesh', intent: 'prasadi', time: '6 mins ago' },
-  ];
+  ]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    let hideTimeoutId: NodeJS.Timeout;
+    let nextIndexTimeoutId: NodeJS.Timeout;
 
     const scheduleNextBooking = () => {
-      // Random delay between 10 and 20 seconds for previous/dummy bookings
-      const randomDelay = Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000;
+      // Random delay between 20 and 30 seconds for previous/dummy bookings
+      const randomDelay = Math.floor(Math.random() * (30000 - 20000 + 1)) + 20000;
       
       timeoutId = setTimeout(() => {
         playTempleBell();
         setShowLiveBooking(true);
         
         // Hide after 6 seconds
-        setTimeout(() => {
+        hideTimeoutId = setTimeout(() => {
           setShowLiveBooking(false);
           // Wait for fast exit animation to finish before swapping index
-          setTimeout(() => {
-            setLiveBookingIndex((prev) => (prev + 1) % 5);
+          nextIndexTimeoutId = setTimeout(() => {
+            setLiveBookingIndex((prev) => (prev + 1) % liveBookings.length);
             scheduleNextBooking();
           }, 800);
         }, 6000);
@@ -112,8 +112,35 @@ export const OrderRequestPage: React.FC = () => {
 
     scheduleNextBooking();
     
-    return () => clearTimeout(timeoutId);
-  }, [playTempleBell]);
+    // Listen for instant real bookings
+    const handleNewBooking = (e: any) => {
+      clearTimeout(timeoutId);
+      clearTimeout(hideTimeoutId);
+      clearTimeout(nextIndexTimeoutId);
+      
+      const newBooking = e.detail;
+      setLiveBookings(prev => [newBooking, ...prev]);
+      setLiveBookingIndex(0);
+      playTempleBell();
+      setShowLiveBooking(true);
+      
+      hideTimeoutId = setTimeout(() => {
+        setShowLiveBooking(false);
+        nextIndexTimeoutId = setTimeout(() => {
+          setLiveBookingIndex((prev) => (prev + 1) % (liveBookings.length + 1));
+          scheduleNextBooking();
+        }, 800);
+      }, 6000);
+    };
+
+    window.addEventListener('new_live_booking', handleNewBooking as any);
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(hideTimeoutId);
+      clearTimeout(nextIndexTimeoutId);
+      window.removeEventListener('new_live_booking', handleNewBooking as any);
+    };
+  }, [playTempleBell, liveBookings.length]);
 
   useEffect(() => {
     const targetDate = new Date(new Date().getFullYear(), 7, 25, 23, 59, 59).getTime();
@@ -352,6 +379,16 @@ export const OrderRequestPage: React.FC = () => {
     setSubmittedReqNo(reqNo);
     setIsSubmitted(true);
     showToast('Your Custom Order Request has been submitted!', 'success');
+    
+    // Dispatch instant real booking event
+    window.dispatchEvent(new CustomEvent('new_live_booking', { 
+      detail: { 
+        name: name || 'A Devotee', 
+        state: stateName || 'India', 
+        intent: intent === 'booking' ? 'booking' : 'prasadi', 
+        time: 'Just now' 
+      } 
+    }));
   };
 
   return (
