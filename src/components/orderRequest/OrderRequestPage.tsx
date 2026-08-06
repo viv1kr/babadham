@@ -894,12 +894,12 @@ export const OrderRequestPage: React.FC = () => {
                     </div>
                     
                     <div className="border-t border-[#F6DFD7] pt-4">
-                      <input
-                        type="text"
+                      <textarea
+                        rows={3}
                         value={specialRequest}
                         onChange={e => setSpecialRequest(e.target.value)}
                         placeholder={lang === 'hi' ? 'अगर आपका कोई विशेष अनुरोध है तो यहाँ लिखें...' : 'Write any special requests...'}
-                        className="w-full bg-white border border-[#F6DFD7] focus:border-[#500A18]/50 focus:ring-2 focus:ring-[#500A18]/10 text-sm sm:text-base text-[#2B1A16] placeholder-[#500A18]/40 focus:outline-none px-4 py-3.5 rounded-xl transition-all shadow-sm"
+                        className="w-full bg-white border border-[#F6DFD7] focus:border-[#500A18]/50 focus:ring-2 focus:ring-[#500A18]/10 text-sm sm:text-base text-[#2B1A16] placeholder-[#500A18]/40 focus:outline-none px-4 py-3.5 rounded-xl transition-all shadow-sm resize-y min-h-[80px]"
                       />
                     </div>
                   </div>
