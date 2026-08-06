@@ -25,7 +25,8 @@ import {
   Play,
   Pause,
   Tv,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 
 export const OrderRequestPage: React.FC = () => {
@@ -105,6 +106,7 @@ export const OrderRequestPage: React.FC = () => {
 
   const [slideIndex, setSlideIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isVideoDismissed, setIsVideoDismissed] = useState(false);
   const currentSlide = slides[slideIndex] || slides[0];
   const hasText = Boolean(currentSlide?.title || currentSlide?.subtitle);
 
@@ -352,12 +354,22 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         
-        {/* Featured Video Branding Section */}
-        {videoEmbed && (
-          <div className="bg-[#2B1217] p-4 sm:p-6 rounded-3xl border-2 border-[#F4A62A]/40 shadow-2xl space-y-4">
+        {/* Featured Video Branding Section (Zero Padding & Removable Close Button) */}
+        {videoEmbed && !isVideoDismissed && (
+          <div className="relative bg-[#2B1217] rounded-3xl border-2 border-[#F4A62A]/40 shadow-2xl overflow-hidden p-0 transition-all">
             
-            {/* Video Player (Rendered First) */}
-            <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-[#F4A62A]/30 bg-black shadow-2xl">
+            {/* Removable Cut / Close Button (Top Right) */}
+            <button
+              onClick={() => setIsVideoDismissed(true)}
+              className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-[#1A0B0E]/85 hover:bg-[#7A1126] text-[#F4A62A] hover:text-white border border-[#F4A62A]/60 flex items-center justify-center shadow-xl backdrop-blur-md transition-all cursor-pointer group"
+              aria-label="Remove / Hide Video"
+              title="Remove / Hide Video"
+            >
+              <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </button>
+
+            {/* Video Player (Zero Padding Edge-to-Edge) */}
+            <div className="relative w-full aspect-video bg-black shadow-inner overflow-hidden">
               {videoEmbed.isIframe ? (
                 <iframe
                   src={videoEmbed.url}
@@ -378,7 +390,7 @@ export const OrderRequestPage: React.FC = () => {
 
             {/* Optional Bottom Details & Link (Rendered Below Video ONLY if present) */}
             {(Boolean(mediaConfig?.videoTitle?.trim()) || Boolean(mediaConfig?.videoSubtitle?.trim()) || Boolean(mediaConfig?.videoCtaUrl?.trim())) && (
-              <div className="pt-2 border-t border-[#F4A62A]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="p-4 sm:p-5 bg-[#1A0B0E]/60 border-t border-[#F4A62A]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="space-y-1 max-w-xl">
                   {mediaConfig?.videoTitle && mediaConfig.videoTitle.trim().length > 0 && (
                     <h3 className="font-serif-temple text-lg sm:text-xl font-extrabold text-[#F4A62A]">
