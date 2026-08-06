@@ -408,88 +408,134 @@ export const OrderRequestPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Step Indicator */}
+              <div className="mb-8 flex items-center justify-center gap-3 max-w-xs mx-auto">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${step >= 1 ? 'bg-[#500A18] text-white shadow-lg scale-110' : 'bg-gray-200 text-gray-500'}`}>1</div>
+                <div className="flex-1 h-1 bg-[#500A18]/10 rounded-full overflow-hidden">
+                  <div className={`h-full bg-[#500A18] transition-all duration-700 ease-in-out ${step >= 2 ? 'w-full' : 'w-0'}`} />
+                </div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${step >= 2 ? 'bg-[#500A18] text-white shadow-lg scale-110' : 'bg-[#500A18]/10 text-[#500A18]'}`}>2</div>
+              </div>
+
+              <AnimatePresence mode="wait">
               {step === 1 ? (
-                <form onSubmit={(e) => { e.preventDefault(); setStep(2); }} className="space-y-6 text-sm">
-                  <div className="space-y-3">
+                <motion.form 
+                  key="step1"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
+                  className="space-y-6 text-sm"
+                >
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="space-y-3"
+                  >
                     <label className="block text-[#500A18] font-bold">
                       {lang === 'hi' ? 'क्या आपने बाबा धाम देवघर के दर्शन किए हैं?' : 'Have you visited Baba Dham Deoghar?'} *
                     </label>
                     <div className="flex gap-4">
-                      <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-3.5 rounded-xl border-2 transition-all font-bold ${hasVisited === 'yes' ? 'border-[#E59210] bg-[#E59210]/10 text-[#500A18]' : 'border-[#F4A62A]/30 bg-white text-[#2B1A16] hover:border-[#F4A62A]'}`}>
+                      <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-3.5 rounded-xl border-2 transition-all duration-300 font-bold hover:scale-[1.02] active:scale-95 ${hasVisited === 'yes' ? 'border-[#500A18] bg-[#500A18]/10 text-[#500A18] shadow-sm' : 'border-[#500A18]/20 bg-white text-[#2B1A16] hover:border-[#500A18]/50'}`}>
                         {lang === 'hi' ? 'हाँ' : 'Yes'}
                       </button>
-                      <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-3.5 rounded-xl border-2 transition-all font-bold ${hasVisited === 'no' ? 'border-[#E59210] bg-[#E59210]/10 text-[#500A18]' : 'border-[#F4A62A]/30 bg-white text-[#2B1A16] hover:border-[#F4A62A]'}`}>
+                      <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-3.5 rounded-xl border-2 transition-all duration-300 font-bold hover:scale-[1.02] active:scale-95 ${hasVisited === 'no' ? 'border-[#500A18] bg-[#500A18]/10 text-[#500A18] shadow-sm' : 'border-[#500A18]/20 bg-white text-[#2B1A16] hover:border-[#500A18]/50'}`}>
                         {lang === 'hi' ? 'नहीं' : 'No'}
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="space-y-3">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-3"
+                  >
                     <label className="block text-[#500A18] font-bold">
                       {lang === 'hi' ? 'आपकी आयु (Age) क्या है?' : 'What is your age?'} *
                     </label>
-                    <div className="relative">
-                      <User className="w-5 h-5 text-[#E59210] absolute left-3.5 top-3.5" />
+                    <div className="relative group">
+                      <User className="w-5 h-5 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3.5" />
                       <input
                         type="number"
                         required
                         value={age}
                         onChange={e => setAge(e.target.value)}
                         placeholder={lang === 'hi' ? 'उदा. 35' : 'e.g. 35'}
-                        className="w-full pl-11 pr-3 py-3 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] shadow-none"
+                        className="w-full pl-11 pr-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] transition-all hover:border-[#500A18]/50 shadow-none"
                       />
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="space-y-3">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="space-y-3"
+                  >
                     <label className="block text-[#500A18] font-bold">
                       {lang === 'hi' ? 'आप क्या अनुरोध करना चाहते हैं?' : 'What is your intent?'} *
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div 
                         onClick={() => setIntent('prasadi')} 
-                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-2 ${intent === 'prasadi' ? 'border-[#E59210] bg-[#E59210]/10' : 'border-[#F4A62A]/30 bg-white hover:border-[#F4A62A]'}`}
+                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center text-center gap-2 hover:scale-[1.02] active:scale-95 ${intent === 'prasadi' ? 'border-[#500A18] bg-[#500A18]/10 shadow-sm' : 'border-[#500A18]/20 bg-white hover:border-[#500A18]/50'}`}
                       >
-                        <Package className={`w-8 h-8 ${intent === 'prasadi' ? 'text-[#E59210]' : 'text-[#F4A62A]/50'}`} />
+                        <Package className={`w-8 h-8 transition-colors ${intent === 'prasadi' ? 'text-[#500A18]' : 'text-[#500A18]/40'}`} />
                         <span className="font-bold text-[#500A18]">{lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}</span>
                       </div>
                       
                       <div 
                         onClick={() => setIntent('booking')} 
-                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-2 ${intent === 'booking' ? 'border-[#E59210] bg-[#E59210]/10' : 'border-[#F4A62A]/30 bg-white hover:border-[#F4A62A]'}`}
+                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center text-center gap-2 hover:scale-[1.02] active:scale-95 ${intent === 'booking' ? 'border-[#500A18] bg-[#500A18]/10 shadow-sm' : 'border-[#500A18]/20 bg-white hover:border-[#500A18]/50'}`}
                       >
-                        <CheckCircle2 className={`w-8 h-8 ${intent === 'booking' ? 'text-[#E59210]' : 'text-[#F4A62A]/50'}`} />
+                        <CheckCircle2 className={`w-8 h-8 transition-colors ${intent === 'booking' ? 'text-[#500A18]' : 'text-[#500A18]/40'}`} />
                         <span className="font-bold text-[#500A18]">{lang === 'hi' ? 'बुकिंग की पुष्टि करें (₹151 प्री-बुकिंग)' : 'Confirm Booking (₹151 pre-booking)'}</span>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="pt-6 flex items-center justify-end">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="pt-6 flex items-center justify-end"
+                  >
                     <button
                       type="submit"
                       disabled={!hasVisited || !age || !intent}
-                      className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#F4A62A] via-[#E59210] to-[#F4A62A] text-white font-extrabold hover:shadow-lg transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
                       {lang === 'hi' ? 'अगला कदम' : 'Next Step'} <ChevronRight className="w-4 h-4" />
                     </button>
-                  </div>
-                </form>
+                  </motion.div>
+                </motion.form>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+                <motion.form 
+                  key="step2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  onSubmit={handleSubmit} 
+                  className="space-y-4 text-xs"
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[#500A18] font-bold mb-1.5">
                         {lang === 'hi' ? 'पूरा नाम *' : 'Devotee Name *'}
                       </label>
-                      <div className="relative">
-                        <User className="w-4 h-4 text-[#E59210] absolute left-3.5 top-3" />
+                      <div className="relative group">
+                        <User className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
                         <input
                           type="text"
                           required
                           value={devoteeName}
                           onChange={e => setDevoteeName(e.target.value)}
                           placeholder={lang === 'hi' ? 'उदा. रामेश्वर नाथ शर्मा' : 'e.g. Rameshwar Nath Sharma'}
-                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] shadow-none"
+                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
                         />
                       </div>
                     </div>
@@ -498,15 +544,15 @@ export const OrderRequestPage: React.FC = () => {
                       <label className="block text-[#500A18] font-bold mb-1.5">
                         {lang === 'hi' ? 'व्हाट्सएप नंबर *' : 'WhatsApp Number *'}
                       </label>
-                      <div className="relative">
-                        <Phone className="w-4 h-4 text-[#E59210] absolute left-3.5 top-3" />
+                      <div className="relative group">
+                        <Phone className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
                         <input
                           type="tel"
                           required
                           value={whatsappNumber}
                           onChange={e => setWhatsappNumber(e.target.value)}
                           placeholder="+91 98765 43210"
-                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] shadow-none"
+                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
                         />
                       </div>
                     </div>
@@ -517,8 +563,8 @@ export const OrderRequestPage: React.FC = () => {
                       <label className="block text-[#500A18] font-bold mb-1.5">
                         {lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
                       </label>
-                      <div className="relative">
-                        <MapPin className="w-4 h-4 text-[#E59210] absolute left-3.5 top-3" />
+                      <div className="relative group">
+                        <MapPin className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
                         <input
                           type="text"
                           required
@@ -526,9 +572,9 @@ export const OrderRequestPage: React.FC = () => {
                           value={pincode}
                           onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
                           placeholder="e.g. 814112"
-                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] shadow-none"
+                          className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
                         />
-                        {isFetchingPin && <Loader2 className="w-4 h-4 text-[#E59210] absolute right-3.5 top-3 animate-spin" />}
+                        {isFetchingPin && <Loader2 className="w-4 h-4 text-[#500A18] absolute right-3.5 top-3 animate-spin" />}
                       </div>
                     </div>
                     
@@ -541,7 +587,7 @@ export const OrderRequestPage: React.FC = () => {
                         value={city}
                         onChange={e => setCity(e.target.value)}
                         placeholder={lang === 'hi' ? 'शहर दर्ज करें' : 'Enter City'}
-                        className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] shadow-none"
+                        className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
                       />
                     </div>
 
@@ -554,7 +600,7 @@ export const OrderRequestPage: React.FC = () => {
                         value={stateName}
                         onChange={e => setStateName(e.target.value)}
                         placeholder={lang === 'hi' ? 'राज्य दर्ज करें' : 'Enter State'}
-                        className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] shadow-none"
+                        className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
                       />
                     </div>
                   </div>
@@ -569,27 +615,29 @@ export const OrderRequestPage: React.FC = () => {
                       value={streetAddress}
                       onChange={e => setStreetAddress(e.target.value)}
                       placeholder={lang === 'hi' ? 'घर का नंबर, गली, या कोई पहचान...' : 'House No, Street, or Landmark...'}
-                      className="w-full p-3 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#E59210] leading-relaxed shadow-none"
+                      className="w-full p-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all leading-relaxed shadow-none"
                     />
                   </div>
 
-                  <div className="pt-4 flex items-center justify-between gap-4 border-t border-[#F4A62A]/20">
+                  <div className="pt-4 flex items-center justify-between gap-4 border-t border-[#500A18]/10 mt-6">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-5 py-3 rounded-xl bg-white border-2 border-[#F4A62A]/30 text-[#500A18] font-bold hover:bg-[#FDF4E3] hover:border-[#E59210] transition-colors cursor-pointer shadow-none flex items-center gap-2"
+                      className="px-5 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#500A18] font-bold hover:bg-[#FDF4E3] hover:border-[#500A18]/50 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-none flex items-center gap-2"
                     >
                       <ChevronLeft className="w-4 h-4" /> {lang === 'hi' ? 'पीछे' : 'Back'}
                     </button>
                     <button
                       type="submit"
-                      className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#F4A62A] via-[#E59210] to-[#F4A62A] text-white font-extrabold hover:shadow-lg transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm"
+                      className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm"
                     >
                       <Sparkles className="w-4 h-4" /> {lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request'}
                     </button>
                   </div>
-                </form>
+                </motion.form>
               )}
+              </AnimatePresence>
+            </div>
             </div>
           )}
 
