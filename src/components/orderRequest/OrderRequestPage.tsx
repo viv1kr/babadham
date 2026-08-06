@@ -57,6 +57,20 @@ export const OrderRequestPage: React.FC = () => {
   const [isFetchingPin, setIsFetchingPin] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState({ days: 18, hours: 14, minutes: 22, seconds: 45 });
+  const [blinkingTextIndex, setBlinkingTextIndex] = useState(0);
+
+  const blinkingTexts = [
+    'BOOK NOW',
+    'FAST BOOKING',
+    'जल्दी बुक करें'
+  ];
+
+  useEffect(() => {
+    const textInterval = setInterval(() => {
+      setBlinkingTextIndex((prev) => (prev + 1) % 3);
+    }, 1500);
+    return () => clearInterval(textInterval);
+  }, []);
 
   useEffect(() => {
     const targetDate = new Date(new Date().getFullYear(), 7, 25, 23, 59, 59).getTime();
@@ -408,11 +422,22 @@ export const OrderRequestPage: React.FC = () => {
                 />
                 
                 {/* Book Now Blinking Badge */}
-                <div className="relative z-10 flex items-center gap-2 bg-red-600/90 backdrop-blur-md border border-red-400/50 rounded-full px-4 py-1.5 mb-5 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-pulse">
+                <div className="relative z-10 flex items-center gap-2 bg-red-600/90 backdrop-blur-md border border-red-400/50 rounded-full px-4 py-1.5 mb-5 shadow-[0_0_15px_rgba(220,38,38,0.5)]">
                   <div className="w-2.5 h-2.5 rounded-full bg-white animate-bounce" />
-                  <span className="text-white text-xs sm:text-sm font-black tracking-widest uppercase drop-shadow-md">
-                    {lang === 'hi' ? 'अभी बुक करें, फास्ट बुकिंग!' : 'BOOK NOW, FAST BOOKING!'}
-                  </span>
+                  <div className="overflow-hidden relative h-5 sm:h-6 w-32 sm:w-40 flex items-center justify-center">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={blinkingTextIndex}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-white text-xs sm:text-sm font-black tracking-widest uppercase drop-shadow-md absolute text-center w-full"
+                      >
+                        {blinkingTexts[blinkingTextIndex]}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
                   <div className="w-2.5 h-2.5 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }} />
                 </div>
                 
