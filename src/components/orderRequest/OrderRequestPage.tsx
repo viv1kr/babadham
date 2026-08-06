@@ -416,16 +416,19 @@ export const OrderRequestPage: React.FC = () => {
                 
                 {/* Scalopped Seal Badge */}
                 <div className="w-[72px] h-[72px] shrink-0 relative flex items-center justify-center drop-shadow-md">
-                  {/* Create a scalloped/jagged edge effect using rotated squares */}
-                  <div className="absolute inset-0 bg-[#6E1120] rotate-0 rounded-sm" />
-                  <div className="absolute inset-0 bg-[#6E1120] rotate-[30deg] rounded-sm" />
-                  <div className="absolute inset-0 bg-[#6E1120] rotate-[60deg] rounded-sm" />
-                  <div className="absolute inset-0 bg-[#6E1120] rounded-full scale-[1.05]" />
+                  {/* Spinning Background */}
+                  <div className="absolute inset-0 animate-[spin_12s_linear_infinite]">
+                    {/* Create a scalloped/jagged edge effect using rotated squares */}
+                    <div className="absolute inset-0 bg-[#6E1120] rotate-0 rounded-sm" />
+                    <div className="absolute inset-0 bg-[#6E1120] rotate-[30deg] rounded-sm" />
+                    <div className="absolute inset-0 bg-[#6E1120] rotate-[60deg] rounded-sm" />
+                    <div className="absolute inset-0 bg-[#6E1120] rounded-full scale-[1.05]" />
+                    
+                    {/* Inner dashed circle */}
+                    <div className="absolute inset-1 rounded-full border border-dashed border-[#F5B642] opacity-80" />
+                  </div>
                   
-                  {/* Inner dashed circle */}
-                  <div className="absolute inset-1 rounded-full border border-dashed border-[#F5B642] opacity-80" />
-                  
-                  {/* Badge Content */}
+                  {/* Badge Content (Static) */}
                   <div className="relative z-10 flex flex-col items-center justify-center text-[#F5B642] px-1">
                      <span className="text-[10px] font-black leading-tight text-center tracking-wide">
                        100% शुद्ध<br/>प्रामाणिक
