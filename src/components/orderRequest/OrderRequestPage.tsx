@@ -456,8 +456,11 @@ export const OrderRequestPage: React.FC = () => {
                     <span className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-wide">
                       {timeLeft.days} {lang === 'hi' ? 'दिन' : 'Days'}
                     </span>
-                    <span className="text-base sm:text-lg text-white/90 leading-tight">
-                      {timeLeft.hours}{lang === 'hi' ? 'घंटे' : 'Hrs'}
+                    <span className="text-base sm:text-lg text-white/90 leading-tight flex items-end gap-1.5">
+                      <span>{timeLeft.hours}{lang === 'hi' ? 'घंटे' : 'Hrs'}</span>
+                      <span className="text-xs sm:text-sm text-[#F5B642] mb-0.5 animate-pulse tabular-nums font-bold">
+                        {String(timeLeft.seconds).padStart(2, '0')}s
+                      </span>
                     </span>
                   </div>
                 </div>
