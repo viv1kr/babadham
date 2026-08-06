@@ -911,10 +911,11 @@ export const OrderRequestsView: React.FC = () => {
                       />
                     </div>
                   </div>
-                ))}
               </div>
             </div>
-              {/* TAB 4: TEMPLE BELL AUDIO SOUND */}
+          )}
+
+          {/* TAB 4: TEMPLE BELL AUDIO SOUND */}
           {activeSubTab === 'media' && (
             <div className="bg-[#2B1217] p-6 rounded-2xl border border-[#F4A62A]/30 shadow-xl space-y-6">
               <div className="flex items-center justify-between border-b border-[#F4A62A]/20 pb-4">
