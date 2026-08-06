@@ -88,17 +88,32 @@ export const OrderRequestPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    const liveInterval = setInterval(() => {
-      setShowLiveBooking(true);
-      setTimeout(() => {
-        setShowLiveBooking(false);
+    let timeoutId: NodeJS.Timeout;
+
+    const scheduleNextBooking = () => {
+      // Random delay between 4 and 10 seconds
+      const randomDelay = Math.floor(Math.random() * (10000 - 4000 + 1)) + 4000;
+      
+      timeoutId = setTimeout(() => {
+        playTempleBell();
+        setShowLiveBooking(true);
+        
+        // Hide after 3.5 seconds
         setTimeout(() => {
-          setLiveBookingIndex((prev) => (prev + 1) % 5);
-        }, 500);
-      }, 2000);
-    }, 5000);
-    return () => clearInterval(liveInterval);
-  }, []);
+          setShowLiveBooking(false);
+          // Wait for exit animation to finish before swapping index
+          setTimeout(() => {
+            setLiveBookingIndex((prev) => (prev + 1) % 5);
+            scheduleNextBooking();
+          }, 1500);
+        }, 3500);
+      }, randomDelay);
+    };
+
+    scheduleNextBooking();
+    
+    return () => clearTimeout(timeoutId);
+  }, [playTempleBell]);
 
   useEffect(() => {
     const targetDate = new Date(new Date().getFullYear(), 7, 25, 23, 59, 59).getTime();
@@ -346,10 +361,10 @@ export const OrderRequestPage: React.FC = () => {
       <AnimatePresence>
         {showLiveBooking && (
           <motion.div
-            initial={{ opacity: 0, y: -100 }}
-            animate={{ opacity: 1, y: 120 }}
-            exit={{ opacity: 0, y: -100 }}
-            transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
+            initial={{ opacity: 0, y: -100, scale: 0.95 }}
+            animate={{ opacity: 1, y: 120, scale: 1 }}
+            exit={{ opacity: 0, y: -100, scale: 0.95 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="fixed top-0 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm pointer-events-none"
           >
             <div className="bg-white/95 backdrop-blur-xl border border-[#F4E1D2] shadow-2xl rounded-[20px] p-3 flex items-center gap-3">
