@@ -354,22 +354,10 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         
-        {/* Featured Video Branding Section (Zero Padding & Removable Close Button) */}
-        {videoEmbed && !isVideoDismissed && (
-          <div className="relative bg-[#2B1217] rounded-3xl border-2 border-[#F4A62A]/40 shadow-2xl overflow-hidden p-0 transition-all">
-            
-            {/* Removable Cut / Close Button (Top Right) */}
-            <button
-              onClick={() => setIsVideoDismissed(true)}
-              className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-[#1A0B0E]/85 hover:bg-[#7A1126] text-[#F4A62A] hover:text-white border border-[#F4A62A]/60 flex items-center justify-center shadow-xl backdrop-blur-md transition-all cursor-pointer group"
-              aria-label="Remove / Hide Video"
-              title="Remove / Hide Video"
-            >
-              <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            </button>
-
-            {/* Pure Video Player (Autoplay & Minimal Controls Only) */}
-            <div className="relative w-full aspect-video bg-black shadow-inner overflow-hidden">
+        {/* Full-Width Video Branding Section (Minimal Border Radius & Autoplay) */}
+        {videoEmbed && (
+          <div className="w-full bg-black rounded-xl border border-[#F4A62A]/40 shadow-2xl overflow-hidden p-0">
+            <div className="relative w-full aspect-video bg-black overflow-hidden">
               {videoEmbed.isIframe ? (
                 <iframe
                   src={videoEmbed.url}
@@ -391,7 +379,6 @@ export const OrderRequestPage: React.FC = () => {
                 />
               )}
             </div>
-
           </div>
         )}
 
