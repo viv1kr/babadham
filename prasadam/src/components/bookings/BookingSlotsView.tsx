@@ -48,11 +48,32 @@ export const BookingSlotsView: React.FC = () => {
         confirmBookingDiscount
       };
       
-      db?.updateBrandSettings({ bookingSlotsConfig: configObj });
+      const updatedSettings = db?.updateBrandSettings({ bookingSlotsConfig: configObj });
       
       localStorage.setItem('babadham_booking_slots_config', JSON.stringify(configObj));
       window.dispatchEvent(new Event('bbp_booking_config_updated'));
       window.dispatchEvent(new Event('storage'));
+
+      // Broadcast channels for live cross-tab/cross-origin sync
+      try {
+        const channel = new BroadcastChannel('bbp_brand_sync');
+        channel.postMessage({ type: 'BRAND_SETTINGS_UPDATED', settings: updatedSettings });
+        channel.close();
+      } catch (e) {}
+
+      try {
+        const dbChannel = new BroadcastChannel('bbp_db_sync');
+        dbChannel.postMessage({ type: 'DB_UPDATED' });
+        dbChannel.close();
+      } catch (e) {}
+
+      const frame = document.getElementById('babadham-sync-frame') as HTMLIFrameElement;
+      if (frame && frame.contentWindow) {
+        frame.contentWindow.postMessage({
+          type: 'SYNC_BRANDING_CROSS_ORIGIN',
+          settings: JSON.stringify(updatedSettings)
+        }, '*');
+      }
     } catch (e) {
       showToast('Failed to save settings.', 'error');
       setIsSaving(false);

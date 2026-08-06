@@ -67,37 +67,70 @@ export const OrderRequestPage: React.FC = () => {
   const loadBookingConfig = () => {
     try {
       let config = null;
+
+      // 1. Check brandSettings from StoreContext
       if (brandSettings?.bookingSlotsConfig) {
         config = brandSettings.bookingSlotsConfig;
       }
+
+      // 2. Check localStorage babadham_brand_settings
+      if (!config) {
+        const brandStr = localStorage.getItem('babadham_brand_settings');
+        if (brandStr) {
+          const parsed = JSON.parse(brandStr);
+          if (parsed.bookingSlotsConfig) config = parsed.bookingSlotsConfig;
+        }
+      }
+
+      // 3. Check localStorage babadham_mysql_db_v1
+      if (!config) {
+        const dbStr = localStorage.getItem('babadham_mysql_db_v1');
+        if (dbStr) {
+          const parsedDb = JSON.parse(dbStr);
+          if (parsedDb.brandSettings?.bookingSlotsConfig) {
+            config = parsedDb.brandSettings.bookingSlotsConfig;
+          }
+        }
+      }
+
+      // 4. Fallback to standalone key
       if (!config) {
         const stored = localStorage.getItem('babadham_booking_slots_config');
         if (stored) config = JSON.parse(stored);
       }
+
       if (config) {
-        if (config.confirmBookingAmount !== undefined) setBookingAmount(Number(config.confirmBookingAmount));
-        if (config.confirmBookingDiscount !== undefined) setBookingDiscountPercent(Number(config.confirmBookingDiscount));
+        if (config.confirmBookingAmount !== undefined && config.confirmBookingAmount !== '') {
+          setBookingAmount(Number(config.confirmBookingAmount));
+        }
+        if (config.confirmBookingDiscount !== undefined && config.confirmBookingDiscount !== '') {
+          setBookingDiscountPercent(Number(config.confirmBookingDiscount));
+        }
       }
     } catch(e) {}
   };
 
   useEffect(() => {
     loadBookingConfig();
-    const handleStorage = () => loadBookingConfig();
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('bbp_booking_config_updated', handleStorage as any);
+
+    const handleUpdate = () => loadBookingConfig();
+
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('bbp_booking_config_updated', handleUpdate as any);
+    window.addEventListener('bbp_db_updated', handleUpdate as any);
+
+    const pollInterval = setInterval(loadBookingConfig, 1000);
+
     return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('bbp_booking_config_updated', handleStorage as any);
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('bbp_booking_config_updated', handleUpdate as any);
+      window.removeEventListener('bbp_db_updated', handleUpdate as any);
+      clearInterval(pollInterval);
     };
   }, []);
 
   useEffect(() => {
-    if (brandSettings?.bookingSlotsConfig) {
-      const config = brandSettings.bookingSlotsConfig;
-      if (config.confirmBookingAmount !== undefined) setBookingAmount(Number(config.confirmBookingAmount));
-      if (config.confirmBookingDiscount !== undefined) setBookingDiscountPercent(Number(config.confirmBookingDiscount));
-    }
+    loadBookingConfig();
   }, [brandSettings]);
 
   const finalBookingAmount = Math.max(0, Math.round(bookingAmount - (bookingAmount * (bookingDiscountPercent / 100))));
