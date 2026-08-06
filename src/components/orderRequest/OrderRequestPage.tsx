@@ -701,16 +701,16 @@ export const OrderRequestPage: React.FC = () => {
                   <div className="pt-4">
                     <button
                       type="submit"
-                      disabled={!hasVisited || !age || !intent}
+                      disabled={!intent}
                       className="w-full py-4 sm:py-5 rounded-[24px] bg-gradient-to-b from-[#7A1323] to-[#5A0D18] text-white font-bold text-lg hover:from-[#8B1528] hover:to-[#6E1120] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-md flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="flex items-center gap-2 relative z-10">
-                        <Send className="w-5 h-5 -mt-0.5" />
-                        <span>{lang === 'hi' ? 'अनुरोध भेजें' : 'Send Request'}</span>
+                        <span>{lang === 'hi' ? 'अगला' : 'Next Step'}</span>
+                        <ChevronRight className="w-5 h-5 -mt-0.5" />
                       </div>
                       <span className="text-[10px] sm:text-[11px] font-normal opacity-80 mt-0.5 tracking-wide relative z-10">
-                        {lang === 'hi' ? 'आपका जानकारी सीधे हमारे टीम तक पहुंचेगा' : 'Your information directly reaches our team'}
+                        {lang === 'hi' ? 'अगले चरण पर जाएँ' : 'Proceed to next step'}
                       </span>
                     </button>
                     <div className="text-center mt-4 text-xs text-gray-500 flex items-center justify-center gap-1.5 font-medium">
