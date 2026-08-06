@@ -357,7 +357,7 @@ export const BookingSlotsView: React.FC = () => {
             <span className="text-xs sm:text-sm font-medium text-white/90">
               Booked Slots:
             </span>
-            <span className="text-lg sm:text-2xl font-black text-white tracking-wide">
+            <span className="text-xs sm:text-sm font-bold text-white tracking-wide text-center px-1">
               {slotPeriodText || '5 August to 19 August'}
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">

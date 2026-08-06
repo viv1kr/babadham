@@ -723,7 +723,7 @@ export const OrderRequestPage: React.FC = () => {
                       <span className="text-xs sm:text-sm font-medium text-white/90 shrink-0">
                         {lang === 'hi' ? 'उपलब्ध स्लॉट:' : 'Available Slots:'}
                       </span>
-                      <span className="text-base sm:text-xl font-black text-white tracking-wide text-center drop-shadow px-1 truncate">
+                      <span className="text-xs sm:text-sm font-bold text-white tracking-wide text-center drop-shadow px-1">
                         {slotPeriodText || '1St Week'}
                       </span>
                       <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A] shrink-0">
