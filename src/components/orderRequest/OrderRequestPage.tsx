@@ -1289,17 +1289,21 @@ export const OrderRequestPage: React.FC = () => {
                     {/* Live Devotee Trust Banner */}
                     {renderTrustBanner()}
 
-                    <div className="flex items-center justify-between gap-4 mt-2">
+                    <div className="flex items-center gap-3 mt-2">
+                      {/* Compact Icon-Only Back Button */}
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="px-5 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#500A18] font-bold hover:bg-[#FDF4E3] hover:border-[#500A18]/50 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-none flex items-center gap-2"
+                        title={lang === 'hi' ? 'पीछे जाएँ' : 'Go Back'}
+                        className="w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-white border-2 border-[#500A18]/20 text-[#500A18] hover:bg-[#FDF4E3] hover:border-[#500A18]/50 active:scale-95 transition-all cursor-pointer shadow-sm flex items-center justify-center shrink-0"
                       >
-                        <ChevronLeft className="w-4 h-4" /> {lang === 'hi' ? 'पीछे' : 'Back'}
+                        <ChevronLeft className="w-6 h-6 -ml-0.5" />
                       </button>
+
+                      {/* Full-Width Pay Now Button */}
                       <button
                         type="submit"
-                        className="relative overflow-hidden px-5 sm:px-7 py-3.5 sm:py-4 rounded-xl bg-gradient-to-r from-[#7A1323] via-[#9E1B32] to-[#5A0D18] text-white font-black hover:shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-lg flex items-center gap-3 border border-amber-400/30 group text-sm sm:text-base"
+                        className="relative overflow-hidden flex-1 py-3.5 sm:py-4.5 rounded-2xl bg-gradient-to-r from-[#7A1323] via-[#9E1B32] to-[#5A0D18] text-white font-black hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer shadow-xl flex items-center justify-between px-4 sm:px-6 border border-amber-400/30 group text-sm sm:text-base"
                       >
                         {/* Animated Sweeping Light Beam Shine Effect */}
                         <motion.div
@@ -1311,7 +1315,7 @@ export const OrderRequestPage: React.FC = () => {
 
                         <div className="relative z-10 flex items-center gap-2">
                           <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 animate-spin" />
-                          <span className="drop-shadow">
+                          <span className="drop-shadow tracking-wide font-extrabold text-base sm:text-lg">
                             {intent === 'booking' 
                               ? (lang === 'hi' ? `अभी भुगतान करें (₹${finalBookingAmount})` : `Pay Now (₹${finalBookingAmount})`)
                               : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
