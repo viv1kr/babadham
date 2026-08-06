@@ -23,7 +23,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Play,
-  Pause
+  Pause,
+  Tv
 } from 'lucide-react';
 
 export const OrderRequestPage: React.FC = () => {
@@ -105,6 +106,31 @@ export const OrderRequestPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const currentSlide = slides[slideIndex] || slides[0];
   const hasText = Boolean(currentSlide?.title || currentSlide?.subtitle);
+
+  const mediaConfig = activeSettings?.orderRequestMediaConfig || brandSettings?.orderRequestMediaConfig;
+
+  const getEmbedVideoUrl = (url?: string) => {
+    if (!url) return null;
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+
+    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
+      let videoId = '';
+      if (trimmed.includes('youtu.be/')) {
+        videoId = trimmed.split('youtu.be/')[1]?.split('?')[0] || '';
+      } else if (trimmed.includes('watch?v=')) {
+        videoId = trimmed.split('watch?v=')[1]?.split('&')[0] || '';
+      } else if (trimmed.includes('embed/')) {
+        videoId = trimmed.split('embed/')[1]?.split('?')[0] || '';
+      }
+      if (videoId) {
+        return { isIframe: true, url: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1` };
+      }
+    }
+    return { isIframe: false, url: trimmed };
+  };
+
+  const videoEmbed = getEmbedVideoUrl(mediaConfig?.videoUrl);
 
   useEffect(() => {
     if (!isPlaying || slides.length <= 1) return;
@@ -325,6 +351,46 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         
+        {/* Featured Video Branding Section */}
+        {videoEmbed && (
+          <div className="bg-[#2B1217] p-5 sm:p-7 rounded-3xl border-2 border-[#F4A62A]/40 shadow-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#F4A62A]/20 pb-3">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#1A0B0E] border border-[#F4A62A]/50 text-[#F4A62A] text-[10px] font-black uppercase tracking-wider mb-1">
+                  <Tv className="w-3.5 h-3.5 text-[#F4A62A]" /> Sacred Temple Video
+                </span>
+                <h3 className="font-serif-temple text-lg sm:text-2xl font-extrabold text-[#F4A62A]">
+                  {mediaConfig?.videoTitle || 'Deoghar Baba Dham Garbhagriha & Mahaprasad Video'}
+                </h3>
+              </div>
+              {mediaConfig?.videoSubtitle && (
+                <p className="text-xs text-[#FFF8F0]/85 font-medium max-w-sm sm:text-right leading-relaxed">
+                  {mediaConfig.videoSubtitle}
+                </p>
+              )}
+            </div>
+
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-[#F4A62A]/30 bg-black shadow-2xl">
+              {videoEmbed.isIframe ? (
+                <iframe
+                  src={videoEmbed.url}
+                  title={mediaConfig?.videoTitle || "Temple Prasad Video"}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={videoEmbed.url}
+                  controls
+                  className="w-full h-full object-cover"
+                  poster={mediaConfig?.bannerBgImageUrl}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Guarantees Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white p-4 rounded-2xl border border-[#F4A62A]/30 shadow-md flex items-center gap-3">
