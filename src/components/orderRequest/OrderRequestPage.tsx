@@ -63,7 +63,7 @@ export const OrderRequestPage: React.FC = () => {
 
   const [bookingAmount, setBookingAmount] = useState(251);
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(12);
-  const [slotPeriodText, setSlotPeriodText] = useState('1St Week');
+  const [slotPeriodText, setSlotPeriodText] = useState('5 August to 19 August');
   const [totalSlotLimit, setTotalSlotLimit] = useState(500);
   const [sessionConfirmedBookings, setSessionConfirmedBookings] = useState(0);
 
@@ -883,7 +883,7 @@ export const OrderRequestPage: React.FC = () => {
                               {lang === 'hi' ? 'बुक किए गए स्लॉट:' : 'Available Slots:'}
                             </span>
                             <span className="text-lg sm:text-2xl font-black text-white tracking-wide drop-shadow">
-                              {slotPeriodText || '1St Week'}
+                              {slotPeriodText || '5 August to 19 August'}
                             </span>
                             <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">
                               {liveTotalBookedSlots} / {totalSlotLimit}

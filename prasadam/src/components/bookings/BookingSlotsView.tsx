@@ -7,7 +7,7 @@ export const BookingSlotsView: React.FC = () => {
   const { showToast, db } = useAdmin();
   
   const [totalSlotLimit, setTotalSlotLimit] = useState('500');
-  const [slotPeriodText, setSlotPeriodText] = useState('1St Week');
+  const [slotPeriodText, setSlotPeriodText] = useState('5 August to 19 August');
   const [confirmBookingAmount, setConfirmBookingAmount] = useState('251');
   const [confirmBookingDiscount, setConfirmBookingDiscount] = useState('12');
   const [isSaving, setIsSaving] = useState(false);
@@ -153,7 +153,7 @@ export const BookingSlotsView: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Slot Period Title / Week Label */}
+        {/* Slot Time Period / Date Range */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -162,23 +162,53 @@ export const BookingSlotsView: React.FC = () => {
         >
           <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
             <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#F4A62A]" /> Slot Period Label
+              <Calendar className="w-4 h-4 text-[#F4A62A]" /> Slot Time Period / Date Range
             </h3>
             <p className="text-xs text-[#FFF8F0]/60 mt-1">
-              Custom text displayed on the slot bar (e.g., "1St Week", "2nd Week").
+              Select or enter the active dates (e.g., "5 August to 19 August").
             </p>
           </div>
-          <div className="p-6 bg-[#120508] flex-1">
-            <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
-              Period Text
-            </label>
-            <input
-              type="text"
-              value={slotPeriodText}
-              onChange={(e) => setSlotPeriodText(e.target.value)}
-              placeholder="e.g. 1St Week"
-              className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
-            />
+          <div className="p-6 bg-[#120508] flex-1 flex flex-col justify-between">
+            <div>
+              <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
+                Time Period / Dates Text
+              </label>
+              <input
+                type="text"
+                value={slotPeriodText}
+                onChange={(e) => setSlotPeriodText(e.target.value)}
+                placeholder="e.g. 5 August to 19 August"
+                className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all font-semibold"
+              />
+            </div>
+
+            {/* Quick Presets */}
+            <div className="mt-4 pt-3 border-t border-white/5">
+              <span className="text-[11px] text-[#FFF8F0]/60 font-medium block mb-2">Quick Presets:</span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSlotPeriodText('5 August to 19 August')}
+                  className="px-2.5 py-1 text-xs rounded-lg bg-[#2B1217] text-[#F4A62A] border border-[#F4A62A]/30 hover:bg-[#F4A62A] hover:text-[#120508] transition-all"
+                >
+                  5 Aug to 19 Aug
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSlotPeriodText('1st Week (1 - 7 Aug)')}
+                  className="px-2.5 py-1 text-xs rounded-lg bg-[#2B1217] text-[#F4A62A] border border-[#F4A62A]/30 hover:bg-[#F4A62A] hover:text-[#120508] transition-all"
+                >
+                  1st Week (1-7 Aug)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSlotPeriodText('2nd Week (8 - 15 Aug)')}
+                  className="px-2.5 py-1 text-xs rounded-lg bg-[#2B1217] text-[#F4A62A] border border-[#F4A62A]/30 hover:bg-[#F4A62A] hover:text-[#120508] transition-all"
+                >
+                  2nd Week (8-15 Aug)
+                </button>
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -256,7 +286,7 @@ export const BookingSlotsView: React.FC = () => {
               Booked Slots:
             </span>
             <span className="text-lg sm:text-2xl font-black text-white tracking-wide">
-              {slotPeriodText || '1St Week'}
+              {slotPeriodText || '5 August to 19 August'}
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">
               Live Dynamic / {totalSlotLimit || 500}
