@@ -192,6 +192,8 @@ export const OrderRequestPage: React.FC = () => {
         </p>
       </div>
     </div>
+  );
+
   const renderUpiLogos = () => (
     <div className="flex items-center -space-x-1.5 shrink-0 bg-white/95 p-1 rounded-full border border-white/50 shadow-md">
       {/* Paytm */}
