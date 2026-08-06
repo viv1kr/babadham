@@ -450,23 +450,22 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
                   className="space-y-4"
                 >
-                  {/* Premium Language Toggle */}
-                  <div className="flex items-center mb-4 ml-1 bg-white/60 backdrop-blur-md px-0.5 border border-[#E8E1D5]/80 shadow-[0_4px_12px_rgba(0,0,0,0.03)] w-fit self-start">
+                  {/* Language Selector */}
+                  <div className="flex items-center gap-1 mb-6 ml-2 border-b-2 border-gray-400 pb-0.5 w-fit">
                     <button 
                       type="button"
                       onClick={() => setLang('hi')}
-                      className={`relative px-3 text-[11px] sm:text-xs font-bold transition-all duration-300 ${lang === 'hi' ? 'text-[#500A18] shadow-[0_2px_8px_rgba(0,0,0,0.06)]' : 'text-gray-400 hover:text-gray-600'}`}
+                      className={`text-[15px] ${lang === 'hi' ? 'font-bold text-black' : 'font-medium text-black hover:text-gray-700'}`}
                     >
-                      {lang === 'hi' && <div className="absolute inset-0 bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] -z-10 border border-[#F5B642]/30" />}
-                      हिंदी
+                      Hindi
                     </button>
+                    <span className="text-gray-400 font-medium mx-1">|</span>
                     <button 
                       type="button"
                       onClick={() => setLang('en')}
-                      className={`relative px-3 text-[11px] sm:text-xs font-bold transition-all duration-300 ${lang === 'en' ? 'text-[#500A18] shadow-[0_2px_8px_rgba(0,0,0,0.06)]' : 'text-gray-400 hover:text-gray-600'}`}
+                      className={`text-[15px] ${lang === 'en' ? 'font-bold text-black' : 'font-medium text-black hover:text-gray-700'}`}
                     >
-                      {lang === 'en' && <div className="absolute inset-0 bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] -z-10 border border-[#F5B642]/30" />}
-                      ENG
+                      English
                     </button>
                   </div>
 
