@@ -718,6 +718,16 @@ export const OrderRequestPage: React.FC = () => {
                 
                 {/* Booking Slots Bar */}
                 <div className="relative z-10 w-full max-w-sm mt-5">
+                  {/* Active Slot Date Range Badge */}
+                  {slotPeriodText && (
+                    <div className="flex justify-center mb-2.5">
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#F5B642]/50 text-white text-xs sm:text-sm font-extrabold tracking-wide drop-shadow-md shadow-inner">
+                        <Calendar className="w-3.5 h-3.5 text-[#F5B642]" />
+                        {slotPeriodText}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-[#FDF1D9] text-xs font-medium mb-2 px-1">
                     <span>{lang === 'hi' ? 'कुल उपलब्ध स्लॉट:' : 'Available Slots:'}</span>
                     <span className="text-[#F5B642] font-black text-sm drop-shadow-md">
