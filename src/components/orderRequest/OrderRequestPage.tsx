@@ -55,6 +55,8 @@ export const OrderRequestPage: React.FC = () => {
   const [stateName, setStateName] = useState('');
   const [streetAddress, setStreetAddress] = useState('');
   const [isFetchingPin, setIsFetchingPin] = useState(false);
+  const [showLocationPopup, setShowLocationPopup] = useState(false);
+  const [hasAskedLocation, setHasAskedLocation] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState({ days: 18, hours: 14, minutes: 22, seconds: 45 });
   const [blinkingTextIndex, setBlinkingTextIndex] = useState(0);
@@ -125,17 +127,7 @@ export const OrderRequestPage: React.FC = () => {
             if (data.address.postcode) {
               setPincode(data.address.postcode);
             }
-            const addressParts = [];
-            const fields = ['house_number', 'road', 'neighbourhood', 'suburb', 'village', 'city_district', 'county', 'town'];
-            fields.forEach(field => {
-              if (data.address[field]) {
-                addressParts.push(data.address[field]);
-              }
-            });
-            
-            if (addressParts.length > 0) {
-              setStreetAddress(addressParts.join(', '));
-            } else if (data.display_name) {
+            if (data.display_name) {
               setStreetAddress(data.display_name);
             }
             showToast(lang === 'hi' ? 'स्थान सफलतापूर्वक पता चला!' : 'Location detected successfully!', 'success');
@@ -811,23 +803,13 @@ export const OrderRequestPage: React.FC = () => {
 
                   {/* Delivery Address Block */}
                   <div className="bg-[#FFF4F4] p-4 sm:p-5 rounded-[24px] border border-[#F2D6D6] shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
-                          <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
-                        </div>
-                        <h3 className="font-extrabold text-[#500A18] text-base sm:text-lg">
-                          {lang === 'hi' ? 'वितरण का पता' : 'Delivery Address'}
-                        </h3>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleDetectLocation}
-                        className="text-[10px] sm:text-xs font-bold bg-[#500A18] text-white px-3 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 hover:bg-[#7A1323] transition-colors shadow-sm active:scale-95"
-                      >
-                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                        {lang === 'hi' ? 'लोकेशन डिटेक्ट करें' : 'Detect Location'}
-                      </button>
+                      <h3 className="font-extrabold text-[#500A18] text-base sm:text-lg">
+                        {lang === 'hi' ? 'वितरण का पता' : 'Delivery Address'}
+                      </h3>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-2 mb-5">
@@ -839,6 +821,12 @@ export const OrderRequestPage: React.FC = () => {
                           maxLength={6}
                           value={pincode}
                           onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
+                          onClick={() => {
+                            if (!hasAskedLocation && !pincode) {
+                              setShowLocationPopup(true);
+                              setHasAskedLocation(true);
+                            }
+                          }}
                           className="peer w-full pl-10 pr-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
                           placeholder={lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
                         />
@@ -940,6 +928,54 @@ export const OrderRequestPage: React.FC = () => {
         </div>
 
       </div>
+
+      <AnimatePresence>
+        {showLocationPopup && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden text-center"
+            >
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#C16200] to-[#E59400]" />
+              <div className="w-16 h-16 bg-[#FDF1D9] rounded-full mx-auto flex items-center justify-center mb-4">
+                <MapPin className="w-8 h-8 text-[#C16200]" />
+              </div>
+              <h2 className="text-xl font-extrabold text-[#500A18] mb-2">
+                {lang === 'hi' ? 'स्वतः पता भरें?' : 'Auto-fill Address?'}
+              </h2>
+              <p className="text-gray-600 text-sm mb-6">
+                {lang === 'hi' 
+                  ? 'अपना पूरा पता, लैंडमार्क और पिनकोड तुरंत भरने के लिए अपने वर्तमान स्थान का उपयोग करें।' 
+                  : 'Use your current location to instantly fill your complete address, landmark, and pincode.'}
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setShowLocationPopup(false);
+                    handleDetectLocation();
+                  }}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-bold hover:shadow-lg transition-all active:scale-95"
+                >
+                  {lang === 'hi' ? 'हाँ, अनुमति दें' : 'Yes, Allow Location'}
+                </button>
+                <button
+                  onClick={() => setShowLocationPopup(false)}
+                  className="w-full py-3.5 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all active:scale-95"
+                >
+                  {lang === 'hi' ? 'नहीं, मैं टाइप करूँगा' : 'No, I will type'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
