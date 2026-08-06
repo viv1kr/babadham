@@ -331,7 +331,7 @@ export const OrderRequestPage: React.FC = () => {
         )}
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 -mt-12 sm:-mt-20">
+      <div className="w-full px-4 sm:px-6 relative z-10 -mt-12 sm:-mt-20">
         {/* Main Request Form or Confirmation Card */}
         <div className="bg-[#FDFBF7] rounded-3xl border border-[#E8E1D5] p-4 sm:p-8 space-y-6 text-[#2B1A16] shadow-xl">
           
@@ -382,27 +382,15 @@ export const OrderRequestPage: React.FC = () => {
             <div>
               <div className="flex flex-col items-center justify-center text-center mb-6 gap-3">
                 <div className="flex items-center justify-center gap-3">
-                   <span className="text-3xl text-[#D4AF37] leading-none drop-shadow-sm">🔱</span>
-                   <h3 className="font-serif-temple text-2xl sm:text-3xl font-bold text-[#500A18] leading-tight">
+                   <h3 className="font-serif-temple text-3xl sm:text-4xl font-extrabold text-[#500A18] leading-tight">
                      {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request'}
                    </h3>
-                   <span className="text-3xl text-[#D4AF37] leading-none drop-shadow-sm">🔱</span>
                 </div>
                 
                 <p className="text-xs sm:text-sm text-gray-600 font-medium">
                   {lang === 'hi' ? 'कृपया अपनी जानकारी भरें, हमारी टीम आपसे संपर्क करेगी।' : 'Please fill in your details, our team will contact you.'}
                 </p>
 
-                {/* Divider */}
-                <div className="flex items-center justify-center gap-2 text-[#D4AF37] opacity-90 mt-2">
-                  <div className="flex gap-2">
-                    {[1,2,3,4].map(i => <div key={i} className={`w-1.5 h-1.5 rounded-full bg-[#D4AF37] ${i === 1 ? 'opacity-40' : i === 2 ? 'opacity-60' : i === 3 ? 'opacity-80' : 'opacity-100'}`} />)}
-                  </div>
-                  <Landmark className="w-7 h-7 mx-1 text-[#D4AF37]" />
-                  <div className="flex gap-2">
-                    {[1,2,3,4].map(i => <div key={i} className={`w-1.5 h-1.5 rounded-full bg-[#D4AF37] ${i === 4 ? 'opacity-40' : i === 3 ? 'opacity-60' : i === 2 ? 'opacity-80' : 'opacity-100'}`} />)}
-                  </div>
-                </div>
               </div>
 
               {/* Promotional Banner */}
