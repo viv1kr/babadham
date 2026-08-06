@@ -58,42 +58,7 @@ export const Footer: React.FC = () => {
 
 
 
-      {/* Trust Seal Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-b border-[#F4A62A]/20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="flex flex-col items-center group cursor-default">
-            <div className="w-12 h-12 rounded-2xl bg-[#F4A62A]/15 text-[#F4A62A] flex items-center justify-center mb-2.5 border border-[#F4A62A]/30 group-hover:scale-110 group-hover:bg-[#F4A62A] group-hover:text-[#2B1A16] transition-all duration-300 shadow-md">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h4 className="font-serif-temple font-bold text-sm sm:text-base text-[#F4A62A]">100% Authentic</h4>
-            <p className="text-xs text-[#FFF8F0]/75 mt-0.5">Direct from Garbhagriha of Baidyanath Dham</p>
-          </div>
 
-          <div className="flex flex-col items-center group cursor-default">
-            <div className="w-12 h-12 rounded-2xl bg-[#F4A62A]/15 text-[#F4A62A] flex items-center justify-center mb-2.5 border border-[#F4A62A]/30 group-hover:scale-110 group-hover:bg-[#F4A62A] group-hover:text-[#2B1A16] transition-all duration-300 shadow-md">
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <h4 className="font-serif-temple font-bold text-sm sm:text-base text-[#F4A62A]">Pujari Blessed</h4>
-            <p className="text-xs text-[#FFF8F0]/75 mt-0.5">Chanted with Mahamrityunjaya Stotram</p>
-          </div>
-
-          <div className="flex flex-col items-center group cursor-default">
-            <div className="w-12 h-12 rounded-2xl bg-[#F4A62A]/15 text-[#F4A62A] flex items-center justify-center mb-2.5 border border-[#F4A62A]/30 group-hover:scale-110 group-hover:bg-[#F4A62A] group-hover:text-[#2B1A16] transition-all duration-300 shadow-md">
-              <Truck className="w-6 h-6" />
-            </div>
-            <h4 className="font-serif-temple font-bold text-sm sm:text-base text-[#F4A62A]">Express Air Courier</h4>
-            <p className="text-xs text-[#FFF8F0]/75 mt-0.5">Delivered across India in 24-48 Hours</p>
-          </div>
-
-          <div className="flex flex-col items-center group cursor-default">
-            <div className="w-12 h-12 rounded-2xl bg-[#F4A62A]/15 text-[#F4A62A] flex items-center justify-center mb-2.5 border border-[#F4A62A]/30 group-hover:scale-110 group-hover:bg-[#F4A62A] group-hover:text-[#2B1A16] transition-all duration-300 shadow-md">
-              <Package className="w-6 h-6" />
-            </div>
-            <h4 className="font-serif-temple font-bold text-sm sm:text-base text-[#F4A62A]">Sacred Packaging</h4>
-            <p className="text-xs text-[#FFF8F0]/75 mt-0.5">Sealed in clean, air-tight food-grade containers</p>
-          </div>
-        </div>
-      </div>
 
       {/* Main Footer Links (4 Column Grid with 100% Identical DOM Structure for We Are Offering & Our Policies) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
