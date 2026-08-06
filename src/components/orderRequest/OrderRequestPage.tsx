@@ -573,7 +573,7 @@ export const OrderRequestPage: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!devoteeName || !whatsappNumber) {
       showToast(lang === 'hi' ? 'कृपया अपना नाम और व्हाट्सएप नंबर दर्ज करें' : 'Please enter your Name and WhatsApp Number', 'warning');
@@ -601,32 +601,53 @@ export const OrderRequestPage: React.FC = () => {
       createdAt: new Date().toISOString()
     };
 
+    let existingRequests: any[] = [];
     try {
-      const STORAGE_KEY = 'babadham_order_requests';
-      const existingStr = localStorage.getItem(STORAGE_KEY);
-      const existing = existingStr ? JSON.parse(existingStr) : [];
-      const updated = [newReq, ...existing];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      const res = await fetch('/api/db?t=' + Date.now());
+      if (res.ok) {
+        const dbData = await res.json();
+        const serverReqs = dbData.babadham_order_requests || dbData.orderRequests;
+        if (Array.isArray(serverReqs)) {
+          existingRequests = serverReqs;
+        }
+      }
+    } catch (err) {}
 
-      // Trigger cross-tab & server database sync
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new Event('bbp_db_updated'));
+    if (existingRequests.length === 0) {
       try {
-        const channel = new BroadcastChannel('bbp_db_sync');
-        channel.postMessage({ type: 'DB_UPDATED' });
-        channel.close();
+        const localStr = localStorage.getItem('babadham_order_requests');
+        if (localStr) existingRequests = JSON.parse(localStr);
       } catch (err) {}
+    }
 
-      fetch('/api/db', {
+    const updated = [newReq, ...existingRequests.filter((r: any) => r.id !== newReq.id)];
+
+    try {
+      localStorage.setItem('babadham_order_requests', JSON.stringify(updated));
+    } catch (err) {}
+
+    try {
+      await fetch('/api/db', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'X-CSRF-Token': 'babadham_sec_token_882910',
           'X-Requested-With': 'XMLHttpRequest'
         },
-        body: JSON.stringify({ babadham_order_requests: updated })
-      }).catch(() => {});
+        body: JSON.stringify({ 
+          babadham_order_requests: updated,
+          orderRequests: updated 
+        })
+      });
+    } catch (err) {}
 
+    // Trigger cross-tab & server database sync
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('bbp_db_updated'));
+    try {
+      const channel = new BroadcastChannel('bbp_db_sync');
+      channel.postMessage({ type: 'DB_UPDATED' });
+      channel.close();
     } catch (err) {}
 
     setSubmittedReqNo(reqNo);

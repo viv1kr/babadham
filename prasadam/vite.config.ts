@@ -44,8 +44,25 @@ function fileUploadPlugin() {
               const dbPath = path.join(dataDir, 'database.json');
               const adminDbPath = path.join(adminDataDir, 'database.json');
 
-              fs.writeFileSync(dbPath, body);
-              fs.writeFileSync(adminDbPath, body);
+              let currentData = {};
+              if (fs.existsSync(dbPath)) {
+                try {
+                  const content = fs.readFileSync(dbPath, 'utf-8');
+                  currentData = JSON.parse(content);
+                } catch (e) {}
+              }
+
+              const incomingData = JSON.parse(body);
+              const mergedData = { ...currentData, ...incomingData };
+
+              if (currentData.brandSettings && incomingData.brandSettings) {
+                mergedData.brandSettings = { ...currentData.brandSettings, ...incomingData.brandSettings };
+              }
+
+              const mergedStr = JSON.stringify(mergedData, null, 2);
+
+              fs.writeFileSync(dbPath, mergedStr);
+              fs.writeFileSync(adminDbPath, mergedStr);
 
               res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({ success: true }));
