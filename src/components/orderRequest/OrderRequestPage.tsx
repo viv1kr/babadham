@@ -638,7 +638,6 @@ export const OrderRequestPage: React.FC = () => {
               )}
               </AnimatePresence>
             </div>
-            </div>
           )}
 
         </div>
