@@ -413,7 +413,7 @@ export const OrderRequestsView: React.FC = () => {
     { id: 'leads', label: 'LEADS & SUBMISSIONS', icon: FileText, badge: requests.length },
     { id: 'hero', label: 'HERO SLIDER BANNERS', icon: ImageIcon, badge: heroSlides.length },
     { id: 'trust', label: 'TRUST BADGES', icon: ShieldCheck },
-    { id: 'media', label: 'VIDEO & MEDIA BRANDING', icon: Tv }
+    { id: 'media', label: 'TEMPLE BELL AUDIO SOUND', icon: Bell }
   ];
 
   return (
@@ -914,18 +914,16 @@ export const OrderRequestsView: React.FC = () => {
                 ))}
               </div>
             </div>
-          )}
-
-          {/* TAB 4: VIDEO & MEDIA BRANDING */}
+              {/* TAB 4: TEMPLE BELL AUDIO SOUND */}
           {activeSubTab === 'media' && (
             <div className="bg-[#2B1217] p-6 rounded-2xl border border-[#F4A62A]/30 shadow-xl space-y-6">
               <div className="flex items-center justify-between border-b border-[#F4A62A]/20 pb-4">
                 <div>
                   <h3 className="font-serif-temple text-lg font-bold text-[#F4A62A] flex items-center gap-2">
-                    <Tv className="w-5 h-5 text-[#F4A62A]" /> Video & Media Branding
+                    <Bell className="w-5 h-5 text-[#F4A62A]" /> Temple Bell Audio Sound Settings
                   </h3>
                   <p className="text-xs text-[#FFF8F0]/70 mt-1">
-                    Set up promo video embeds and custom background graphics for the Order Request funnel.
+                    Upload your custom MP3 / WAV temple bell ring sound for storefront landing & hanging 3D bells.
                   </p>
                 </div>
 
@@ -934,300 +932,74 @@ export const OrderRequestsView: React.FC = () => {
                   onClick={handleSaveMediaConfig}
                   className="px-4 py-2 rounded-xl bg-[#F4A62A] text-[#2B1A16] font-extrabold text-xs hover:bg-white transition-all cursor-pointer shadow-lg flex items-center gap-1.5"
                 >
-                  <Save className="w-4 h-4" /> Save Media Settings
+                  <Save className="w-4 h-4" /> Save Sound Settings
                 </button>
               </div>
 
-    <div className="space-y-5">
-      
-      {/* Active Source Selector Tabs: Option 1 (YouTube URL) vs Option 2 (Upload File) */}
-      <div className="bg-[#120508] p-4 rounded-xl border border-[#F4A62A]/30 space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#F4A62A]/20 pb-3">
-          <label className="text-xs font-bold text-[#F4A62A] flex items-center gap-2">
-            <Video className="w-4 h-4 text-[#F4A62A]" /> Choose Active Video Source
-          </label>
-
-          <div className="flex items-center gap-2 bg-[#1A0B0E] p-1 rounded-xl border border-[#F4A62A]/30">
-            <button
-              type="button"
-              onClick={() => {
-                const updated = { 
-                  ...mediaConfig, 
-                  videoSourceType: 'youtube' as const, 
-                  videoUrl: mediaConfig.youtubeUrl || (mediaConfig.videoUrl && !mediaConfig.videoUrl.startsWith('data:') ? mediaConfig.videoUrl : '') 
-                };
-                setMediaConfig(updated);
-                saveBrandSettings({ orderRequestMediaConfig: updated });
-                syncToStorefront(updated);
-                showToast('Switched active video source to YouTube URL', 'info');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                (mediaConfig.videoSourceType === 'youtube' || (!mediaConfig.videoSourceType && !mediaConfig.uploadedVideoUrl))
-                  ? 'bg-[#F4A62A] text-[#2B1A16] shadow-md'
-                  : 'text-[#FFF8F0]/70 hover:text-white'
-              }`}
-            >
-              📺 YouTube URL Link
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const updated = { 
-                  ...mediaConfig, 
-                  videoSourceType: 'upload' as const, 
-                  videoUrl: mediaConfig.uploadedVideoUrl || mediaConfig.videoUrl || '' 
-                };
-                setMediaConfig(updated);
-                saveBrandSettings({ orderRequestMediaConfig: updated });
-                syncToStorefront(updated);
-                showToast('Switched active video source to Uploaded Video File', 'info');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                (mediaConfig.videoSourceType === 'upload' || (!mediaConfig.videoSourceType && Boolean(mediaConfig.uploadedVideoUrl)))
-                  ? 'bg-[#F4A62A] text-[#2B1A16] shadow-md'
-                  : 'text-[#FFF8F0]/70 hover:text-white'
-              }`}
-            >
-              📁 Uploaded Video File
-            </button>
-          </div>
-        </div>
-
-        {/* OPTION 1: YouTube / External Video Embed Link */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-bold text-[#FFF8F0]/90">
-            Option 1: YouTube / External Video URL Link
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={mediaConfig.youtubeUrl || (mediaConfig.videoUrl && !mediaConfig.videoUrl.startsWith('data:') ? mediaConfig.videoUrl : '')}
-              onChange={e => {
-                const val = e.target.value;
-                const updated = {
-                  ...mediaConfig,
-                  youtubeUrl: val,
-                  videoUrl: (mediaConfig.videoSourceType === 'upload' && mediaConfig.uploadedVideoUrl) ? mediaConfig.uploadedVideoUrl : val
-                };
-                setMediaConfig(updated);
-              }}
-              placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtu.be/..."
-              className="flex-1 bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-            />
-            {(mediaConfig.youtubeUrl || (mediaConfig.videoUrl && !mediaConfig.videoUrl.startsWith('data:'))) && (
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = {
-                    ...mediaConfig,
-                    youtubeUrl: '',
-                    videoUrl: mediaConfig.videoSourceType === 'youtube' ? '' : (mediaConfig.uploadedVideoUrl || '')
-                  };
-                  setMediaConfig(updated);
-                  saveBrandSettings({ orderRequestMediaConfig: updated });
-                  syncToStorefront(updated);
-                  showToast('YouTube URL link cleared', 'info');
-                }}
-                className="px-3 py-2.5 bg-red-950/80 hover:bg-red-900 text-red-300 rounded-xl text-xs font-bold border border-red-500/30 shrink-0 cursor-pointer"
-              >
-                Clear Link
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* OPTION 2: Local Video File Upload (MP4 / WebM) */}
-        <div className="space-y-1.5 pt-2 border-t border-[#F4A62A]/15">
-          <label className="block text-xs font-bold text-[#FFF8F0]/90 flex items-center justify-between">
-            <span>Option 2: Upload Video File directly from computer (MP4 / WebM)</span>
-            {mediaConfig.uploadedVideoUrl && (
-              <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/90 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                ✓ Local Video File Uploaded
-              </span>
-            )}
-          </label>
-          
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <label className="flex-1 px-4 py-2.5 bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/40 rounded-xl cursor-pointer text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md">
-              <Upload className="w-4 h-4" /> Click to Select & Upload MP4 Video File
-              <input
-                type="file"
-                accept="video/*"
-                className="hidden"
-                onChange={e => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      const dataUrl = event.target?.result as string;
-                      const updatedMedia = { 
-                        ...mediaConfig, 
-                        uploadedVideoUrl: dataUrl, 
-                        videoUrl: dataUrl,
-                        videoSourceType: 'upload' as const
-                      };
-                      setMediaConfig(updatedMedia);
-                      const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia };
-                      saveBrandSettings({ orderRequestMediaConfig: updatedMedia });
-                      
-                      try {
-                        localStorage.setItem('babadham_uploaded_video', dataUrl);
-                      } catch (err) {
-                        try {
-                          sessionStorage.setItem('babadham_uploaded_video', dataUrl);
-                        } catch (e2) {}
-                      }
-
-                      try {
-                        localStorage.setItem('babadham_brand_settings', JSON.stringify(updatedSettings));
-                      } catch (err) {}
-
-                      syncToStorefront(updatedSettings);
-                      showToast('Video file uploaded & set as active video!', 'success');
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-              />
-            </label>
-
-            {mediaConfig.uploadedVideoUrl && (
-              <button
-                type="button"
-                onClick={() => {
-                  try {
-                    localStorage.removeItem('babadham_uploaded_video');
-                    sessionStorage.removeItem('babadham_uploaded_video');
-                  } catch (e) {}
-                  const updated = {
-                    ...mediaConfig,
-                    uploadedVideoUrl: '',
-                    videoUrl: mediaConfig.youtubeUrl || '',
-                    videoSourceType: 'youtube' as const
-                  };
-                  setMediaConfig(updated);
-                  saveBrandSettings({ orderRequestMediaConfig: updated });
-                  syncToStorefront(updated);
-                  showToast('Uploaded video file removed', 'info');
-                }}
-                className="px-3 py-2.5 bg-red-950/80 hover:bg-red-900 text-red-300 rounded-xl text-xs font-bold border border-red-500/30 shrink-0 cursor-pointer flex items-center justify-center gap-1"
-              >
-                <Trash2 className="w-3.5 h-3.5" /> Remove Uploaded File
-              </button>
-            )}
-          </div>
-        </div>
-
-      </div>
-
-                {/* Temple Bell Ring Sound Audio Config */}
-                <div className="bg-[#120508] p-4 rounded-xl border border-[#F4A62A]/30 space-y-3">
-                  <label className="block text-xs font-bold text-[#F4A62A] flex items-center justify-between">
-                    <span className="flex items-center gap-1.5"><Bell className="w-4 h-4 text-[#F4A62A]" /> Landing & Header Temple Bell Audio Sound (MP3 / WAV)</span>
-                    {mediaConfig.bellAudioUrl && (
-                      <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">✓ Custom Audio Active</span>
-                    )}
+              {/* Temple Bell Ring Sound Audio Config */}
+              <div className="bg-[#120508] p-5 rounded-xl border border-[#F4A62A]/30 space-y-4">
+                <label className="block text-xs font-bold text-[#F4A62A] flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-sm"><Bell className="w-4 h-4 text-[#F4A62A]" /> Landing & Header Temple Bell Audio Sound (MP3 / WAV)</span>
+                  {mediaConfig.bellAudioUrl && (
+                    <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">✓ Custom Audio Active</span>
+                  )}
+                </label>
+                
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                  <input
+                    type="text"
+                    value={mediaConfig.bellAudioUrl || ''}
+                    onChange={e => setMediaConfig({ ...mediaConfig, bellAudioUrl: e.target.value })}
+                    placeholder="Upload MP3 file or enter Audio URL..."
+                    className="flex-1 bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
+                  />
+                  
+                  <label className="px-4 py-2.5 bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/40 rounded-xl cursor-pointer text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-md">
+                    <Upload className="w-4 h-4" /> Upload Bell Audio File
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      className="hidden"
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const dataUrl = event.target?.result as string;
+                            const updatedMedia = { ...mediaConfig, bellAudioUrl: dataUrl };
+                            setMediaConfig(updatedMedia);
+                            const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia, bellAudioUrl: dataUrl };
+                            saveBrandSettings({ orderRequestMediaConfig: updatedMedia, bellAudioUrl: dataUrl });
+                            syncToStorefront(updatedSettings);
+                            showToast('Temple Bell Audio sound uploaded & saved successfully!', 'success');
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
                   </label>
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <input
-                      type="text"
-                      value={mediaConfig.bellAudioUrl || ''}
-                      onChange={e => setMediaConfig({ ...mediaConfig, bellAudioUrl: e.target.value })}
-                      placeholder="Upload MP3 file or enter Audio URL..."
-                      className="flex-1 bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                    />
-                    <label className="px-3.5 py-2.5 bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/40 rounded-xl cursor-pointer text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-md">
-                      <Upload className="w-3.5 h-3.5" /> Upload Bell Audio
-                      <input
-                        type="file"
-                        accept="audio/*"
-                        className="hidden"
-                        onChange={e => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              const dataUrl = event.target?.result as string;
-                              const updatedMedia = { ...mediaConfig, bellAudioUrl: dataUrl };
-                              setMediaConfig(updatedMedia);
-                              const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia, bellAudioUrl: dataUrl };
-                              saveBrandSettings({ orderRequestMediaConfig: updatedMedia, bellAudioUrl: dataUrl });
-                              syncToStorefront(updatedSettings);
-                              showToast('Temple Bell Audio sound uploaded & saved!', 'success');
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                      />
-                    </label>
-                    {mediaConfig.bellAudioUrl && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          try {
-                            const audio = new Audio(mediaConfig.bellAudioUrl);
-                            audio.play();
-                            showToast('Playing custom bell sound preview...', 'info');
-                          } catch (err) {
-                            showToast('Unable to play custom sound', 'error');
-                          }
-                        }}
-                        className="px-3.5 py-2.5 bg-[#F4A62A] hover:bg-white text-[#2B1A16] rounded-xl text-xs font-extrabold shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
-                      >
-                        <Volume2 className="w-4 h-4" /> Test Sound
-                      </button>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-[#FFF8F0]/65 leading-relaxed">
-                    Upload your custom MP3/WAV temple bell sound. It will automatically ring when devotees land on the Order Request page and when touching the hanging 3D bell!
-                  </p>
+
+                  {mediaConfig.bellAudioUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          const audio = new Audio(mediaConfig.bellAudioUrl);
+                          audio.play();
+                          showToast('Playing custom bell sound preview...', 'info');
+                        } catch (err) {
+                          showToast('Unable to play custom sound', 'warning');
+                        }
+                      }}
+                      className="px-3.5 py-2.5 bg-[#F4A62A] hover:bg-white text-[#2B1A16] rounded-xl text-xs font-extrabold shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
+                    >
+                      <Volume2 className="w-4 h-4" /> Test Sound
+                    </button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Video Section Title (Bottom of Video)</label>
-                    <input
-                      type="text"
-                      value={mediaConfig.videoTitle || ''}
-                      onChange={e => setMediaConfig({ ...mediaConfig, videoTitle: e.target.value })}
-                      placeholder="Leave empty if you don't want title..."
-                      className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Video Description (Bottom of Video)</label>
-                    <input
-                      type="text"
-                      value={mediaConfig.videoSubtitle || ''}
-                      onChange={e => setMediaConfig({ ...mediaConfig, videoSubtitle: e.target.value })}
-                      placeholder="Leave empty if you don't want description..."
-                      className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Optional Action Link URL (Below Video)</label>
-                    <input
-                      type="text"
-                      value={mediaConfig.videoCtaUrl || ''}
-                      onChange={e => setMediaConfig({ ...mediaConfig, videoCtaUrl: e.target.value })}
-                      placeholder="e.g. https://youtube.com/channel/... or /catalog"
-                      className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Action Link Button Text</label>
-                    <input
-                      type="text"
-                      value={mediaConfig.videoCtaText || ''}
-                      onChange={e => setMediaConfig({ ...mediaConfig, videoCtaText: e.target.value })}
-                      placeholder="e.g. Watch Full Darshan / Learn More"
-                      className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                    />
-                  </div>
-                </div>
+                <p className="text-[11px] text-[#FFF8F0]/65 leading-relaxed">
+                  Upload your custom MP3/WAV temple bell sound. It will automatically ring when devotees land on the Order Request page and when touching the hanging 3D bell!
               </div>
             </div>
           )}

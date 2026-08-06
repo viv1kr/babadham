@@ -108,53 +108,7 @@ export const OrderRequestPage: React.FC = () => {
   const currentSlide = slides[slideIndex] || slides[0];
   const hasText = Boolean(currentSlide?.title || currentSlide?.subtitle);
 
-  const mediaConfig = (() => {
-    const baseConfig = activeSettings?.orderRequestMediaConfig || brandSettings?.orderRequestMediaConfig || {};
-    let url = '';
 
-    if (baseConfig.videoSourceType === 'upload' && baseConfig.uploadedVideoUrl) {
-      url = baseConfig.uploadedVideoUrl;
-    } else if (baseConfig.videoSourceType === 'youtube' && baseConfig.youtubeUrl) {
-      url = baseConfig.youtubeUrl;
-    } else if (baseConfig.uploadedVideoUrl) {
-      url = baseConfig.uploadedVideoUrl;
-    } else if (baseConfig.youtubeUrl) {
-      url = baseConfig.youtubeUrl;
-    } else {
-      url = baseConfig.videoUrl || '';
-    }
-
-    if (!url || url.trim().length === 0) {
-      try {
-        const stored = localStorage.getItem('babadham_uploaded_video') || sessionStorage.getItem('babadham_uploaded_video');
-        if (stored && stored.trim().length > 0) url = stored;
-      } catch (e) {}
-    }
-    return { ...baseConfig, videoUrl: url };
-  })();
-
-  const getEmbedVideoUrl = (url?: string) => {
-    if (!url) return null;
-    const trimmed = url.trim();
-    if (!trimmed) return null;
-
-    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
-      let videoId = '';
-      if (trimmed.includes('youtu.be/')) {
-        videoId = trimmed.split('youtu.be/')[1]?.split('?')[0] || '';
-      } else if (trimmed.includes('watch?v=')) {
-        videoId = trimmed.split('watch?v=')[1]?.split('&')[0] || '';
-      } else if (trimmed.includes('embed/')) {
-        videoId = trimmed.split('embed/')[1]?.split('?')[0] || '';
-      }
-      if (videoId) {
-        return { isIframe: true, url: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&muted=1&playsinline=1&controls=1&rel=0&modestbranding=1&showinfo=0&iv_load_policy=3` };
-      }
-    }
-    return { isIframe: false, url: trimmed };
-  };
-
-  const videoEmbed = getEmbedVideoUrl(mediaConfig?.videoUrl);
 
   useEffect(() => {
     if (!isPlaying || slides.length <= 1) return;
@@ -375,65 +329,7 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         
-        {/* Full-Width Video Branding Section (Customized Player + Title, Description & CTA Link) */}
-        {videoEmbed && (
-          <div className="w-full bg-[#2B1217] rounded-xl border border-[#F4A62A]/40 shadow-2xl overflow-hidden p-0">
-            
-            {/* Video Player (Customized YouTube / MP4 Player) */}
-            <div className="relative w-full aspect-video bg-black overflow-hidden">
-              {videoEmbed.isIframe ? (
-                <iframe
-                  src={videoEmbed.url}
-                  title={mediaConfig?.videoTitle || "Temple Prasad Video"}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  src={videoEmbed.url}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  controls
-                  className="w-full h-full object-cover"
-                  poster={mediaConfig?.bannerBgImageUrl}
-                />
-              )}
-            </div>
 
-            {/* Video Title, Description & Action Link CTA (Displayed Below Video) */}
-            {(Boolean(mediaConfig?.videoTitle?.trim()) || Boolean(mediaConfig?.videoSubtitle?.trim()) || Boolean(mediaConfig?.videoCtaUrl?.trim())) && (
-              <div className="p-3.5 sm:p-4 bg-[#1A0B0E]/90 border-t border-[#F4A62A]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="space-y-0.5 max-w-xl">
-                  {mediaConfig?.videoTitle && mediaConfig.videoTitle.trim().length > 0 && (
-                    <h3 className="font-serif-temple text-base sm:text-lg font-extrabold text-[#F4A62A]">
-                      {mediaConfig.videoTitle}
-                    </h3>
-                  )}
-                  {mediaConfig?.videoSubtitle && mediaConfig.videoSubtitle.trim().length > 0 && (
-                    <p className="text-xs text-[#FFF8F0]/85 leading-relaxed font-medium">
-                      {mediaConfig.videoSubtitle}
-                    </p>
-                  )}
-                </div>
-
-                {mediaConfig?.videoCtaUrl && mediaConfig.videoCtaUrl.trim().length > 0 && (
-                  <a
-                    href={mediaConfig.videoCtaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-[#2B1A16] font-extrabold text-xs hover:bg-white transition-all shadow-md shrink-0 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    {mediaConfig?.videoCtaText?.trim() || 'Watch / Learn More'} <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-              </div>
-            )}
-
-          </div>
-        )}
 
         {/* Guarantees Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
