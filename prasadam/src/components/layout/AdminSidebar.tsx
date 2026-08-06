@@ -24,7 +24,8 @@ import {
   Truck,
   Factory,
   Zap,
-  FolderOpen
+  FolderOpen,
+  Calendar
 } from 'lucide-react';
 import { PolicySubTab } from '../policies/PoliciesView';
 import { ProductSubTab } from '../products/ProductsView';
@@ -56,6 +57,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { id: 'order-requests', label: 'Order Requests', icon: FileText },
     { id: 'content', label: 'Content & Media Library', icon: FolderOpen },
     { id: 'coupons', label: 'Coupons & Discounts', icon: Tag },
+    { id: 'booking-slots', label: 'Booking Slots Management', icon: Calendar },
     { id: 'branding', label: 'Brand & Header Editor', icon: Palette },
   ];
 
