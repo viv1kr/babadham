@@ -127,7 +127,7 @@ export const OrderRequestPage: React.FC = () => {
         videoId = trimmed.split('embed/')[1]?.split('?')[0] || '';
       }
       if (videoId) {
-        return { isIframe: true, url: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1` };
+        return { isIframe: true, url: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&muted=1&playsinline=1&controls=1&rel=0&modestbranding=1&showinfo=0&iv_load_policy=3` };
       }
     }
     return { isIframe: false, url: trimmed };
@@ -368,12 +368,12 @@ export const OrderRequestPage: React.FC = () => {
               <X className="w-4 h-4 group-hover:scale-110 transition-transform" />
             </button>
 
-            {/* Video Player (Zero Padding Edge-to-Edge) */}
+            {/* Pure Video Player (Autoplay & Minimal Controls Only) */}
             <div className="relative w-full aspect-video bg-black shadow-inner overflow-hidden">
               {videoEmbed.isIframe ? (
                 <iframe
                   src={videoEmbed.url}
-                  title={mediaConfig?.videoTitle || "Temple Prasad Video"}
+                  title="Temple Prasad Video"
                   className="w-full h-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -381,41 +381,16 @@ export const OrderRequestPage: React.FC = () => {
               ) : (
                 <video
                   src={videoEmbed.url}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
                   controls
                   className="w-full h-full object-cover"
                   poster={mediaConfig?.bannerBgImageUrl}
                 />
               )}
             </div>
-
-            {/* Optional Bottom Details & Link (Rendered Below Video ONLY if present) */}
-            {(Boolean(mediaConfig?.videoTitle?.trim()) || Boolean(mediaConfig?.videoSubtitle?.trim()) || Boolean(mediaConfig?.videoCtaUrl?.trim())) && (
-              <div className="p-4 sm:p-5 bg-[#1A0B0E]/60 border-t border-[#F4A62A]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="space-y-1 max-w-xl">
-                  {mediaConfig?.videoTitle && mediaConfig.videoTitle.trim().length > 0 && (
-                    <h3 className="font-serif-temple text-lg sm:text-xl font-extrabold text-[#F4A62A]">
-                      {mediaConfig.videoTitle}
-                    </h3>
-                  )}
-                  {mediaConfig?.videoSubtitle && mediaConfig.videoSubtitle.trim().length > 0 && (
-                    <p className="text-xs text-[#FFF8F0]/85 leading-relaxed font-medium">
-                      {mediaConfig.videoSubtitle}
-                    </p>
-                  )}
-                </div>
-
-                {mediaConfig?.videoCtaUrl && mediaConfig.videoCtaUrl.trim().length > 0 && (
-                  <a
-                    href={mediaConfig.videoCtaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-[#2B1A16] font-extrabold text-xs hover:bg-white transition-all shadow-md shrink-0 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    {mediaConfig?.videoCtaText?.trim() || 'Watch / Learn More'} <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-              </div>
-            )}
 
           </div>
         )}
