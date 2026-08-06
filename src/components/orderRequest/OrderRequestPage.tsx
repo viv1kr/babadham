@@ -416,33 +416,26 @@ export const OrderRequestPage: React.FC = () => {
                   <div className="w-2.5 h-2.5 rounded-full bg-white animate-bounce" style={{ animationDelay: '0.2s' }} />
                 </div>
                 
-                {/* Countdown Timer */}
-                <div className="relative z-10 flex gap-2 sm:gap-4 mb-6">
-                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
-                    <span className="text-2xl sm:text-3xl font-black text-white">{timeLeft.days}</span>
-                    <span className="text-[9px] sm:text-[10px] text-white/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'दिन' : 'Days'}</span>
+                {/* Minimal Countdown Timer */}
+                <div className="relative z-10 flex items-center justify-center gap-6 sm:gap-10 mb-6 mt-2">
+                  <div className="flex flex-col items-start">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-wide">
+                      {lang === 'hi' ? 'श्रावण' : 'Shravan'}
+                    </span>
+                    <span className="text-base sm:text-lg text-white/90 leading-tight">
+                      {lang === 'hi' ? 'समाप्त' : 'Ending'}
+                    </span>
                   </div>
-                  <span className="text-2xl sm:text-3xl font-black text-white/30 self-start mt-2 sm:mt-3">:</span>
-                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
-                    <span className="text-2xl sm:text-3xl font-black text-white">{timeLeft.hours}</span>
-                    <span className="text-[9px] sm:text-[10px] text-white/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'घंटे' : 'Hrs'}</span>
-                  </div>
-                  <span className="text-2xl sm:text-3xl font-black text-white/30 self-start mt-2 sm:mt-3">:</span>
-                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
-                    <span className="text-2xl sm:text-3xl font-black text-white">{timeLeft.minutes}</span>
-                    <span className="text-[9px] sm:text-[10px] text-white/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'मिनट' : 'Mins'}</span>
-                  </div>
-                  <span className="text-2xl sm:text-3xl font-black text-white/30 self-start mt-2 sm:mt-3">:</span>
-                  <div className="flex flex-col items-center bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl p-2 sm:p-3 w-14 sm:w-16 shadow-inner">
-                    <span className="text-2xl sm:text-3xl font-black text-[#F5B642]">{timeLeft.seconds}</span>
-                    <span className="text-[9px] sm:text-[10px] text-[#F5B642]/70 uppercase font-bold tracking-wider">{lang === 'hi' ? 'सेकंड' : 'Secs'}</span>
+                  <div className="w-[1px] h-12 sm:h-14 bg-white/30 rounded-full" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-wide">
+                      {timeLeft.days} {lang === 'hi' ? 'दिन' : 'Days'}
+                    </span>
+                    <span className="text-base sm:text-lg text-white/90 leading-tight">
+                      {timeLeft.hours}{lang === 'hi' ? 'घंटे' : 'Hrs'}
+                    </span>
                   </div>
                 </div>
-                
-                {/* Main Heading */}
-                <h3 className="relative z-10 font-serif-temple text-2xl sm:text-3xl font-black text-[#FDF1D9] leading-tight mb-2 drop-shadow-lg">
-                   {lang === 'hi' ? 'सीमित समय शेष' : 'Limited Time Remaining'}
-                </h3>
                 
                 {/* Booking Slots Bar */}
                 <div className="relative z-10 w-full max-w-sm mt-5">
