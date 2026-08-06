@@ -28,11 +28,14 @@ class MySQLSim {
       }
       if (res.ok) {
         const data = await res.json();
-        if (data && !data.empty && data.products) {
-          this.store = data;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        if (data && !data.empty) {
+          this.store = { ...this.store, ...data };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.store));
           if (data.brandSettings) {
             localStorage.setItem('babadham_brand_settings', JSON.stringify(data.brandSettings));
+            if (data.brandSettings.bookingSlotsConfig) {
+              localStorage.setItem('babadham_booking_slots_config', JSON.stringify(data.brandSettings.bookingSlotsConfig));
+            }
           }
           window.dispatchEvent(new Event('bbp_db_updated'));
         }

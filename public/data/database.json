@@ -1,1 +1,33 @@
-{"babadham_order_requests":[{"id":"req-1786021827131","reqNo":"REQ-2026-5699","devoteeName":"Raul Kumar","phone":"9545784514","email":"devotee@babadham.org","address":"Palsana Taluka, Surat, Gujarat, 394327, India, Surat, Gujarat, 394327","requestType":"Confirmed Booking (₹151)","details":"Visited: no, Age: ","preferredDate":"2026-08-06","estimatedAmount":151,"status":"Pending","createdAt":"2026-08-06T13:10:27.131Z"}]}
+{
+  "brandSettings": {
+    "brandName": "BABA BAIDYANATH PRASADAM",
+    "tagline": "aastha | seva | samarpan",
+    "topBarSacredText": "ॐ हर हर महादेव ॐ",
+    "helplineNumber": "+91 98765 43210",
+    "whatsappNumber": "+91 98765 43211",
+    "supportEmail": "support@babadham.org",
+    "address": "Baidyanath Temple Complex, Main Gate Road, Deoghar, Jharkhand - 814112",
+    "bookingSlotsConfig": {
+      "timeLimit": "23:59",
+      "totalSlotLimit": 500,
+      "confirmBookingAmount": "251",
+      "confirmBookingDiscount": "12"
+    }
+  },
+  "babadham_order_requests": [
+    {
+      "id": "req-1786021827131",
+      "reqNo": "REQ-2026-5699",
+      "devoteeName": "Raul Kumar",
+      "phone": "9545784514",
+      "email": "devotee@babadham.org",
+      "address": "Palsana Taluka, Surat, Gujarat, 394327, India, Surat, Gujarat, 394327",
+      "requestType": "Confirmed Booking (₹221)",
+      "details": "Visited: no, Age: ",
+      "preferredDate": "2026-08-06",
+      "estimatedAmount": 221,
+      "status": "Pending",
+      "createdAt": "2026-08-06T13:10:27.131Z"
+    }
+  ]
+}

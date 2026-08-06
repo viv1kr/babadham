@@ -61,8 +61,8 @@ export const OrderRequestPage: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 18, hours: 14, minutes: 22, seconds: 45 });
   const [blinkingTextIndex, setBlinkingTextIndex] = useState(0);
 
-  const [bookingAmount, setBookingAmount] = useState(151);
-  const [bookingDiscountPercent, setBookingDiscountPercent] = useState(0);
+  const [bookingAmount, setBookingAmount] = useState(251);
+  const [bookingDiscountPercent, setBookingDiscountPercent] = useState(12);
 
   const loadBookingConfig = () => {
     try {
