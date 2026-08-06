@@ -331,7 +331,7 @@ export const OrderRequestPage: React.FC = () => {
         )}
       </div>
 
-      <div className="w-full px-4 sm:px-6 relative z-10 -mt-12 sm:-mt-20">
+      <div className="w-full px-2 sm:px-4 md:px-8 relative z-10 -mt-6 sm:-mt-10">
         {/* Main Request Form or Confirmation Card */}
         <div className="bg-[#FDFBF7] rounded-3xl border border-[#E8E1D5] p-4 sm:p-8 space-y-6 text-[#2B1A16] shadow-xl">
           
@@ -380,17 +380,22 @@ export const OrderRequestPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="flex flex-col items-center justify-center text-center mb-6 gap-3">
-                <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-col items-center justify-center text-center mb-8 gap-3 relative -mx-4 sm:-mx-8 -mt-4 sm:-mt-8 pt-12 sm:pt-16 pb-10 overflow-hidden rounded-t-[22px]">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-[0.12] mix-blend-multiply" 
+                  style={{ backgroundImage: `url(${slides?.[0]?.imageUrl || '/assets/babadham_hero_slide-1785849874982_desk.webp'})` }} 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#FDFBF7] via-[#FDFBF7]/80 to-[#500A18]/10" />
+                
+                <div className="relative z-10 flex items-center justify-center gap-3">
                    <h3 className="font-serif-temple text-3xl sm:text-4xl font-extrabold text-[#500A18] leading-tight">
                      {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request'}
                    </h3>
                 </div>
                 
-                <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                <p className="relative z-10 text-xs sm:text-sm text-gray-700 font-bold">
                   {lang === 'hi' ? 'कृपया अपनी जानकारी भरें, हमारी टीम आपसे संपर्क करेगी।' : 'Please fill in your details, our team will contact you.'}
                 </p>
-
               </div>
 
               {/* Promotional Banner */}
