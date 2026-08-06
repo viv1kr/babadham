@@ -484,19 +484,19 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
                   className="space-y-4"
                 >
-                  <div className="bg-[#FAF6F0] p-4 sm:p-6 rounded-[24px] border border-[#E8E1D5] flex flex-col gap-4 shadow-sm items-center text-center">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                       <Landmark className="w-8 h-8 sm:w-10 sm:h-10 text-[#C16200]" />
                     </div>
-                    <div className="space-y-4 w-full">
+                    <div className="flex-1 space-y-3 pt-1">
                       <label className="text-sm sm:text-base font-bold text-gray-800 block">
                         {lang === 'hi' ? 'क्या आपने कभी बाबा धाम (देवघर) की यात्रा की है?' : 'Have you ever visited Baba Dham (Deoghar)?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
-                        <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-green-200 bg-[#F1F8EE] text-green-700 hover:bg-green-100'}`}>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-green-200 bg-[#F1F8EE] text-green-700 hover:bg-green-100'}`}>
                           <CheckCircle2 className="w-5 h-5 text-green-700" /> {lang === 'hi' ? 'हाँ, गया हूँ' : 'Yes, I have'}
                         </button>
-                        <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'no' ? 'border-red-500 bg-red-100 text-red-800 shadow-sm' : 'border-red-200 bg-[#FCF3F3] text-red-700 hover:bg-red-100'}`}>
+                        <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'no' ? 'border-red-500 bg-red-100 text-red-800 shadow-sm' : 'border-red-200 bg-[#FCF3F3] text-red-700 hover:bg-red-100'}`}>
                           <XCircle className="w-5 h-5 text-red-600" /> {lang === 'hi' ? 'नहीं, कभी नहीं गया' : 'No, never visited'}
                         </button>
                       </div>
