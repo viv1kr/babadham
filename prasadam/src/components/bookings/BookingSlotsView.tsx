@@ -4,7 +4,7 @@ import { Calendar, Save, AlertCircle, Clock, Users, IndianRupee, Tag } from 'luc
 import { motion } from 'framer-motion';
 
 export const BookingSlotsView: React.FC = () => {
-  const { showToast } = useAdmin();
+  const { showToast, db } = useAdmin();
   
   const [timeLimit, setTimeLimit] = useState('23:59');
   const [totalSlotLimit, setTotalSlotLimit] = useState('500');
@@ -15,9 +15,17 @@ export const BookingSlotsView: React.FC = () => {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('babadham_booking_slots_config');
-      if (stored) {
-        const config = JSON.parse(stored);
+      let config = null;
+      const brandSettings = db?.getBrandSettings();
+      if (brandSettings && brandSettings.bookingSlotsConfig) {
+        config = brandSettings.bookingSlotsConfig;
+      }
+      if (!config) {
+        const stored = localStorage.getItem('babadham_booking_slots_config');
+        if (stored) config = JSON.parse(stored);
+      }
+      
+      if (config) {
         if (config.timeLimit) setTimeLimit(config.timeLimit);
         if (config.totalSlotLimit) setTotalSlotLimit(config.totalSlotLimit);
         if (config.confirmBookingAmount) setConfirmBookingAmount(config.confirmBookingAmount);
@@ -26,19 +34,23 @@ export const BookingSlotsView: React.FC = () => {
     } catch (e) {
       console.error('Error loading booking slots config', e);
     }
-  }, []);
+  }, [db]);
 
   const handleSave = () => {
     setIsSaving(true);
     setSaveProgress(0);
     
     try {
-      localStorage.setItem('babadham_booking_slots_config', JSON.stringify({
+      const configObj = {
         timeLimit,
         totalSlotLimit: parseInt(totalSlotLimit) || 0,
         confirmBookingAmount,
         confirmBookingDiscount
-      }));
+      };
+      
+      db?.updateBrandSettings({ bookingSlotsConfig: configObj });
+      
+      localStorage.setItem('babadham_booking_slots_config', JSON.stringify(configObj));
       window.dispatchEvent(new Event('bbp_booking_config_updated'));
       window.dispatchEvent(new Event('storage'));
     } catch (e) {

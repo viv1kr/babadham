@@ -66,11 +66,17 @@ export const OrderRequestPage: React.FC = () => {
 
   const loadBookingConfig = () => {
     try {
-      const stored = localStorage.getItem('babadham_booking_slots_config');
-      if (stored) {
-        const config = JSON.parse(stored);
-        if (config.confirmBookingAmount) setBookingAmount(Number(config.confirmBookingAmount));
-        if (config.confirmBookingDiscount) setBookingDiscountPercent(Number(config.confirmBookingDiscount));
+      let config = null;
+      if (brandSettings?.bookingSlotsConfig) {
+        config = brandSettings.bookingSlotsConfig;
+      }
+      if (!config) {
+        const stored = localStorage.getItem('babadham_booking_slots_config');
+        if (stored) config = JSON.parse(stored);
+      }
+      if (config) {
+        if (config.confirmBookingAmount !== undefined) setBookingAmount(Number(config.confirmBookingAmount));
+        if (config.confirmBookingDiscount !== undefined) setBookingDiscountPercent(Number(config.confirmBookingDiscount));
       }
     } catch(e) {}
   };
@@ -85,6 +91,14 @@ export const OrderRequestPage: React.FC = () => {
       window.removeEventListener('bbp_booking_config_updated', handleStorage as any);
     };
   }, []);
+
+  useEffect(() => {
+    if (brandSettings?.bookingSlotsConfig) {
+      const config = brandSettings.bookingSlotsConfig;
+      if (config.confirmBookingAmount !== undefined) setBookingAmount(Number(config.confirmBookingAmount));
+      if (config.confirmBookingDiscount !== undefined) setBookingDiscountPercent(Number(config.confirmBookingDiscount));
+    }
+  }, [brandSettings]);
 
   const finalBookingAmount = Math.max(0, Math.round(bookingAmount - (bookingAmount * (bookingDiscountPercent / 100))));
 
