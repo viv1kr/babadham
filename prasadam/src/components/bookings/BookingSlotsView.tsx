@@ -7,8 +7,8 @@ export const BookingSlotsView: React.FC = () => {
   const { showToast, db } = useAdmin();
   
   const [timeLimit, setTimeLimit] = useState('23:59');
-  const [totalSlotLimit, setTotalSlotLimit] = useState('1000');
-  const [availableSlotsCount, setAvailableSlotsCount] = useState('54');
+  const [totalSlotLimit, setTotalSlotLimit] = useState('500');
+  const [availableSlotsCount, setAvailableSlotsCount] = useState('300');
   const [slotPeriodText, setSlotPeriodText] = useState('1St Week');
   const [confirmBookingAmount, setConfirmBookingAmount] = useState('251');
   const [confirmBookingDiscount, setConfirmBookingDiscount] = useState('12');
@@ -276,7 +276,7 @@ export const BookingSlotsView: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Available Slots Count */}
+        {/* Base Booked Slots Count */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -285,22 +285,22 @@ export const BookingSlotsView: React.FC = () => {
         >
           <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
             <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
-              <Users className="w-4 h-4 text-[#F4A62A]" /> Available / Remaining Slots
+              <Users className="w-4 h-4 text-[#F4A62A]" /> Initial Booked Slots Count
             </h3>
             <p className="text-xs text-[#FFF8F0]/60 mt-1">
-              Current remaining slots count shown on the slot progress bar.
+              Starting number of booked slots. Automatically increments live as devotees book.
             </p>
           </div>
           <div className="p-6 bg-[#120508] flex-1">
             <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
-              Available Count
+              Booked Count (e.g. 300)
             </label>
             <input
               type="number"
               min="0"
               value={availableSlotsCount}
               onChange={(e) => setAvailableSlotsCount(e.target.value)}
-              placeholder="e.g. 54"
+              placeholder="e.g. 300"
               className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
             />
           </div>
@@ -316,20 +316,20 @@ export const BookingSlotsView: React.FC = () => {
         <div className="w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-xl p-3.5 border border-red-900/60 shadow-lg select-none">
           <div className="flex items-center justify-between gap-2 mb-2 px-1">
             <span className="text-xs sm:text-sm font-medium text-white/90">
-              Available Slots:
+              Booked Slots:
             </span>
             <span className="text-lg sm:text-2xl font-black text-white tracking-wide">
               {slotPeriodText || '1St Week'}
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">
-              {availableSlotsCount || 54} / {totalSlotLimit || 1000}
+              {availableSlotsCount || 300} / {totalSlotLimit || 500}
             </span>
           </div>
           <div className="w-full bg-black/50 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
             <div 
               className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(244,166,42,0.8)]"
               style={{ 
-                width: `${Math.min(100, Math.max(2, (Number(availableSlotsCount || 54) / Number(totalSlotLimit || 1000)) * 100))}%` 
+                width: `${Math.min(100, Math.max(2, (Number(availableSlotsCount || 300) / Number(totalSlotLimit || 500)) * 100))}%` 
               }}
             />
           </div>

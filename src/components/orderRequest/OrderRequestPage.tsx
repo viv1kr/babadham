@@ -64,8 +64,24 @@ export const OrderRequestPage: React.FC = () => {
   const [bookingAmount, setBookingAmount] = useState(251);
   const [bookingDiscountPercent, setBookingDiscountPercent] = useState(12);
   const [slotPeriodText, setSlotPeriodText] = useState('1St Week');
-  const [availableSlotsCount, setAvailableSlotsCount] = useState(54);
-  const [totalSlotLimit, setTotalSlotLimit] = useState(1000);
+  const [availableSlotsCount, setAvailableSlotsCount] = useState(300);
+  const [totalSlotLimit, setTotalSlotLimit] = useState(500);
+  const [sessionConfirmedBookings, setSessionConfirmedBookings] = useState(0);
+
+  const calculateLiveConfirmedBookings = () => {
+    try {
+      const stored = localStorage.getItem('babadham_order_requests');
+      if (stored) {
+        const requests = JSON.parse(stored);
+        if (Array.isArray(requests)) {
+          const count = requests.filter((r: any) => 
+            r.requestType && r.requestType.includes('Confirmed Booking')
+          ).length;
+          setSessionConfirmedBookings(count);
+        }
+      }
+    } catch(e) {}
+  };
 
   const loadBookingConfig = () => {
     try {
@@ -124,14 +140,18 @@ export const OrderRequestPage: React.FC = () => {
 
   useEffect(() => {
     loadBookingConfig();
+    calculateLiveConfirmedBookings();
 
-    const handleUpdate = () => loadBookingConfig();
+    const handleUpdate = () => {
+      loadBookingConfig();
+      calculateLiveConfirmedBookings();
+    };
 
     window.addEventListener('storage', handleUpdate);
     window.addEventListener('bbp_booking_config_updated', handleUpdate as any);
     window.addEventListener('bbp_db_updated', handleUpdate as any);
 
-    const pollInterval = setInterval(loadBookingConfig, 1000);
+    const pollInterval = setInterval(handleUpdate, 1000);
 
     return () => {
       window.removeEventListener('storage', handleUpdate);
@@ -143,9 +163,11 @@ export const OrderRequestPage: React.FC = () => {
 
   useEffect(() => {
     loadBookingConfig();
+    calculateLiveConfirmedBookings();
   }, [brandSettings]);
 
   const finalBookingAmount = Math.max(0, Math.round(bookingAmount - (bookingAmount * (bookingDiscountPercent / 100))));
+  const liveTotalBookedSlots = Math.min(totalSlotLimit, Number(availableSlotsCount) + sessionConfirmedBookings);
 
   const blinkingTexts = [
     'BOOK NOW',
@@ -859,20 +881,20 @@ export const OrderRequestPage: React.FC = () => {
                         <div className="w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-2xl p-3.5 sm:p-4 border border-red-900/60 shadow-lg select-none">
                           <div className="flex items-center justify-between gap-2 mb-2 px-1">
                             <span className="text-xs sm:text-sm font-medium text-white/90">
-                              {lang === 'hi' ? 'उपलब्ध स्लॉट:' : 'Available Slots:'}
+                              {lang === 'hi' ? 'बुक किए गए स्लॉट:' : 'Available Slots:'}
                             </span>
                             <span className="text-lg sm:text-2xl font-black text-white tracking-wide drop-shadow">
                               {slotPeriodText || '1St Week'}
                             </span>
                             <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">
-                              {availableSlotsCount} / {totalSlotLimit}
+                              {liveTotalBookedSlots} / {totalSlotLimit}
                             </span>
                           </div>
                           <div className="w-full bg-black/50 h-2.5 sm:h-3 rounded-full overflow-hidden p-0.5 border border-white/10">
                             <div 
                               className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(244,166,42,0.8)]"
                               style={{ 
-                                width: `${Math.min(100, Math.max(2, (Number(availableSlotsCount) / Number(totalSlotLimit)) * 100))}%` 
+                                width: `${Math.min(100, Math.max(2, (Number(liveTotalBookedSlots) / Number(totalSlotLimit)) * 100))}%` 
                               }}
                             />
                           </div>
