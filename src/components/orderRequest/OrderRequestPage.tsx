@@ -192,6 +192,34 @@ export const OrderRequestPage: React.FC = () => {
         </p>
       </div>
     </div>
+  const renderUpiLogos = () => (
+    <div className="flex items-center -space-x-1.5 shrink-0 bg-white/95 p-1 rounded-full border border-white/50 shadow-md">
+      {/* Paytm */}
+      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E0F7FA] border border-cyan-300 flex items-center justify-center overflow-hidden shadow-sm">
+        <span className="font-black text-[7px] sm:text-[8px] text-[#002E6E] tracking-tighter">paytm</span>
+      </div>
+      {/* PhonePe */}
+      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#5F259F] text-white flex items-center justify-center font-black text-xs shadow-sm border border-purple-400">
+        पे
+      </div>
+      {/* GPay */}
+      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E8F0FE] border border-blue-300 flex items-center justify-center shadow-sm p-0.5">
+        <svg viewBox="0 0 24 24" className="w-4 h-4">
+          <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+        </svg>
+      </div>
+      {/* Amazon Pay */}
+      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#131921] border border-gray-600 text-white flex items-center justify-center text-[7px] font-black leading-none shadow-sm">
+        <span className="text-[#FF9900]">pay</span>
+      </div>
+      {/* BHIM UPI */}
+      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#E8F5E9] border border-emerald-400 flex items-center justify-center font-black text-[7px] text-[#2E7D32] shadow-sm">
+        UPI
+      </div>
+    </div>
   );
 
   const loadBookingConfig = () => {
@@ -1067,16 +1095,30 @@ export const OrderRequestPage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={!intent}
-                      className="w-full py-4 sm:py-5 rounded-[24px] bg-gradient-to-b from-[#7A1323] to-[#5A0D18] text-white font-bold text-lg hover:from-[#8B1528] hover:to-[#6E1120] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-md flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
+                      className="relative overflow-hidden w-full py-4 sm:py-4.5 rounded-[24px] bg-gradient-to-r from-[#7A1323] via-[#9E1B32] to-[#5A0D18] text-white font-extrabold hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl flex items-center justify-between px-5 sm:px-6 border border-amber-400/30 group"
                     >
-                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="flex items-center gap-2 relative z-10">
-                        <span>{lang === 'hi' ? 'अगला' : 'Next Step'}</span>
-                        <ChevronRight className="w-5 h-5 -mt-0.5" />
+                      {/* Animated Sweeping Light Beam Shine Effect */}
+                      <motion.div
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '200%' }}
+                        transition={{ repeat: Infinity, duration: 2.5, ease: 'linear', repeatDelay: 0.6 }}
+                        className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 pointer-events-none z-0"
+                      />
+
+                      <div className="relative z-10 flex flex-col items-start text-left">
+                        <div className="flex items-center gap-1.5 font-black text-base sm:text-lg">
+                          <span>{lang === 'hi' ? 'अगला' : 'Next Step'}</span>
+                          <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                        <span className="text-[10px] sm:text-[11px] font-normal opacity-85 tracking-wide">
+                          {lang === 'hi' ? 'अगले चरण पर जाएँ' : 'Proceed to next step'}
+                        </span>
                       </div>
-                      <span className="text-[10px] sm:text-[11px] font-normal opacity-80 mt-0.5 tracking-wide relative z-10">
-                        {lang === 'hi' ? 'अगले चरण पर जाएँ' : 'Proceed to next step'}
-                      </span>
+
+                      {/* Overlapping UPI & GPay Logos */}
+                      <div className="relative z-10">
+                        {renderUpiLogos()}
+                      </div>
                     </button>
                     <div className="text-center mt-4 text-xs text-gray-500 flex items-center justify-center gap-1.5 font-medium">
                       <ShieldCheck className="w-4 h-4 text-[#D4AF37]" /> {lang === 'hi' ? 'आपकी जानकारी सुरक्षित है। हम आपकी गोपनीयता का सम्मान करते हैं।' : 'Your data is safe. We respect your privacy.'}
@@ -1255,12 +1297,29 @@ export const OrderRequestPage: React.FC = () => {
                       </button>
                       <button
                         type="submit"
-                        className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm"
+                        className="relative overflow-hidden px-5 sm:px-7 py-3.5 sm:py-4 rounded-xl bg-gradient-to-r from-[#7A1323] via-[#9E1B32] to-[#5A0D18] text-white font-black hover:shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-lg flex items-center gap-3 border border-amber-400/30 group text-sm sm:text-base"
                       >
-                        <Sparkles className="w-4 h-4" /> 
-                        {intent === 'booking' 
-                          ? (lang === 'hi' ? `अभी भुगतान करें (₹${finalBookingAmount})` : `Pay Now (₹${finalBookingAmount})`)
-                          : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
+                        {/* Animated Sweeping Light Beam Shine Effect */}
+                        <motion.div
+                          initial={{ x: '-100%' }}
+                          animate={{ x: '200%' }}
+                          transition={{ repeat: Infinity, duration: 2.5, ease: 'linear', repeatDelay: 0.6 }}
+                          className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 pointer-events-none z-0"
+                        />
+
+                        <div className="relative z-10 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 animate-spin" />
+                          <span className="drop-shadow">
+                            {intent === 'booking' 
+                              ? (lang === 'hi' ? `अभी भुगतान करें (₹${finalBookingAmount})` : `Pay Now (₹${finalBookingAmount})`)
+                              : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
+                          </span>
+                        </div>
+
+                        {/* Overlapping UPI & GPay Logos */}
+                        <div className="relative z-10">
+                          {renderUpiLogos()}
+                        </div>
                       </button>
                     </div>
                   </div>
