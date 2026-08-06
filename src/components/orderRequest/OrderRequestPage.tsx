@@ -126,12 +126,17 @@ export const OrderRequestPage: React.FC = () => {
               setPincode(data.address.postcode);
             }
             const addressParts = [];
-            if (data.address.road) addressParts.push(data.address.road);
-            if (data.address.suburb) addressParts.push(data.address.suburb);
-            if (data.address.neighbourhood) addressParts.push(data.address.neighbourhood);
+            const fields = ['house_number', 'road', 'neighbourhood', 'suburb', 'village', 'city_district', 'county', 'town'];
+            fields.forEach(field => {
+              if (data.address[field]) {
+                addressParts.push(data.address[field]);
+              }
+            });
             
             if (addressParts.length > 0) {
               setStreetAddress(addressParts.join(', '));
+            } else if (data.display_name) {
+              setStreetAddress(data.display_name);
             }
             showToast(lang === 'hi' ? 'स्थान सफलतापूर्वक पता चला!' : 'Location detected successfully!', 'success');
           }
