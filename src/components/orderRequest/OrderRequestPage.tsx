@@ -887,7 +887,7 @@ export const OrderRequestPage: React.FC = () => {
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#F6DFD7] flex items-center justify-center shrink-0 shadow-inner">
                       <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-[#6E1120]" />
                     </div>
-                    <div className="flex-1 space-y-1">
+                    <div className="flex-1 space-y-2">
                       <label className="text-sm sm:text-base font-bold text-[#6E1120] block">
                         {lang === 'hi' ? 'विशेष अनुरोध या संदेश (वैकल्पिक)' : 'Special Request (Optional)'}
                       </label>
@@ -896,7 +896,7 @@ export const OrderRequestPage: React.FC = () => {
                         value={specialRequest}
                         onChange={e => setSpecialRequest(e.target.value)}
                         placeholder={lang === 'hi' ? 'अगर आपका कोई विशेष अनुरोध है तो यहाँ लिखें...' : 'Write any special requests...'}
-                        className="w-full bg-transparent border-none text-xs sm:text-sm text-[#6E1120]/80 placeholder-[#6E1120]/50 focus:outline-none p-0 m-0 focus:ring-0 shadow-none"
+                        className="w-full bg-white/80 border border-[#6E1120]/20 focus:border-[#6E1120]/50 focus:bg-white text-xs sm:text-sm text-[#6E1120] placeholder-[#6E1120]/50 focus:outline-none px-3 py-2.5 rounded-xl transition-all shadow-sm"
                       />
                     </div>
                     <div className="shrink-0 pl-1 pr-2">
