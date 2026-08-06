@@ -7,11 +7,35 @@ export const BookingSlotsView: React.FC = () => {
   const { showToast, db } = useAdmin();
   
   const [totalSlotLimit, setTotalSlotLimit] = useState('500');
-  const [slotPeriodText, setSlotPeriodText] = useState('5 August to 19 August');
+  const [startDate, setStartDate] = useState('2026-08-05');
+  const [endDate, setEndDate] = useState('2026-08-19');
+  const [slotPeriodText, setSlotPeriodText] = useState('5 to 19 August');
   const [confirmBookingAmount, setConfirmBookingAmount] = useState('251');
   const [confirmBookingDiscount, setConfirmBookingDiscount] = useState('12');
   const [isSaving, setIsSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
+
+  const formatDatesToPeriodText = (start: string, end: string) => {
+    if (!start || !end) return;
+    try {
+      const s = new Date(start);
+      const e = new Date(end);
+      if (!isNaN(s.getTime()) && !isNaN(e.getTime())) {
+        const sDay = s.getDate();
+        const sMonth = s.toLocaleString('en-US', { month: 'long' });
+        const eDay = e.getDate();
+        const eMonth = e.toLocaleString('en-US', { month: 'long' });
+
+        let formatted = '';
+        if (sMonth === eMonth) {
+          formatted = `${sDay} to ${eDay} ${sMonth}`;
+        } else {
+          formatted = `${sDay} ${sMonth} to ${eDay} ${eMonth}`;
+        }
+        setSlotPeriodText(formatted);
+      }
+    } catch (err) {}
+  };
 
   useEffect(() => {
     try {
@@ -27,6 +51,8 @@ export const BookingSlotsView: React.FC = () => {
       
       if (config) {
         if (config.totalSlotLimit !== undefined) setTotalSlotLimit(String(config.totalSlotLimit));
+        if (config.startDate) setStartDate(config.startDate);
+        if (config.endDate) setEndDate(config.endDate);
         if (config.slotPeriodText !== undefined) setSlotPeriodText(config.slotPeriodText);
         if (config.confirmBookingAmount !== undefined) setConfirmBookingAmount(String(config.confirmBookingAmount));
         if (config.confirmBookingDiscount !== undefined) setConfirmBookingDiscount(String(config.confirmBookingDiscount));
@@ -43,6 +69,8 @@ export const BookingSlotsView: React.FC = () => {
     try {
       const configObj = {
         totalSlotLimit: parseInt(totalSlotLimit) || 500,
+        startDate,
+        endDate,
         slotPeriodText,
         confirmBookingAmount,
         confirmBookingDiscount
@@ -153,7 +181,7 @@ export const BookingSlotsView: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Slot Time Period / Date Range */}
+        {/* Slot Time Period / Date Range Picker */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -162,47 +190,91 @@ export const BookingSlotsView: React.FC = () => {
         >
           <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
             <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#F4A62A]" /> Slot Time Period / Date Range
+              <Calendar className="w-4 h-4 text-[#F4A62A]" /> Slot Calendar & Date Range
             </h3>
             <p className="text-xs text-[#FFF8F0]/60 mt-1">
-              Select or enter the active dates (e.g., "5 August to 19 August").
+              Select start and end dates from the calendar to generate active slot period.
             </p>
           </div>
           <div className="p-6 bg-[#120508] flex-1 flex flex-col justify-between">
             <div>
-              <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
-                Time Period / Dates Text
+              {/* Calendar Inputs */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#FFF8F0]/80 mb-1">
+                    Start Date 📅
+                  </label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      formatDatesToPeriodText(e.target.value, endDate);
+                    }}
+                    className="w-full bg-[#000000]/60 text-[#FFF8F0] p-2.5 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none text-xs transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#FFF8F0]/80 mb-1">
+                    End Date 📅
+                  </label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      formatDatesToPeriodText(startDate, e.target.value);
+                    }}
+                    className="w-full bg-[#000000]/60 text-[#FFF8F0] p-2.5 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none text-xs transition-all"
+                  />
+                </div>
+              </div>
+
+              <label className="block text-xs font-medium text-[#FFF8F0]/80 mb-1">
+                Generated / Custom Display Text
               </label>
               <input
                 type="text"
                 value={slotPeriodText}
                 onChange={(e) => setSlotPeriodText(e.target.value)}
-                placeholder="e.g. 5 August to 19 August"
-                className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all font-semibold"
+                placeholder="e.g. 5 to 19 August"
+                className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all font-semibold text-sm"
               />
             </div>
 
             {/* Quick Presets */}
             <div className="mt-4 pt-3 border-t border-white/5">
-              <span className="text-[11px] text-[#FFF8F0]/60 font-medium block mb-2">Quick Presets:</span>
+              <span className="text-[11px] text-[#FFF8F0]/60 font-medium block mb-2">Quick Date Presets:</span>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setSlotPeriodText('5 August to 19 August')}
+                  onClick={() => {
+                    setStartDate('2026-08-05');
+                    setEndDate('2026-08-19');
+                    setSlotPeriodText('5 to 19 August');
+                  }}
                   className="px-2.5 py-1 text-xs rounded-lg bg-[#2B1217] text-[#F4A62A] border border-[#F4A62A]/30 hover:bg-[#F4A62A] hover:text-[#120508] transition-all"
                 >
-                  5 Aug to 19 Aug
+                  5 to 19 August
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSlotPeriodText('1st Week (1 - 7 Aug)')}
+                  onClick={() => {
+                    setStartDate('2026-08-01');
+                    setEndDate('2026-08-07');
+                    setSlotPeriodText('1st Week (1-7 Aug)');
+                  }}
                   className="px-2.5 py-1 text-xs rounded-lg bg-[#2B1217] text-[#F4A62A] border border-[#F4A62A]/30 hover:bg-[#F4A62A] hover:text-[#120508] transition-all"
                 >
                   1st Week (1-7 Aug)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSlotPeriodText('2nd Week (8 - 15 Aug)')}
+                  onClick={() => {
+                    setStartDate('2026-08-08');
+                    setEndDate('2026-08-15');
+                    setSlotPeriodText('2nd Week (8-15 Aug)');
+                  }}
                   className="px-2.5 py-1 text-xs rounded-lg bg-[#2B1217] text-[#F4A62A] border border-[#F4A62A]/30 hover:bg-[#F4A62A] hover:text-[#120508] transition-all"
                 >
                   2nd Week (8-15 Aug)
