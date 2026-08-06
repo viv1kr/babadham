@@ -87,16 +87,18 @@ export const OrderRequestPage: React.FC = () => {
 
   const calculateLiveConfirmedBookings = () => {
     try {
+      const namesList: string[] = [];
+
       const stored = localStorage.getItem('babadham_order_requests');
       if (stored) {
         const requests = JSON.parse(stored);
         if (Array.isArray(requests)) {
-          const names = requests
-            .map((r: any) => r.name || r.devoteeName || r.customerName)
-            .filter((n: any) => typeof n === 'string' && n.trim() !== '');
-          if (names.length > 0) {
-            setRealDevoteeNames(names);
-          }
+          requests.forEach((r: any) => {
+            const n = r.name || r.devoteeName || r.customerName;
+            if (n && typeof n === 'string' && n.trim() && !namesList.includes(n.trim())) {
+              namesList.push(n.trim());
+            }
+          });
 
           const count = requests.filter((r: any) => 
             r.requestType && r.requestType.includes('Confirmed Booking')
@@ -104,23 +106,37 @@ export const OrderRequestPage: React.FC = () => {
           setSessionConfirmedBookings(count);
         }
       }
+
+      const dbStr = localStorage.getItem('babadham_mysql_db_v1');
+      if (dbStr) {
+        const parsedDb = JSON.parse(dbStr);
+        if (Array.isArray(parsedDb.orderRequests)) {
+          parsedDb.orderRequests.forEach((r: any) => {
+            const n = r.name || r.devoteeName || r.customerName;
+            if (n && typeof n === 'string' && n.trim() && !namesList.includes(n.trim())) {
+              namesList.push(n.trim());
+            }
+          });
+        }
+      }
+
+      if (namesList.length > 0) {
+        setRealDevoteeNames(namesList);
+      }
     } catch(e) {}
   };
 
-  const defaultDevotees = lang === 'hi'
-    ? ['राहुल कुमार (रांची)', 'अमित शर्मा (पटना)', 'प्रिया सिंह (देवघर)', 'दीपक वर्मा (कोलकाता)', 'सुरेश यादव (वाराणसी)', 'विकास गुप्ता (दिल्ली)', 'संजय झा (दरभंगा)']
-    : ['Rahul Kumar (Ranchi)', 'Amit Sharma (Patna)', 'Priya Singh (Deoghar)', 'Deepak Verma (Kolkata)', 'Suresh Yadav (Varanasi)', 'Vikas Gupta (Delhi)', 'Sanjay Jha (Darbhanga)'];
-
-  const devoteePool = realDevoteeNames.length > 0 ? [...realDevoteeNames, ...defaultDevotees] : defaultDevotees;
-
+  // STRICTLY 100% REAL LIVE DATA - NO DUMMY OR FAKE NAMES
   const activeLatestName = devoteeName 
     ? devoteeName 
-    : devoteePool[liveDevoteeIndex % devoteePool.length];
+    : (realDevoteeNames.length > 0 
+        ? realDevoteeNames[liveDevoteeIndex % realDevoteeNames.length] 
+        : (lang === 'hi' ? 'बाबा प्रसाद भक्त' : 'Baba Prasad Devotee'));
 
   const rawThreeNames = [
     activeLatestName,
-    devoteePool[(liveDevoteeIndex + 1) % devoteePool.length],
-    devoteePool[(liveDevoteeIndex + 2) % devoteePool.length]
+    realDevoteeNames.length > 1 ? realDevoteeNames[(liveDevoteeIndex + 1) % realDevoteeNames.length] : (lang === 'hi' ? 'भक्त' : 'Devotee'),
+    realDevoteeNames.length > 2 ? realDevoteeNames[(liveDevoteeIndex + 2) % realDevoteeNames.length] : (lang === 'hi' ? 'भक्त' : 'Devotee')
   ];
 
   const recentThreeInitials = rawThreeNames.map(n => 
