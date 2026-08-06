@@ -344,7 +344,7 @@ export const OrderRequestPage: React.FC = () => {
       details: `Visited: ${hasVisited}, Age: ${age}`,
       preferredDate: new Date().toISOString().split('T')[0],
       estimatedAmount: intent === 'booking' ? 151 : 0,
-      status: 'Pending',
+      status: intent === 'booking' ? 'Payment Pending' : 'Pending',
       createdAt: new Date().toISOString()
     };
 
@@ -377,8 +377,13 @@ export const OrderRequestPage: React.FC = () => {
     } catch (err) {}
 
     setSubmittedReqNo(reqNo);
-    setIsSubmitted(true);
-    showToast('Your Custom Order Request has been submitted!', 'success');
+    
+    if (intent === 'booking') {
+      window.location.href = '/checkout';
+    } else {
+      setIsSubmitted(true);
+      showToast('Your Custom Order Request has been submitted!', 'success');
+    }
     
     // Dispatch instant real booking event
     window.dispatchEvent(new CustomEvent('new_live_booking', { 
@@ -968,7 +973,10 @@ export const OrderRequestPage: React.FC = () => {
                       type="submit"
                       className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm"
                     >
-                      <Sparkles className="w-4 h-4" /> {lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request'}
+                      <Sparkles className="w-4 h-4" /> 
+                      {intent === 'booking' 
+                        ? (lang === 'hi' ? 'अभी भुगतान करें (₹151)' : 'Pay Now (₹151)')
+                        : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
                     </button>
                   </div>
                 </motion.form>
