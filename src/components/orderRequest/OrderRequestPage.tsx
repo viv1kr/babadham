@@ -354,14 +354,16 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         
-        {/* Full-Width Video Branding Section (Pure Video Player Only - Timeline & Controls) */}
+        {/* Full-Width Video Branding Section (Customized Player + Title, Description & CTA Link) */}
         {videoEmbed && (
-          <div className="w-full bg-black rounded-xl border border-[#F4A62A]/40 shadow-2xl overflow-hidden p-0">
+          <div className="w-full bg-[#2B1217] rounded-xl border border-[#F4A62A]/40 shadow-2xl overflow-hidden p-0">
+            
+            {/* Video Player (Customized YouTube / MP4 Player) */}
             <div className="relative w-full aspect-video bg-black overflow-hidden">
               {videoEmbed.isIframe ? (
                 <iframe
                   src={videoEmbed.url}
-                  title="Temple Prasad Video"
+                  title={mediaConfig?.videoTitle || "Temple Prasad Video"}
                   className="w-full h-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -379,6 +381,36 @@ export const OrderRequestPage: React.FC = () => {
                 />
               )}
             </div>
+
+            {/* Video Title, Description & Action Link CTA (Displayed Below Video) */}
+            {(Boolean(mediaConfig?.videoTitle?.trim()) || Boolean(mediaConfig?.videoSubtitle?.trim()) || Boolean(mediaConfig?.videoCtaUrl?.trim())) && (
+              <div className="p-3.5 sm:p-4 bg-[#1A0B0E]/90 border-t border-[#F4A62A]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-0.5 max-w-xl">
+                  {mediaConfig?.videoTitle && mediaConfig.videoTitle.trim().length > 0 && (
+                    <h3 className="font-serif-temple text-base sm:text-lg font-extrabold text-[#F4A62A]">
+                      {mediaConfig.videoTitle}
+                    </h3>
+                  )}
+                  {mediaConfig?.videoSubtitle && mediaConfig.videoSubtitle.trim().length > 0 && (
+                    <p className="text-xs text-[#FFF8F0]/85 leading-relaxed font-medium">
+                      {mediaConfig.videoSubtitle}
+                    </p>
+                  )}
+                </div>
+
+                {mediaConfig?.videoCtaUrl && mediaConfig.videoCtaUrl.trim().length > 0 && (
+                  <a
+                    href={mediaConfig.videoCtaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-[#2B1A16] font-extrabold text-xs hover:bg-white transition-all shadow-md shrink-0 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {mediaConfig?.videoCtaText?.trim() || 'Watch / Learn More'} <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+            )}
+
           </div>
         )}
 
