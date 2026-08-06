@@ -72,6 +72,32 @@ export const OrderRequestPage: React.FC = () => {
     return () => clearInterval(textInterval);
   }, []);
 
+  const [showLiveBooking, setShowLiveBooking] = useState(false);
+  const [liveBookingIndex, setLiveBookingIndex] = useState(0);
+  
+  // Need to define it inside or memoize, but for simplicity, we can keep it outside effect.
+  // Actually let's use useMemo or just put it in a ref/constant.
+  const liveBookings = [
+    { name: 'Ramesh K.', state: 'Bihar', intent: 'booking', time: 'Just now' },
+    { name: 'Suresh M.', state: 'Jharkhand', intent: 'prasadi', time: '1 min ago' },
+    { name: 'Priya S.', state: 'Delhi', intent: 'booking', time: '2 mins ago' },
+    { name: 'Amit V.', state: 'Maharashtra', intent: 'booking', time: '5 mins ago' },
+    { name: 'Neha G.', state: 'Uttar Pradesh', intent: 'prasadi', time: '6 mins ago' },
+  ];
+
+  useEffect(() => {
+    const liveInterval = setInterval(() => {
+      setShowLiveBooking(true);
+      setTimeout(() => {
+        setShowLiveBooking(false);
+        setTimeout(() => {
+          setLiveBookingIndex((prev) => (prev + 1) % 5);
+        }, 500);
+      }, 2000);
+    }, 5000);
+    return () => clearInterval(liveInterval);
+  }, []);
+
   useEffect(() => {
     const targetDate = new Date(new Date().getFullYear(), 7, 25, 23, 59, 59).getTime();
     const interval = setInterval(() => {
@@ -287,6 +313,38 @@ export const OrderRequestPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] pb-16">
+      
+      {/* Live Booking Toast Notification */}
+      <AnimatePresence>
+        {showLiveBooking && (
+          <motion.div
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 16 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
+            className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm pointer-events-none"
+          >
+            <div className="bg-white/95 backdrop-blur-xl border border-[#F4E1D2] shadow-2xl rounded-[20px] p-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C16200] to-[#E59210] flex items-center justify-center shrink-0 shadow-inner text-white">
+                <User className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-[#500A18] leading-tight truncate">
+                  {liveBookings[liveBookingIndex].name} 
+                  <span className="text-gray-500 font-medium text-xs ml-1">from {liveBookings[liveBookingIndex].state}</span>
+                </p>
+                <p className="text-[11px] font-bold text-emerald-600 flex items-center gap-1 mt-0.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 
+                  {liveBookings[liveBookingIndex].intent === 'booking' ? 'Confirmed Booking' : 'Requested Prasadi'}
+                </p>
+              </div>
+              <div className="text-[10px] text-gray-500 font-bold whitespace-nowrap self-start mt-1 bg-gray-100 px-2 py-0.5 rounded-full">
+                {liveBookings[liveBookingIndex].time}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* HERO SLIDING IMAGE CAROUSEL SECTION */}
       <div className="relative w-full h-[32vh] min-h-[220px] sm:h-[42vh] max-h-[460px] bg-[#120508] overflow-hidden select-none border-b-2 border-[#F4A62A]/40 shadow-xl">
