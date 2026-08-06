@@ -26,21 +26,49 @@ import {
   Pause,
   Tv,
   ExternalLink,
-  X
+  X,
+  Globe,
+  Loader2
 } from 'lucide-react';
 
 export const OrderRequestPage: React.FC = () => {
   const { setActivePage, showToast, brandSettings } = useStore();
   const { playTempleBell } = useAudio();
 
+  const [lang, setLang] = useState<'en'|'hi'>('en');
   const [devoteeName, setDevoteeName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [requestType, setRequestType] = useState('Special Mahaprasad Box');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [city, setCity] = useState('');
+  const [stateName, setStateName] = useState('');
   const [details, setDetails] = useState('');
-  const [preferredDate, setPreferredDate] = useState('');
-  const [estimatedAmount, setEstimatedAmount] = useState('');
+  const [isFetchingPin, setIsFetchingPin] = useState(false);
+
+  useEffect(() => {
+    if (pincode.length === 6) {
+      setIsFetchingPin(true);
+      fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0].Status === 'Success') {
+            const postOffice = data[0].PostOffice[0];
+            setCity(postOffice.District || postOffice.Block || '');
+            setStateName(postOffice.State || '');
+          } else {
+            showToast(lang === 'hi' ? 'अमान्य पिनकोड' : 'Invalid Pincode', 'error');
+            setCity('');
+            setStateName('');
+          }
+        })
+        .catch(() => {
+           showToast(lang === 'hi' ? 'पिनकोड जाँचना विफल रहा' : 'Failed to fetch pincode', 'error');
+        })
+        .finally(() => setIsFetchingPin(false));
+    } else {
+      setCity('');
+      setStateName('');
+    }
+  }, [pincode, lang]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedReqNo, setSubmittedReqNo] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
@@ -156,8 +184,8 @@ export const OrderRequestPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!devoteeName || !phone) {
-      showToast('Please enter your Name and Mobile Number', 'warning');
+    if (!devoteeName || !whatsappNumber) {
+      showToast(lang === 'hi' ? 'कृपया अपना नाम और व्हाट्सएप नंबर दर्ज करें' : 'Please enter your Name and WhatsApp Number', 'warning');
       return;
     }
 
@@ -168,13 +196,13 @@ export const OrderRequestPage: React.FC = () => {
       id: `req-${Date.now()}`,
       reqNo: reqNo,
       devoteeName,
-      phone,
-      email: email || 'devotee@babadham.org',
-      address: address || 'Deoghar Dham',
-      requestType,
-      details: details || requestType,
-      preferredDate: preferredDate || new Date().toISOString().split('T')[0],
-      estimatedAmount: parseFloat(estimatedAmount) || 1500,
+      phone: whatsappNumber,
+      email: 'devotee@babadham.org',
+      address: `${city ? city + ', ' : ''}${stateName ? stateName + ', ' : ''}${pincode}`,
+      requestType: 'Custom Request',
+      details: details || 'Custom Request',
+      preferredDate: new Date().toISOString().split('T')[0],
+      estimatedAmount: 0,
       status: 'Pending',
       createdAt: new Date().toISOString()
     };
@@ -340,13 +368,24 @@ export const OrderRequestPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="border-b border-[#F4A62A]/20 pb-4 mb-6">
-                <h3 className="font-serif-temple text-lg sm:text-xl font-bold text-[#F4A62A] flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[#F4A62A]" /> Devotee Details & Request Specifications
-                </h3>
-                <p className="text-xs text-[#FFF8F0]/70 mt-0.5">
-                  Please fill out the form below. Required fields are marked with an asterisk (*).
-                </p>
+              <div className="border-b border-[#F4A62A]/20 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="font-serif-temple text-lg sm:text-xl font-bold text-[#F4A62A] flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-[#F4A62A]" /> 
+                    {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request Specifications'}
+                  </h3>
+                  <p className="text-xs text-[#FFF8F0]/70 mt-0.5">
+                    {lang === 'hi' ? 'कृपया नीचे दिया गया फॉर्म भरें। तारांकित (*) फ़ील्ड अनिवार्य हैं।' : 'Please fill out the form below. Required fields are marked with an asterisk (*).'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLang(prev => prev === 'en' ? 'hi' : 'en')}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1A0B0E] border border-[#F4A62A]/30 text-[#F4A62A] text-xs font-bold hover:bg-[#F4A62A] hover:text-[#2B1A16] transition-colors self-start sm:self-auto shrink-0 cursor-pointer"
+                >
+                  <Globe className="w-4 h-4" />
+                  {lang === 'en' ? 'हिंदी में भरें' : 'Fill in English'}
+                </button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -354,7 +393,7 @@ export const OrderRequestPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[#F4A62A] font-bold mb-1.5">
-                      Devotee Name (पूरा नाम) *
+                      {lang === 'hi' ? 'पूरा नाम *' : 'Devotee Name *'}
                     </label>
                     <div className="relative">
                       <User className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
@@ -363,7 +402,7 @@ export const OrderRequestPage: React.FC = () => {
                         required
                         value={devoteeName}
                         onChange={e => setDevoteeName(e.target.value)}
-                        placeholder="e.g. Rameshwar Nath Sharma"
+                        placeholder={lang === 'hi' ? 'उदा. रामेश्वर नाथ शर्मा' : 'e.g. Rameshwar Nath Sharma'}
                         className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white placeholder-[#FFF8F0]/30 focus:outline-none focus:border-[#F4A62A]"
                       />
                     </div>
@@ -371,15 +410,15 @@ export const OrderRequestPage: React.FC = () => {
 
                   <div>
                     <label className="block text-[#F4A62A] font-bold mb-1.5">
-                      Mobile Number (मोबाइल नंबर) *
+                      {lang === 'hi' ? 'व्हाट्सएप नंबर *' : 'WhatsApp Number *'}
                     </label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
                       <input
                         type="tel"
                         required
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
+                        value={whatsappNumber}
+                        onChange={e => setWhatsappNumber(e.target.value)}
                         placeholder="+91 98765 43210"
                         className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white placeholder-[#FFF8F0]/30 focus:outline-none focus:border-[#F4A62A]"
                       />
@@ -387,104 +426,65 @@ export const OrderRequestPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-[#F4A62A] font-bold mb-1.5">
-                      Email Address (optional)
+                      {lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
                     </label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
+                      <MapPin className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
                       <input
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder="devotee@example.com"
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={pincode}
+                        onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
+                        placeholder="e.g. 814112"
                         className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white placeholder-[#FFF8F0]/30 focus:outline-none focus:border-[#F4A62A]"
                       />
+                      {isFetchingPin && <Loader2 className="w-4 h-4 text-[#F4A62A] absolute right-3.5 top-3 animate-spin" />}
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[#F4A62A] font-bold mb-1.5">
+                      {lang === 'hi' ? 'शहर / ज़िला' : 'City / District'}
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={city}
+                      placeholder={lang === 'hi' ? 'स्वतः भरा जाएगा' : 'Auto-filled'}
+                      className="w-full px-3 py-2.5 rounded-xl bg-[#1A0B0E]/50 border border-[#F4A62A]/10 text-white/70 focus:outline-none cursor-not-allowed"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-[#F4A62A] font-bold mb-1.5">
-                      Service / Prasad Category *
+                      {lang === 'hi' ? 'राज्य' : 'State'}
                     </label>
-                    <select
-                      value={requestType}
-                      onChange={e => setRequestType(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
-                    >
-                      <option value="Special Mahaprasad Box">Special Mahaprasad Box (महाप्रसाद)</option>
-                      <option value="Bulk Pure Milk Peda Prasad">Bulk Pure Milk Peda Prasad (5kg+)</option>
-                      <option value="Garbhagriha Touch Blessing">Garbhagriha Touch Blessing Prasad</option>
-                      <option value="Sultanganj Sacred Gangajal Jars">Sultanganj Sacred Gangajal Jars</option>
-                      <option value="Sphatik Shivalinga & Rudraksha Mala">Sphatik Shivalinga & Rudraksha Mala</option>
-                      <option value="Special Somvar Rudrabhishek Bhog">Special Somvar Rudrabhishek Bhog</option>
-                      <option value="Other Custom Prasad / Ritual">Other Custom Prasad / Ritual Request</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[#F4A62A] font-bold mb-1.5">
-                    Delivery Address & City (पूरा पता) *
-                  </label>
-                  <div className="relative">
-                    <MapPin className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
                     <input
                       type="text"
-                      required
-                      value={address}
-                      onChange={e => setAddress(e.target.value)}
-                      placeholder="House No, Street, Landmark, City & Pincode"
-                      className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white placeholder-[#FFF8F0]/30 focus:outline-none focus:border-[#F4A62A]"
+                      readOnly
+                      value={stateName}
+                      placeholder={lang === 'hi' ? 'स्वतः भरा जाएगा' : 'Auto-filled'}
+                      className="w-full px-3 py-2.5 rounded-xl bg-[#1A0B0E]/50 border border-[#F4A62A]/10 text-white/70 focus:outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-[#F4A62A] font-bold mb-1.5">
-                    Detailed Requirements & Specifications (विशेष आवश्यकताएं)
+                    {lang === 'hi' ? 'विशेष आवश्यकताएं (Details) *' : 'Detailed Requirements *'}
                   </label>
                   <textarea
                     rows={4}
+                    required
                     value={details}
                     onChange={e => setDetails(e.target.value)}
-                    placeholder="Provide details about exact peda quantity, packaging preference, devotee gotra/name for puja blessing..."
+                    placeholder={lang === 'hi' ? 'प्रसाद या अनुष्ठान के बारे में जानकारी दें...' : 'Provide details about exact peda quantity, packaging preference, devotee gotra/name for puja blessing...'}
                     className="w-full p-3 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white placeholder-[#FFF8F0]/30 focus:outline-none focus:border-[#F4A62A] leading-relaxed"
                   />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[#F4A62A] font-bold mb-1.5">
-                      Preferred Date (इच्छित तिथि)
-                    </label>
-                    <div className="relative">
-                      <Calendar className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
-                      <input
-                        type="date"
-                        value={preferredDate}
-                        onChange={e => setPreferredDate(e.target.value)}
-                        className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[#F4A62A] font-bold mb-1.5">
-                      Estimated Budget (₹)
-                    </label>
-                    <div className="relative">
-                      <IndianRupee className="w-4 h-4 text-[#F4A62A]/70 absolute left-3.5 top-3" />
-                      <input
-                        type="number"
-                        value={estimatedAmount}
-                        onChange={e => setEstimatedAmount(e.target.value)}
-                        placeholder="e.g. 2500"
-                        className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white placeholder-[#FFF8F0]/30 focus:outline-none focus:border-[#F4A62A]"
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 <div className="pt-4 flex items-center justify-end gap-4 border-t border-[#F4A62A]/20">
@@ -493,13 +493,13 @@ export const OrderRequestPage: React.FC = () => {
                     onClick={() => { setActivePage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                     className="px-5 py-3 rounded-xl bg-[#1A0B0E] text-[#FFF8F0]/70 font-bold hover:text-white transition-colors cursor-pointer"
                   >
-                    Cancel
+                    {lang === 'hi' ? 'रद्द करें' : 'Cancel'}
                   </button>
                   <button
                     type="submit"
                     className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#F4A62A] via-[#E59210] to-[#F4A62A] text-[#2B1A16] font-extrabold hover:bg-white transition-all cursor-pointer shadow-xl flex items-center gap-2 text-sm"
                   >
-                    <Sparkles className="w-4 h-4" /> Submit Order Request
+                    <Sparkles className="w-4 h-4" /> {lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request'}
                   </button>
                 </div>
 
