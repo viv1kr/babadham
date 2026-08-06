@@ -720,12 +720,14 @@ export const OrderRequestPage: React.FC = () => {
                 <div className="relative z-10 w-full max-w-sm mt-5">
                   <div className="flex justify-between text-[#FDF1D9] text-xs font-medium mb-2 px-1">
                     <span>{lang === 'hi' ? 'कुल उपलब्ध स्लॉट:' : 'Available Slots:'}</span>
-                    <span className="text-[#F5B642] font-black text-sm drop-shadow-md">54 / 1000</span>
+                    <span className="text-[#F5B642] font-black text-sm drop-shadow-md">
+                      {liveTotalBookedSlots} / {totalSlotLimit}
+                    </span>
                   </div>
                   <div className="w-full bg-black/50 rounded-full h-2.5 backdrop-blur-sm border border-white/10 overflow-hidden shadow-inner">
                     <div 
                       className="bg-gradient-to-r from-[#F5B642] to-[#ff3b3b] h-full rounded-full relative shadow-[0_0_12px_rgba(245,182,66,0.8)] transition-all duration-1000 ease-out" 
-                      style={{ width: '5.4%' }}
+                      style={{ width: `${Math.min(100, Math.max(2, (Number(liveTotalBookedSlots) / Number(totalSlotLimit)) * 100))}%` }}
                     >
                       <div className="absolute inset-0 bg-white/30 w-full h-full animate-pulse" />
                     </div>
@@ -874,33 +876,8 @@ export const OrderRequestPage: React.FC = () => {
                         initial={{ opacity: 0, height: 0, marginTop: 0 }}
                         animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
                         exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                        className="space-y-3"
+                        className="bg-[#FFF8F0] border border-[#F4E1D2] rounded-[16px] p-3 flex items-center justify-between shadow-sm overflow-hidden"
                       >
-                        {/* Dynamic Slot Booking Status Banner */}
-                        <div className="w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-2xl p-3.5 sm:p-4 border border-red-900/60 shadow-lg select-none">
-                          <div className="flex items-center justify-between gap-2 mb-2 px-1">
-                            <span className="text-xs sm:text-sm font-medium text-white/90">
-                              {lang === 'hi' ? 'बुक किए गए स्लॉट:' : 'Available Slots:'}
-                            </span>
-                            <span className="text-lg sm:text-2xl font-black text-white tracking-wide drop-shadow">
-                              {slotPeriodText || '5 August to 19 August'}
-                            </span>
-                            <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">
-                              {liveTotalBookedSlots} / {totalSlotLimit}
-                            </span>
-                          </div>
-                          <div className="w-full bg-black/50 h-2.5 sm:h-3 rounded-full overflow-hidden p-0.5 border border-white/10">
-                            <div 
-                              className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(244,166,42,0.8)]"
-                              style={{ 
-                                width: `${Math.min(100, Math.max(2, (Number(liveTotalBookedSlots) / Number(totalSlotLimit)) * 100))}%` 
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Charge Details */}
-                        <div className="bg-[#FFF8F0] border border-[#F4E1D2] rounded-[16px] p-3 flex items-center justify-between shadow-sm overflow-hidden">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FDF1D9] flex items-center justify-center shrink-0 border border-[#F3E5C8]">
                               <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
