@@ -144,18 +144,28 @@ export const OrderRequestPage: React.FC = () => {
   );
 
   const renderTrustBanner = () => (
-    <div className="bg-[#FFF8F0] border border-[#F4E1A1] rounded-[20px] p-3 sm:p-3.5 mb-4 flex items-center gap-3.5 shadow-sm select-none">
-      {/* 3 Overlapping User Profile Icons with Golden Rings */}
-      <div className="flex -space-x-3 overflow-hidden shrink-0">
+    <div className="relative overflow-hidden bg-gradient-to-r from-[#0F172A] via-[#1E3A8A] to-[#0F2942] border border-[#60A5FA]/40 rounded-[20px] p-3.5 sm:p-4 mb-4 flex items-center gap-3.5 shadow-[0_4px_20px_rgba(30,58,138,0.35)] select-none">
+      {/* Animated Sweeping Light Beam Shine Effect */}
+      <motion.div
+        initial={{ x: '-100%' }}
+        animate={{ x: '200%' }}
+        transition={{ repeat: Infinity, duration: 2.8, ease: 'linear', repeatDelay: 0.8 }}
+        className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none z-0"
+      />
+      <div className="absolute -top-10 -left-10 w-24 h-24 bg-blue-400/20 rounded-full blur-xl pointer-events-none" />
+      <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-amber-400/20 rounded-full blur-xl pointer-events-none" />
+
+      {/* 3 Overlapping User Profile Icons with Golden/Cyan Rings */}
+      <div className="relative z-10 flex -space-x-3 overflow-hidden shrink-0">
         {recentThreeInitials.map((initial, idx) => (
           <div 
             key={idx} 
             className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm text-white border-2 border-[#F4A62A] shadow-md transition-all ${
               idx === 0 
-                ? 'bg-gradient-to-br from-[#7A1323] via-[#9E1B32] to-[#C16200] z-20' 
+                ? 'bg-gradient-to-br from-[#1E3A8A] via-[#2563EB] to-[#D97706] z-20' 
                 : idx === 1 
-                ? 'bg-gradient-to-br from-[#5A0D18] to-[#7A1323] z-10' 
-                : 'bg-gradient-to-br from-[#3B060E] to-[#5A0D18] z-0'
+                ? 'bg-gradient-to-br from-[#0F172A] to-[#1E3A8A] z-10' 
+                : 'bg-gradient-to-br from-[#0B132B] to-[#1E293B] z-0'
             }`}
           >
             {initial}
@@ -164,7 +174,7 @@ export const OrderRequestPage: React.FC = () => {
       </div>
 
       {/* Dynamic Animated Booking Devotee Name on Top */}
-      <div className="min-w-0 flex-1 overflow-hidden h-9 flex flex-col justify-center">
+      <div className="relative z-10 min-w-0 flex-1 overflow-hidden h-9 flex flex-col justify-center">
         <AnimatePresence mode="wait">
           <motion.h4
             key={activeLatestName}
@@ -172,12 +182,12 @@ export const OrderRequestPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.3 }}
-            className="font-extrabold text-[#500A18] text-xs sm:text-sm leading-tight truncate"
+            className="font-extrabold text-white text-xs sm:text-sm leading-tight truncate drop-shadow"
           >
             {activeLatestName}
           </motion.h4>
         </AnimatePresence>
-        <p className="text-[11px] sm:text-xs text-[#C16200] font-bold mt-0.5 truncate">
+        <p className="text-[11px] sm:text-xs text-[#93C5FD] font-semibold mt-0.5 truncate">
           {lang === 'hi' ? 'भक्त जुड़े (आप भी जुड़ें बाबा के आशीर्वाद से)' : 'Devotees joined with Baba\'s blessings'}
         </p>
       </div>
