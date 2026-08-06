@@ -487,7 +487,6 @@ export const OrderRequestPage: React.FC = () => {
                           {lang === 'hi' ? 'नहीं, कभी नहीं गया' : 'No, never visited'}
                         </button>
                       </div>
-                    </div>
                   </div>
 
                   <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
@@ -511,7 +510,6 @@ export const OrderRequestPage: React.FC = () => {
                         />
                         <User className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
-                    </div>
                   </div>
 
                   <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
@@ -534,7 +532,6 @@ export const OrderRequestPage: React.FC = () => {
                           {lang === 'hi' ? 'बुकिंग की पुष्टि (₹151)' : 'Confirm Booking'}
                         </button>
                       </div>
-                    </div>
                   </div>
 
                   <div className="pt-4">
