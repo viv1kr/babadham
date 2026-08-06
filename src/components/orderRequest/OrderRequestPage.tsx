@@ -330,7 +330,7 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-0 sm:px-6 pt-0 space-y-8">
         {/* Main Request Form or Confirmation Card */}
-        <div className="bg-[#FDFBF7] rounded-none sm:rounded-3xl border-y-2 sm:border-2 border-[#E8E1D5] p-4 sm:p-8 shadow-sm space-y-6 text-[#2B1A16] sm:shadow-2xl">
+        <div className="bg-[#FDFBF7] rounded-none border-y-2 sm:border-2 border-[#E8E1D5] p-4 sm:p-8 space-y-6 text-[#2B1A16]">
           
           {isSubmitted ? (
             <div className="text-center space-y-6 py-6 animate-in fade-in">
