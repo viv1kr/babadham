@@ -939,15 +939,47 @@ export const OrderRequestsView: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#F4A62A] mb-1">Video Embed URL (YouTube or MP4)</label>
-                  <input
-                    type="text"
-                    value={mediaConfig.videoUrl || ''}
-                    onChange={e => setMediaConfig({ ...mediaConfig, videoUrl: e.target.value })}
-                    placeholder="e.g. https://www.youtube.com/embed/..."
-                    className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
-                  />
+                {/* Video Embed & File Upload Config */}
+                <div className="bg-[#120508] p-4 rounded-xl border border-[#F4A62A]/30 space-y-3">
+                  <label className="block text-xs font-bold text-[#F4A62A] flex items-center justify-between">
+                    <span className="flex items-center gap-1.5"><Video className="w-4 h-4 text-[#F4A62A]" /> Temple & Prasad Video (YouTube Link or Upload MP4 / WebM File)</span>
+                    {mediaConfig.videoUrl && (
+                      <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">✓ Video Active</span>
+                    )}
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <input
+                      type="text"
+                      value={mediaConfig.videoUrl || ''}
+                      onChange={e => setMediaConfig({ ...mediaConfig, videoUrl: e.target.value })}
+                      placeholder="Upload MP4 video file or enter YouTube/MP4 URL..."
+                      className="flex-1 bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3.5 py-2.5 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
+                    />
+                    <label className="px-3.5 py-2.5 bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/40 rounded-xl cursor-pointer text-xs font-bold shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-md">
+                      <Upload className="w-3.5 h-3.5" /> Upload Video File
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const dataUrl = event.target?.result as string;
+                              const updatedMedia = { ...mediaConfig, videoUrl: dataUrl };
+                              setMediaConfig(updatedMedia);
+                              const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia };
+                              saveBrandSettings({ orderRequestMediaConfig: updatedMedia });
+                              syncToStorefront(updatedSettings);
+                              showToast('Video file uploaded & saved successfully!', 'success');
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 {/* Temple Bell Ring Sound Audio Config */}
