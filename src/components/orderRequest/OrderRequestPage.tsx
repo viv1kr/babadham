@@ -717,32 +717,29 @@ export const OrderRequestPage: React.FC = () => {
                 </div>
                 
                 {/* Booking Slots Bar */}
-                <div className="relative z-10 w-full max-w-sm mt-5">
-                  {/* Active Slot Date Range Badge */}
-                  {slotPeriodText && (
-                    <div className="flex justify-center mb-2.5">
-                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-[#F5B642]/50 text-white text-xs sm:text-sm font-extrabold tracking-wide drop-shadow-md shadow-inner">
-                        <Calendar className="w-3.5 h-3.5 text-[#F5B642]" />
-                        {slotPeriodText}
+                <div className="relative z-10 w-full max-w-md mt-4 select-none">
+                  <div className="w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-xl p-3 sm:p-3.5 border border-red-900/60 shadow-lg">
+                    <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                      <span className="text-xs sm:text-sm font-medium text-white/90 shrink-0">
+                        {lang === 'hi' ? 'उपलब्ध स्लॉट:' : 'Available Slots:'}
+                      </span>
+                      <span className="text-base sm:text-xl font-black text-white tracking-wide text-center drop-shadow px-1 truncate">
+                        {slotPeriodText || '1St Week'}
+                      </span>
+                      <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A] shrink-0">
+                        {liveTotalBookedSlots} / {totalSlotLimit}
                       </span>
                     </div>
-                  )}
-
-                  <div className="flex justify-between text-[#FDF1D9] text-xs font-medium mb-2 px-1">
-                    <span>{lang === 'hi' ? 'कुल उपलब्ध स्लॉट:' : 'Available Slots:'}</span>
-                    <span className="text-[#F5B642] font-black text-sm drop-shadow-md">
-                      {liveTotalBookedSlots} / {totalSlotLimit}
-                    </span>
-                  </div>
-                  <div className="w-full bg-black/50 rounded-full h-2.5 backdrop-blur-sm border border-white/10 overflow-hidden shadow-inner">
-                    <div 
-                      className="bg-gradient-to-r from-[#F5B642] to-[#ff3b3b] h-full rounded-full relative shadow-[0_0_12px_rgba(245,182,66,0.8)] transition-all duration-1000 ease-out" 
-                      style={{ width: `${Math.min(100, Math.max(2, (Number(liveTotalBookedSlots) / Number(totalSlotLimit)) * 100))}%` }}
-                    >
-                      <div className="absolute inset-0 bg-white/30 w-full h-full animate-pulse" />
+                    <div className="w-full bg-black/50 h-2 sm:h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(244,166,42,0.8)]"
+                        style={{ 
+                          width: `${Math.min(100, Math.max(2, (Number(liveTotalBookedSlots) / Number(totalSlotLimit)) * 100))}%` 
+                        }}
+                      />
                     </div>
                   </div>
-                  <p className="text-white/60 text-[10px] sm:text-xs mt-3 tracking-wide font-medium flex items-center justify-center gap-1">
+                  <p className="text-white/60 text-[10px] sm:text-xs mt-2.5 tracking-wide font-medium flex items-center justify-center gap-1">
                     <Sparkles className="w-3 h-3 text-[#F5B642]" /> 
                     {lang === 'hi' ? 'स्लॉट बहुत तेजी से भर रहे हैं, जल्द बुक करें' : 'Slots are filling up fast, book soon'}
                   </p>
