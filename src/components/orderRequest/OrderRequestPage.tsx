@@ -108,7 +108,17 @@ export const OrderRequestPage: React.FC = () => {
   const currentSlide = slides[slideIndex] || slides[0];
   const hasText = Boolean(currentSlide?.title || currentSlide?.subtitle);
 
-  const mediaConfig = activeSettings?.orderRequestMediaConfig || brandSettings?.orderRequestMediaConfig;
+  const mediaConfig = (() => {
+    const baseConfig = activeSettings?.orderRequestMediaConfig || brandSettings?.orderRequestMediaConfig || {};
+    let url = baseConfig.videoUrl !== undefined ? baseConfig.videoUrl : '';
+    if (!url || url.trim().length === 0) {
+      try {
+        const stored = localStorage.getItem('babadham_uploaded_video') || sessionStorage.getItem('babadham_uploaded_video');
+        if (stored && stored.trim().length > 0) url = stored;
+      } catch (e) {}
+    }
+    return { ...baseConfig, videoUrl: url };
+  })();
 
   const getEmbedVideoUrl = (url?: string) => {
     if (!url) return null;

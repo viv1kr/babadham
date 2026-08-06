@@ -178,9 +178,9 @@ export const OrderRequestsView: React.FC = () => {
   // Video & Media Subtab State
   const [mediaConfig, setMediaConfig] = useState<OrderRequestMediaConfig>(
     brandSettings?.orderRequestMediaConfig || {
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      videoTitle: 'Deoghar Temple Darshan & Mahaprasad Preparation',
-      videoSubtitle: 'Experience the divine sanctity of Baba Baidyanath Garbhagriha Prasad offering.',
+      videoUrl: '',
+      videoTitle: '',
+      videoSubtitle: '',
       bannerBgImageUrl: ''
     }
   );
@@ -971,9 +971,19 @@ export const OrderRequestsView: React.FC = () => {
                               setMediaConfig(updatedMedia);
                               const updatedSettings = { ...brandSettings, orderRequestMediaConfig: updatedMedia };
                               saveBrandSettings({ orderRequestMediaConfig: updatedMedia });
+                              
+                              try {
+                                localStorage.setItem('babadham_uploaded_video', dataUrl);
+                              } catch (err) {
+                                try {
+                                  sessionStorage.setItem('babadham_uploaded_video', dataUrl);
+                                } catch (e2) {}
+                              }
+
                               try {
                                 localStorage.setItem('babadham_brand_settings', JSON.stringify(updatedSettings));
                               } catch (err) {}
+
                               syncToStorefront(updatedSettings);
                               showToast('Video file uploaded & saved successfully!', 'success');
                             };
