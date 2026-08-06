@@ -347,7 +347,7 @@ export const OrderRequestPage: React.FC = () => {
         {showLiveBooking && (
           <motion.div
             initial={{ opacity: 0, y: -100 }}
-            animate={{ opacity: 1, y: 85 }}
+            animate={{ opacity: 1, y: 120 }}
             exit={{ opacity: 0, y: -100 }}
             transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
             className="fixed top-0 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm pointer-events-none"
