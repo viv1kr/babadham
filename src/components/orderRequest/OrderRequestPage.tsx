@@ -68,6 +68,12 @@ export const OrderRequestPage: React.FC = () => {
   const [sessionConfirmedBookings, setSessionConfirmedBookings] = useState(0);
 
   const [realDevoteeNames, setRealDevoteeNames] = useState<string[]>([]);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  const triggerCelebration = () => {
+    setShowCelebration(true);
+    setTimeout(() => setShowCelebration(false), 3000);
+  };
   const [liveDevoteeIndex, setLiveDevoteeIndex] = useState(0);
 
   useEffect(() => {
@@ -889,7 +895,54 @@ export const OrderRequestPage: React.FC = () => {
                           {intent === 'prasadi' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
                           {lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}
                         </button>
-                        <button type="button" onClick={() => setIntent('booking')} className={`relative flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setIntent('booking');
+                            triggerCelebration();
+                          }} 
+                          className={`relative flex-1 py-2.5 sm:py-3.5 rounded-xl border flex items-center justify-center text-center px-2 gap-1.5 font-extrabold text-xs sm:text-sm transition-all duration-300 ${
+                            intent === 'booking' 
+                              ? 'border-emerald-600 bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)] scale-[1.02]' 
+                              : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {/* Celebration Pop-up Banner & Particle Explosion */}
+                          <AnimatePresence>
+                            {showCelebration && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                                className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap"
+                              >
+                                <div className="bg-gradient-to-r from-emerald-700 via-green-600 to-emerald-700 text-white px-3.5 py-1.5 rounded-full font-black text-xs shadow-2xl border border-emerald-300 flex items-center gap-1.5 animate-bounce">
+                                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                                  <span>🎉 {lang === 'hi' ? `बधाई हो! ${bookingDiscountPercent}% छूट मिली!` : `Congrats! You got ${bookingDiscountPercent}% OFF!`}</span>
+                                </div>
+
+                                {/* Particle Explosion */}
+                                {Array.from({ length: 12 }).map((_, i) => (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                                    animate={{
+                                      opacity: 0,
+                                      x: (Math.random() - 0.5) * 160,
+                                      y: -40 - Math.random() * 60,
+                                      scale: Math.random() * 0.8 + 0.5,
+                                      rotate: Math.random() * 360
+                                    }}
+                                    transition={{ duration: 1.2, ease: "easeOut" }}
+                                    className="absolute top-2 left-1/2 text-sm"
+                                  >
+                                    {['🎉', '✨', '🌟', '💫', '🎊', '⭐'][i % 6]}
+                                  </motion.div>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
                           {/* Floating Rounded Star Badge */}
                           {bookingDiscountPercent > 0 && (
                             <div className="absolute -top-3 right-2 sm:-top-4 sm:right-4 z-20 animate-bounce drop-shadow-md">
@@ -903,7 +956,7 @@ export const OrderRequestPage: React.FC = () => {
                             </div>
                           )}
                           <span className="flex items-center gap-1.5 relative z-10">
-                            {intent === 'booking' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
+                            {intent === 'booking' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white shrink-0" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300 shrink-0" />}
                             {lang === 'hi' ? `बुकिंग की पुष्टि (₹${finalBookingAmount})` : 'Confirm Booking'}
                           </span>
                         </button>
