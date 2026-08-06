@@ -909,8 +909,8 @@ export const OrderRequestsView: React.FC = () => {
                         }}
                         className="w-full bg-[#120508] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
                       />
-                    </div>
                   </div>
+                ))}
               </div>
             </div>
           )}
