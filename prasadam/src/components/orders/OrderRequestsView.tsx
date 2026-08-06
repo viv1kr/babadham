@@ -1001,6 +1001,7 @@ export const OrderRequestsView: React.FC = () => {
 
                 <p className="text-[11px] text-[#FFF8F0]/65 leading-relaxed">
                   Upload your custom MP3/WAV temple bell sound. It will automatically ring when devotees land on the Order Request page and when touching the hanging 3D bell!
+                </p>
               </div>
             </div>
           )}
