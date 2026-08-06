@@ -115,8 +115,43 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [isDatabaseExplorerOpen, setIsDatabaseExplorerOpen] = useState<boolean>(false);
+  const [activePage, setActivePageState] = useState<'home' | 'categories' | 'order-request'>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        if (window.location.pathname.endsWith('/order-request')) return 'order-request';
+        if (window.location.pathname.endsWith('/categories')) return 'categories';
+        const saved = localStorage.getItem('bbp_store_active_page');
+        if (saved && ['home', 'categories', 'order-request'].includes(saved)) {
+          return saved as any;
+        }
+      }
+    } catch (e) {}
+    return 'home';
+  });
+
+  const setActivePage = (page: 'home' | 'categories' | 'order-request') => {
+    setActivePageState(page);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('bbp_store_active_page', page);
+        if (page === 'order-request') {
+          if (!window.location.pathname.endsWith('/order-request')) {
+            window.history.pushState({}, '', '/order-request');
+          }
+        } else if (page === 'categories') {
+          if (!window.location.pathname.endsWith('/categories')) {
+            window.history.pushState({}, '', '/categories');
+          }
+        } else {
+          if (window.location.pathname.endsWith('/order-request') || window.location.pathname.endsWith('/categories')) {
+            window.history.pushState({}, '', '/');
+          }
+        }
+      }
+    } catch (e) {}
+  };
+
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [activePage, setActivePage] = useState<'home' | 'categories' | 'order-request'>('home');
 
   const [isPreBookingOpen, setIsPreBookingOpen] = useState<boolean>(false);
   const [preBookingProduct, setPreBookingProduct] = useState<Product | null>(null);

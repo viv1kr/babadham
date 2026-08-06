@@ -70,7 +70,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return localStorage.getItem('prasadam_admin_auth') === 'true';
   });
 
-  const [activeTab, setActiveTab] = useState<string>('analytics');
+  const [activeTab, setActiveTabState] = useState<string>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabFromUrl = urlParams.get('tab');
+        if (tabFromUrl && tabFromUrl.trim().length > 0) return tabFromUrl;
+
+        const savedTab = localStorage.getItem('bbp_admin_active_tab');
+        if (savedTab && savedTab.trim().length > 0) return savedTab;
+      }
+    } catch (e) {}
+    return 'analytics';
+  });
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('bbp_admin_active_tab', tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch (e) {}
+  };
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   const [products, setProducts] = useState<Product[]>(() => db.getProducts());

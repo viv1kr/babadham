@@ -119,7 +119,13 @@ class MySQLSim {
   private saveToStorage() {
     try {
       const dataStr = JSON.stringify(this.store);
-      localStorage.setItem(STORAGE_KEY, dataStr);
+
+      try {
+        localStorage.setItem(STORAGE_KEY, dataStr);
+      } catch (storageErr) {
+        console.warn('localStorage quota limit reached. Data persisted in-memory & server DB.', storageErr);
+      }
+
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new Event('bbp_db_updated'));
       try {
