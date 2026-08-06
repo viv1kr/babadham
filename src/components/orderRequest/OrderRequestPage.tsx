@@ -291,7 +291,7 @@ export const OrderRequestPage: React.FC = () => {
         )}
       </div>
 
-      <div className="max-w-4xl mx-auto px-0 sm:px-6 pt-4 sm:pt-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-0 sm:px-6 pt-0 space-y-8">
         {/* Main Request Form or Confirmation Card */}
         <div className="bg-[#2B1217] rounded-none sm:rounded-3xl border-y-2 sm:border-2 border-[#F4A62A]/40 p-4 sm:p-8 shadow-2xl space-y-6 text-[#FFF8F0]">
           
