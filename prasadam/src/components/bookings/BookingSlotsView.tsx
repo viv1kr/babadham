@@ -61,7 +61,7 @@ export const BookingSlotsView: React.FC = () => {
   };
 
   return (
-    <div className="w-full space-y-6 pb-24 relative">
+    <div className="w-full h-full flex flex-col space-y-6 relative">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1A0B0E] p-6 rounded-2xl border border-[#F4A62A]/20">
@@ -207,8 +207,8 @@ export const BookingSlotsView: React.FC = () => {
       </div>
 
       {/* Save Button floating at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 sm:left-20 lg:left-72 bg-[#120508]/80 backdrop-blur-xl border-t border-[#F4A62A]/20 p-4 z-40 transition-all duration-300">
-        <div className="max-w-7xl mx-auto flex items-center justify-end">
+      <div className="sticky bottom-0 mt-8 bg-[#120508]/90 backdrop-blur-xl border-t border-[#F4A62A]/20 p-4 z-40 -mx-4 sm:-mx-0 rounded-b-2xl shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center justify-end">
           <button
             onClick={handleSave}
             disabled={isSaving}
