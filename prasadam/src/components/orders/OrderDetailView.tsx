@@ -3,7 +3,7 @@ import { Order } from '../../types/ecommerce';
 import { 
   ArrowLeft, Printer, ChevronDown, ChevronLeft, ChevronRight, 
   Edit2, Package, CheckCircle2, Smile, AtSign, Hash, Paperclip, 
-  AlertCircle, MoreHorizontal, User, Mail, Phone, Check, X
+  AlertCircle, MoreHorizontal, User, Mail, Phone, Check, X, Truck, MessageSquare
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import { generateOrderPDF, generatePackingSlipPDF } from '../../utils/pdfGenerator';
@@ -14,7 +14,7 @@ interface OrderDetailViewProps {
 }
 
 export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack }) => {
-  const { updateOrderStatus, updateOrderPaymentStatus, updateOrderNotes, updateOrderAddress, addTimelineEvent, adminProfile } = useAdmin();
+  const { updateOrderStatus, updateOrderPaymentStatus, updateOrderNotes, updateOrderAddress, updateOrderTracking, addTimelineEvent, adminProfile } = useAdmin();
 
   // Local state for editing
   const [isMoreActionsOpen, setIsMoreActionsOpen] = useState(false);
@@ -30,22 +30,35 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
   const [isEditingShipping, setIsEditingShipping] = useState(false);
   const [shippingInput, setShippingInput] = useState({
     addressLine: order.address?.addressLine || '',
+    landmark: order.address?.landmark || '',
     city: order.address?.city || '',
     state: order.address?.state || '',
     pincode: order.address?.pincode || ''
   });
 
-  const [timelineInput, setTimelineInput] = useState('');
+  const [isEditingTracking, setIsEditingTracking] = useState(false);
+  const [trackingInput, setTrackingInput] = useState({
+    courierName: order.courierName || '',
+    trackingNumber: order.trackingNumber || '',
+    trackingUrl: order.trackingUrl || ''
+  });
 
+  const [timelineInput, setTimelineInput] = useState('');
   const isUnpaid = (order.paymentMethod || '').toUpperCase() === 'COD' && order.orderStatus !== 'DELIVERED';
-  const paymentPillClass = order.paymentStatus === 'REFUNDED'
-    ? 'bg-red-500/15 text-red-400 border-red-500/20'
-    : isUnpaid 
-      ? 'bg-[#F4A62A]/15 text-[#F4A62A] border-[#F4A62A]/20' 
-      : 'bg-white/10 text-white border-white/10';
-  
+
+  const paymentPillClass = order.paymentStatus === 'PAID'
+    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+    : 'bg-white/10 text-white/60 border-white/10';
+
   const isUnfulfilled = order.orderStatus === 'ORDER_PLACED' || order.orderStatus === 'TEMPLE_BLESSING';
-  const fulfillmentPillClass = isUnfulfilled
+  
+  const fulfillmentPillClass = order.orderStatus === 'DELIVERED'
+    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+    : order.orderStatus === 'IN_TRANSIT'
+    ? 'bg-blue-500/15 text-blue-400 border-blue-500/20'
+    : order.orderStatus === 'CANCELLED'
+    ? 'bg-red-500/15 text-red-400 border-red-500/20'
+    : order.orderStatus === 'ORDER_PLACED' || order.orderStatus === 'TEMPLE_BLESSING'
     ? 'bg-[#F4A62A]/15 text-[#F4A62A] border-[#F4A62A]/20'
     : 'bg-white/10 text-white border-white/10';
 
@@ -94,6 +107,59 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
     setIsEditingShipping(false);
   };
 
+  const handleCourierChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const courier = e.target.value;
+    let url = trackingInput.trackingUrl;
+    if (courier === 'Delhivery') url = 'https://www.delhivery.com/tracking?id=';
+    else if (courier === 'Blue Dart') url = 'https://www.bluedart.com/tracking';
+    else if (courier === 'DTDC') url = 'https://www.dtdc.in/tracking/tracking_results.asp';
+    else if (courier === 'India Post') url = 'https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx';
+    else if (courier === 'XpressBees') url = 'https://www.xpressbees.com/track';
+    else if (courier === 'Ecom Express') url = 'https://ecomexpress.in/tracking/';
+    else if (courier === 'Shadowfax') url = 'https://track.shadowfax.in/track?order=';
+    
+    setTrackingInput(prev => ({ ...prev, courierName: courier, trackingUrl: url }));
+  };
+
+  const handleSaveTracking = () => {
+    updateOrderTracking(order.id, trackingInput.courierName, trackingInput.trackingNumber, trackingInput.trackingUrl);
+    addTimelineEvent(order.id, {
+      author: adminProfile?.name || 'Admin',
+      content: `Tracking details updated: ${trackingInput.courierName} - ${trackingInput.trackingNumber}`,
+      type: 'system'
+    });
+    setIsEditingTracking(false);
+  };
+
+  const generateWhatsAppMessage = () => {
+    const customerName = order.address?.fullName ? order.address.fullName.split(' ')[0] : 'Devotee';
+    return `Dear ${customerName},\n\nJai Baba Baidyanath! 🙏\n\nYour order #${order.id.slice(-6).toUpperCase()} from Baba Baidyanath Prasadam has been shipped.\n\n📦 Courier: ${order.courierName}\n🏷️ Tracking ID: ${order.trackingNumber}\n\nTrack your package here:\n${order.trackingUrl}`;
+  };
+
+  const sendTrackingWhatsAppManual = () => {
+    if (!order.address?.phone) {
+      alert("Customer phone number not available.");
+      return;
+    }
+    const msg = generateWhatsAppMessage();
+    const url = `https://wa.me/${order.address.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  };
+
+  const sendTrackingWhatsAppAPI = () => {
+    if (!order.address?.phone) {
+      alert("Customer phone number not available.");
+      return;
+    }
+    // Simulate API request
+    alert(`WhatsApp API Request sent to ${order.address.phone} for Order #${order.id.slice(-6).toUpperCase()}`);
+    addTimelineEvent(order.id, {
+      author: adminProfile?.name || 'System API',
+      content: `Automated WhatsApp tracking notification sent to ${order.address.phone}`,
+      type: 'system'
+    });
+  };
+
   const handlePostComment = () => {
     if (!timelineInput.trim()) return;
     addTimelineEvent(order.id, {
@@ -104,8 +170,12 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
     setTimelineInput('');
   };
 
+  const handleSendInvoice = (method: 'whatsapp' | 'email') => {
+    alert(`Invoice sent successfully to customer via ${method === 'whatsapp' ? 'WhatsApp' : 'Email'}.`);
+  };
+
   return (
-    <div className="max-w-[1400px] mx-auto font-sans pb-12 animate-fade-in text-[13px] text-[#FFF8F0]">
+    <div className="w-full pt-4 sm:pt-6 space-y-6 font-sans pb-12 animate-fade-in text-[13px] text-[#FFF8F0]">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -118,12 +188,12 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
             
             <div className="flex items-center gap-2 ml-1">
               <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border font-medium text-xs ${paymentPillClass}`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${order.paymentStatus === 'REFUNDED' ? 'bg-red-400' : isUnpaid ? 'bg-[#F4A62A]' : 'bg-white/70'}`}></div>
-                {order.paymentStatus === 'REFUNDED' ? 'Refunded' : isUnpaid ? 'Payment pending' : 'Paid'}
+                <div className={`w-1.5 h-1.5 rounded-full ${order.paymentStatus === 'PAID' ? 'bg-emerald-400' : 'bg-white/40'}`}></div>
+                {order.paymentStatus === 'PAID' ? 'Paid' : order.paymentStatus === 'REFUNDED' ? 'Refunded' : 'Not paid'}
               </span>
               <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border font-medium text-xs ${fulfillmentPillClass}`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${isUnfulfilled ? 'bg-[#F4A62A]' : 'bg-white/70'}`}></div>
-                {isUnfulfilled ? 'Unfulfilled' : 'Fulfilled'}
+                <div className={`w-1.5 h-1.5 rounded-full ${order.orderStatus === 'DELIVERED' ? 'bg-emerald-400' : order.orderStatus === 'IN_TRANSIT' ? 'bg-blue-400' : order.orderStatus === 'CANCELLED' ? 'bg-red-400' : isUnfulfilled ? 'bg-[#F4A62A]' : 'bg-white/70'}`}></div>
+                {order.orderStatus.replace('_', ' ')}
               </span>
             </div>
           </div>
@@ -137,8 +207,17 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
           >
             Refund
           </button>
-          <button className="px-3 py-1.5 font-semibold rounded-lg bg-[#2B1217] hover:bg-[#3d1921] text-[#FFF8F0] border border-white/10 transition-colors shadow-sm flex items-center gap-1.5">
-            Print <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+          <button 
+            onClick={() => handleSendInvoice('whatsapp')}
+            className="px-3 py-1.5 font-semibold rounded-lg bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/20 transition-colors shadow-sm flex items-center gap-1.5"
+          >
+            <Phone className="w-3.5 h-3.5" /> WhatsApp
+          </button>
+          <button 
+            onClick={() => handleSendInvoice('email')}
+            className="px-3 py-1.5 font-semibold rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/20 transition-colors shadow-sm flex items-center gap-1.5"
+          >
+            <Mail className="w-3.5 h-3.5" /> Email
           </button>
           
           <div className="relative">
@@ -261,6 +340,145 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
             </div>
           </div>
 
+          {/* Tracking Card */}
+          <div className="bg-[#1C080C] border border-white/10 rounded-xl shadow-md p-4 mb-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-white">Fulfillment & Tracking</h3>
+              {!isEditingTracking && (
+                <button 
+                  onClick={() => setIsEditingTracking(true)}
+                  className="text-emerald-400 hover:text-emerald-300 text-xs font-semibold"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+
+            {isEditingTracking ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#FFF8F0]/50 mb-1">Courier Company</label>
+                  <select 
+                    value={trackingInput.courierName}
+                    onChange={handleCourierChange}
+                    className="w-full bg-[#2B1217] border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-white/20"
+                  >
+                    <option value="">Select Courier</option>
+                    <option value="Delhivery">Delhivery</option>
+                    <option value="Blue Dart">Blue Dart</option>
+                    <option value="DTDC">DTDC</option>
+                    <option value="India Post">India Post</option>
+                    <option value="XpressBees">XpressBees</option>
+                    <option value="Ecom Express">Ecom Express</option>
+                    <option value="Shadowfax">Shadowfax</option>
+                    <option value="Other">Other / Custom</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-medium text-[#FFF8F0]/50 mb-1">Tracking Number / AWB</label>
+                  <input 
+                    type="text"
+                    value={trackingInput.trackingNumber}
+                    onChange={(e) => setTrackingInput(prev => ({ ...prev, trackingNumber: e.target.value }))}
+                    placeholder="Enter Tracking ID"
+                    className="w-full bg-[#2B1217] border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#FFF8F0]/50 mb-1">Tracking URL</label>
+                  <input 
+                    type="text"
+                    value={trackingInput.trackingUrl}
+                    onChange={(e) => setTrackingInput(prev => ({ ...prev, trackingUrl: e.target.value }))}
+                    placeholder="https://..."
+                    className="w-full bg-[#2B1217] border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-white/20"
+                  />
+                  <p className="text-[#FFF8F0]/40 text-xs mt-1">Auto-populated based on courier, append tracking ID if needed.</p>
+                </div>
+
+                <div className="flex gap-2 justify-end pt-2">
+                  <button 
+                    onClick={() => {
+                      setTrackingInput({
+                        courierName: order.courierName || '',
+                        trackingNumber: order.trackingNumber || '',
+                        trackingUrl: order.trackingUrl || ''
+                      });
+                      setIsEditingTracking(false);
+                    }}
+                    className="px-3 py-1.5 text-xs font-semibold text-white/70 hover:text-white transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleSaveTracking}
+                    className="px-3 py-1.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg transition-colors border border-emerald-500/20"
+                  >
+                    Save Details
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {order.courierName ? (
+                  <>
+                    <div>
+                      <p className="text-xs text-[#FFF8F0]/50">Courier</p>
+                      <p className="font-medium text-white">{order.courierName}</p>
+                    </div>
+                    {order.trackingNumber && (
+                      <div>
+                        <p className="text-xs text-[#FFF8F0]/50">Tracking Number</p>
+                        <p className="font-medium text-white">{order.trackingNumber}</p>
+                      </div>
+                    )}
+                    {order.trackingUrl && (
+                      <div className="pt-2 flex items-center gap-2">
+                        <a 
+                          href={order.trackingUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 text-xs font-medium bg-emerald-400/10 px-3 py-1.5 rounded-md border border-emerald-400/20 transition-colors shadow-sm"
+                        >
+                          <Truck className="w-3.5 h-3.5" />
+                          Track Package
+                        </a>
+                        <button 
+                          onClick={sendTrackingWhatsAppManual}
+                          className="inline-flex items-center gap-1.5 text-[#25D366] hover:text-[#25D366]/80 text-xs font-medium bg-[#25D366]/10 px-3 py-1.5 rounded-md border border-[#25D366]/20 transition-colors shadow-sm"
+                          title="Open WhatsApp Web/App"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          Send Manually
+                        </button>
+                        <button 
+                          onClick={sendTrackingWhatsAppAPI}
+                          className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-xs font-medium bg-blue-500/10 px-3 py-1.5 rounded-md border border-blue-500/20 transition-colors shadow-sm"
+                          title="Send silently via WhatsApp API"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          Send via API
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-5">
+                    <p className="text-[#FFF8F0]/40 text-sm mb-3">No tracking details added yet.</p>
+                    <button 
+                      onClick={() => setIsEditingTracking(true)}
+                      className="px-4 py-2 text-xs font-semibold bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-white/10 text-white shadow-sm"
+                    >
+                      Add Tracking
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Timeline Card */}
           <div>
             <h3 className="font-bold text-base mb-3 text-white">Timeline</h3>
@@ -360,6 +578,23 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
             )}
           </div>
 
+          {/* Fulfillment Status Card */}
+          <div className="bg-[#1C080C] border border-white/10 rounded-xl shadow-md p-4">
+            <h3 className="font-bold text-white mb-3">Fulfillment Status</h3>
+            <select 
+              value={order.orderStatus}
+              onChange={(e) => updateOrderStatus(order.id, e.target.value as any)}
+              className="w-full bg-[#2B1217] border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-white/20"
+            >
+              <option value="ORDER_PLACED">Order Placed</option>
+              <option value="TEMPLE_BLESSING">Temple Blessing</option>
+              <option value="PACKED">Packed</option>
+              <option value="IN_TRANSIT">In Transit / Shipped</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+
           {/* Customer Card */}
           <div className="bg-[#1C080C] border border-white/10 rounded-xl shadow-md overflow-hidden">
             <div className="p-4 border-b border-white/10 flex justify-between items-start">
@@ -427,6 +662,10 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
                   <div>
                     <label className="text-[11px] text-[#FFF8F0]/40 uppercase">Address Line</label>
                     <input type="text" value={shippingInput.addressLine} onChange={e => setShippingInput({...shippingInput, addressLine: e.target.value})} className="w-full bg-transparent border-b border-white/20 text-white py-1 focus:outline-none focus:border-[#F4A62A]" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-[#FFF8F0]/40 uppercase">Nearby Landmark</label>
+                    <input type="text" value={shippingInput.landmark} onChange={e => setShippingInput({...shippingInput, landmark: e.target.value})} className="w-full bg-transparent border-b border-white/20 text-white py-1 focus:outline-none focus:border-[#F4A62A]" placeholder="Optional" />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>

@@ -50,8 +50,8 @@ interface StoreContextType {
   isSearchModalOpen: boolean;
   setIsSearchModalOpen: (open: boolean) => void;
   
-  activePage: 'home' | 'categories';
-  setActivePage: (page: 'home' | 'categories') => void;
+  activePage: 'home' | 'categories' | 'order-request';
+  setActivePage: (page: 'home' | 'categories' | 'order-request') => void;
 
   isPreBookingOpen: boolean;
   setIsPreBookingOpen: (open: boolean) => void;
@@ -63,13 +63,7 @@ interface StoreContextType {
   setActiveOrder: (order: Order | null) => void;
   placeOrder: (addressData: any, paymentMethod: 'UPI' | 'CARD' | 'COD') => Order;
 
-  isAdminLoggedIn: boolean;
-  isAdminLoginOpen: boolean;
-  setIsAdminLoginOpen: (open: boolean) => void;
-  isAdminDashboardOpen: boolean;
-  setIsAdminDashboardOpen: (open: boolean) => void;
-  adminLogin: (user: string, pass: string) => boolean;
-  adminLogout: () => void;
+
   adminAddProduct: (product: Omit<Product, 'id'>) => void;
   adminDeleteProduct: (id: string) => void;
   adminAddCoupon: (coupon: Coupon) => void;
@@ -122,7 +116,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [isDatabaseExplorerOpen, setIsDatabaseExplorerOpen] = useState<boolean>(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [activePage, setActivePage] = useState<'home' | 'categories'>('home');
+  const [activePage, setActivePage] = useState<'home' | 'categories' | 'order-request'>('home');
 
   const [isPreBookingOpen, setIsPreBookingOpen] = useState<boolean>(false);
   const [preBookingProduct, setPreBookingProduct] = useState<Product | null>(null);
@@ -138,73 +132,74 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Admin Auth States
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem('bbp_admin_logged_in') === 'true';
-  });
-  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState<boolean>(false);
-  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState<boolean>(false);
-
-  // Prevent double scrollbars when Admin Portal is open
   useEffect(() => {
-    if (isAdminDashboardOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isAdminDashboardOpen]);
-
-  useEffect(() => {
-    const checkHash = () => {
-      if (window.location.hash === '#admin' || window.location.search.includes('admin=true')) {
-        if (localStorage.getItem('bbp_admin_logged_in') === 'true') {
-          setIsAdminDashboardOpen(true);
-        } else {
-          setIsAdminLoginOpen(true);
-        }
-      }
-
+    const checkPathAndHash = () => {
+      const pathname = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      
       if (
-        window.location.hash === '#prebook' || 
-        window.location.hash === '#pre-booking' || 
-        window.location.hash === '#prasad-booking' || 
-        window.location.hash === '#prasadbooking' || 
-        window.location.search.includes('prebook=true') ||
-        window.location.search.includes('prebooking=true') ||
-        window.location.search.includes('page=prasadbooking') ||
-        window.location.search.includes('page=prebook')
+        pathname.endsWith('/order-request') ||
+        pathname.endsWith('/order-request/') ||
+        pathname.endsWith('/request') ||
+        hash === '#order-request' ||
+        hash === '#orderrequest' ||
+        hash === '#request' ||
+        hash === '#order-funnel' ||
+        search.includes('page=order-request') ||
+        search.includes('funnel=order-request') ||
+        search.includes('request=true')
+      ) {
+        setActivePage('order-request');
+      } else if (
+        hash === '#prebook' || 
+        hash === '#pre-booking' || 
+        hash === '#prasad-booking' || 
+        hash === '#prasadbooking' || 
+        search.includes('prebook=true') ||
+        search.includes('prebooking=true') ||
+        search.includes('page=prasadbooking') ||
+        search.includes('page=prebook')
       ) {
         setIsPreBookingOpen(true);
       }
     };
-    checkHash();
-    window.addEventListener('hashchange', checkHash);
-    return () => window.removeEventListener('hashchange', checkHash);
+    checkPathAndHash();
+    window.addEventListener('hashchange', checkPathAndHash);
+    window.addEventListener('popstate', checkPathAndHash);
+    return () => {
+      window.removeEventListener('hashchange', checkPathAndHash);
+      window.removeEventListener('popstate', checkPathAndHash);
+    };
   }, []);
 
-  const adminLogin = (user: string, pass: string) => {
-    if ((user === 'admin' || user === 'deoghar') && (pass === 'baba@admin2026' || pass === 'admin123')) {
-      setIsAdminLoggedIn(true);
-      localStorage.setItem('bbp_admin_logged_in', 'true');
-      setIsAdminLoginOpen(false);
-      setIsAdminDashboardOpen(true);
-      playTempleBell();
-      showToast('Jai Bhole! Logged into Baba Baidyanath Admin Portal');
-      return true;
-    }
-    showToast('Invalid Admin Credentials. Use admin / baba@admin2026', 'warning');
-    return false;
-  };
+  // Real-time Database Synchronization Effect
+  useEffect(() => {
+    const syncDb = () => {
+      setProducts([...db.getProducts()]);
+      setCategories([...db.getCategories()]);
+      setBrandSettings(db.getBrandSettings());
+    };
 
-  const adminLogout = () => {
-    setIsAdminLoggedIn(false);
-    localStorage.removeItem('bbp_admin_logged_in');
-    setIsAdminDashboardOpen(false);
-    showToast('Logged out of Admin Portal', 'info');
-  };
+    window.addEventListener('storage', syncDb);
+    window.addEventListener('bbp_db_updated', syncDb);
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('bbp_db_sync');
+      channel.onmessage = (event) => {
+        if (event.data?.type === 'DB_UPDATED' || event.data?.type === 'BRAND_SETTINGS_UPDATED') {
+          syncDb();
+        }
+      };
+    } catch (e) {}
+
+    return () => {
+      window.removeEventListener('storage', syncDb);
+      window.removeEventListener('bbp_db_updated', syncDb);
+      if (channel) channel.close();
+    };
+  }, []);
 
 
 
@@ -511,13 +506,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       activeOrder,
       setActiveOrder,
       placeOrder,
-      isAdminLoggedIn,
-      isAdminLoginOpen,
-      setIsAdminLoginOpen,
-      isAdminDashboardOpen,
-      setIsAdminDashboardOpen,
-      adminLogin,
-      adminLogout,
+
       adminAddProduct,
       adminDeleteProduct,
       adminAddCoupon,

@@ -17,6 +17,27 @@ class MySQLSim {
 
   constructor() {
     this.store = this.loadFromStorage();
+    this.syncWithServer();
+  }
+
+  private async syncWithServer() {
+    try {
+      let res = await fetch('/api/db');
+      if (!res.ok) {
+        res = await fetch('/babadham/api/index.php');
+      }
+      if (res.ok) {
+        const data = await res.json();
+        if (data && !data.empty && data.products) {
+          this.store = data;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          if (data.brandSettings) {
+            localStorage.setItem('babadham_brand_settings', JSON.stringify(data.brandSettings));
+          }
+          window.dispatchEvent(new Event('bbp_db_updated'));
+        }
+      }
+    } catch (e) {}
   }
 
   private loadFromStorage(): DBStore {
@@ -97,12 +118,46 @@ class MySQLSim {
 
   private saveToStorage() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.store));
+      const dataStr = JSON.stringify(this.store);
+      localStorage.setItem(STORAGE_KEY, dataStr);
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new Event('bbp_db_updated'));
+      try {
+        const channel = new BroadcastChannel('bbp_db_sync');
+        channel.postMessage({ type: 'DB_UPDATED' });
+        channel.close();
+      } catch (err) {}
+
+      // Asynchronously post to central server DB file with CSRF & security headers
+      fetch('/api/db', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'babadham_sec_token_882910',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: dataStr
+      }).catch(() => {
+        fetch('/babadham/api/index.php', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': 'babadham_sec_token_882910',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: dataStr
+        }).catch(() => {});
+      });
+
     } catch (e) {
       console.warn('Failed to persist DB state', e);
     }
+  }
+
+  public clearAllProducts(): boolean {
+    this.store.products = [];
+    this.saveToStorage();
+    return true;
   }
 
   public getProducts(): Product[] {
@@ -165,7 +220,10 @@ class MySQLSim {
       savedFavicon = localStorage.getItem('babadham_favicon_image') || '';
     } catch {}
 
-    return {
+    const logo = savedLogo || settings.logoImageUrl || (savedBrand as any).logoImageUrl || '/assets/logo.png';
+    const favicon = savedFavicon || settings.faviconUrl || (savedBrand as any).faviconUrl || '/assets/favicon.png';
+
+    const merged = {
       brandName: 'BABA BAIDYANATH PRASADAM',
       tagline: 'aastha | seva | samarpan',
       topBarSacredText: 'ॐ हर हर महादेव ॐ',
@@ -177,17 +235,31 @@ class MySQLSim {
       fssaiLicenseNumber: '11124999000123',
       needHelpText: 'Need Help?',
       logoIcon: 'ॐ',
-      logoImageUrl: savedLogo || '/assets/logo.svg',
-      faviconUrl: savedFavicon || '/assets/favicon.svg',
+      logoImageUrl: logo,
+      faviconUrl: favicon,
       feature1: '100% Authentic',
       feature2: 'Temple Blessed',
       feature3: 'Secure Packaging',
       feature4: 'Pan India Delivery',
       ...settings,
       ...savedBrand,
-      ...(savedLogo ? { logoImageUrl: savedLogo } : {}),
-      ...(savedFavicon ? { faviconUrl: savedFavicon } : {})
+      logoImageUrl: logo,
+      faviconUrl: favicon
     };
+
+    if (settings && Array.isArray(settings.heroSlides) && settings.heroSlides.length > 0) {
+      merged.heroSlides = settings.heroSlides;
+    } else if (savedBrand && Array.isArray(savedBrand.heroSlides) && savedBrand.heroSlides.length > 0) {
+      merged.heroSlides = savedBrand.heroSlides;
+    }
+
+    if (settings && Array.isArray(settings.orderRequestHeroSlides) && settings.orderRequestHeroSlides.length > 0) {
+      merged.orderRequestHeroSlides = settings.orderRequestHeroSlides;
+    } else if (savedBrand && Array.isArray((savedBrand as any).orderRequestHeroSlides) && (savedBrand as any).orderRequestHeroSlides.length > 0) {
+      merged.orderRequestHeroSlides = (savedBrand as any).orderRequestHeroSlides;
+    }
+
+    return merged;
   }
 
   public updateBrandSettings(newSettings: any) {

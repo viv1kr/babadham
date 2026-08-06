@@ -181,7 +181,24 @@ export interface BrandSettings {
   refundPolicy?: string;
   privacyPolicy?: string;
   termsConditionPolicy?: string;
-  manufacturingDetailsPolicy?: string;
   shippingPolicy?: string;
+  orderRequestTrustBadges?: OrderRequestTrustBadge[];
+  orderRequestMediaConfig?: OrderRequestMediaConfig;
+  orderRequestHeroSlides?: HeroSlide[];
+}
+
+export interface OrderRequestTrustBadge {
+  id: string;
+  iconName: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface OrderRequestMediaConfig {
+  videoUrl?: string;
+  videoTitle?: string;
+  videoSubtitle?: string;
+  bannerBgImageUrl?: string;
+  bellAudioUrl?: string;
 }
 

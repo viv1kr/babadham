@@ -34,15 +34,15 @@ import {
   EyeOff
 } from 'lucide-react';
 
-export type ProductSubTab = 'collections' | 'products' | 'purchase-orders' | 'vendors' | 'gift-cards';
+export type ProductSubTab = 'collections' | 'products' | 'inventory' | 'purchase-orders' | 'vendors';
 
 interface ProductsViewProps {
   initialSubTab?: ProductSubTab;
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({ initialSubTab = 'products' }) => {
-  const { collections, products, saveCollection, deleteCollection, showToast } = useAdmin();
-  const [activeSubTab, setActiveSubTab] = useState<ProductSubTab>(initialSubTab as any === 'inventory' || initialSubTab as any === 'add-product' ? 'products' : initialSubTab);
+  const { collections, products, saveCollection, deleteCollection, clearSampleCollections, showToast } = useAdmin();
+  const [activeSubTab, setActiveSubTab] = useState<ProductSubTab>(initialSubTab as any === 'add-product' ? 'products' : initialSubTab);
   const [productMode, setProductMode] = useState<'list' | 'add' | 'edit'>('list');
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
@@ -272,9 +272,9 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ initialSubTab = 'pro
   const subNavItems: { id: ProductSubTab; label: string; icon: any }[] = [
     { id: 'collections', label: 'Collections', icon: Layers },
     { id: 'products', label: 'Products', icon: Package },
+    { id: 'inventory', label: 'Inventory', icon: Store },
     { id: 'purchase-orders', label: 'Purchase orders', icon: ShoppingCart },
     { id: 'vendors', label: 'Vendors', icon: Store },
-    { id: 'gift-cards', label: 'Gift cards', icon: Gift },
   ];
 
   return (
@@ -1200,6 +1200,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ initialSubTab = 'pro
           <div>
             {productMode === 'list' ? (
               <InventoryView 
+                allowDirectEdit={false}
                 onAddProductClick={() => { setEditingProductId(null); setProductMode('add'); }} 
                 onEditProductClick={(id) => { setEditingProductId(id); setProductMode('edit'); }}
               />
@@ -1224,46 +1225,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({ initialSubTab = 'pro
         {activeSubTab === 'vendors' && (
           <VendorsView />
         )}
-
-        {/* 5. GIFT CARDS VIEW */}
-        {activeSubTab === 'gift-cards' && (
-          <div className="space-y-6">
-            <div className="bg-[#2B1217] p-5 rounded-2xl border border-[#F4A62A]/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
-              <div>
-                <h3 className="font-serif-temple text-lg font-bold text-[#F4A62A]">
-                  Devotional Gift Cards & Sacred Vouchers
-                </h3>
-                <p className="text-xs text-[#FFF8F0]/70 mt-0.5">
-                  Issue and manage prepaid bhog and seva gift vouchers for devotees.
-                </p>
-              </div>
-              <button
-                onClick={() => showToast('New Gift Voucher generated')}
-                className="px-4 py-2 rounded-xl bg-[#F4A62A] text-[#2B1A16] font-bold text-xs hover:bg-white transition-all shadow-md flex items-center gap-1.5"
-              >
-                <Plus className="w-4 h-4" /> Issue Gift Card
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {giftCards.map(gc => (
-                <div key={gc.code} className="bg-[#2B1217] p-5 rounded-2xl border border-[#F4A62A]/40 space-y-3 shadow-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="p-2 rounded-lg bg-[#500A18] text-[#F4A62A]"><Gift className="w-5 h-5" /></span>
-                    <span className="px-2 py-0.5 bg-emerald-950 text-emerald-300 text-[10px] font-bold rounded border border-emerald-500/30">{gc.status}</span>
-                  </div>
-                  <div>
-                    <div className="font-mono font-extrabold text-base text-[#F4A62A] tracking-wider">{gc.code}</div>
-                    <div className="text-xs text-[#FFF8F0]/80 mt-0.5">{gc.recipient}</div>
-                  </div>
-                  <div className="pt-2 border-t border-[#F4A62A]/20 flex items-center justify-between text-xs">
-                    <span className="text-[#FFF8F0]/70">Initial Value: ₹{gc.value}</span>
-                    <span className="font-bold text-[#F4A62A]">Balance: ₹{gc.balance}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        
+        {/* 5. INVENTORY VIEW */}
+        {activeSubTab === 'inventory' && (
+          <InventoryView 
+            allowDirectEdit={true}
+            onAddProductClick={() => { setEditingProductId(null); setProductMode('add'); setActiveSubTab('products'); }} 
+            onEditProductClick={(id) => { setEditingProductId(id); setProductMode('edit'); setActiveSubTab('products'); }}
+          />
         )}
 
       </div>

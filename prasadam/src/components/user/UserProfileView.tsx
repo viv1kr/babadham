@@ -102,6 +102,23 @@ export const UserProfileView: React.FC = () => {
               
               const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
               setPhotoUrl(compressedDataUrl);
+
+              fetch('/api/upload-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  image: compressedDataUrl,
+                  type: 'babadham_profile_photo'
+                })
+              }).then(res => res.json()).then(data => {
+                if (data.success) {
+                  const freshUrl = `${data.path}?t=${Date.now()}`;
+                  setPhotoUrl(freshUrl);
+                  saveAdminProfile({ photoUrl: freshUrl });
+                }
+              }).catch(err => {
+                console.warn('Avatar upload fallback to data URL', err);
+              });
             };
             img.onerror = () => {
               setPhotoUrl(result);

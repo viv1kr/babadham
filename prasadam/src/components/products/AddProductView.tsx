@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { ProductCategory } from '../../types/ecommerce';
+import { ProductCategory, ProductVariant } from '../../types/ecommerce';
 import { 
   Package, 
   Upload, 
@@ -19,7 +19,8 @@ import {
   Tag,
   ArrowLeft,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layers
 } from 'lucide-react';
 
 import { CategoryManagerModal } from './CategoryManagerModal';
@@ -46,11 +47,17 @@ export const AddProductView: React.FC<AddProductViewProps> = ({ productId, onSuc
   const [costPerItem, setCostPerItem] = useState<number>(250);
   const [stockCount, setStockCount] = useState<number>(100);
   const [inStock, setInStock] = useState<boolean>(true);
-  const [weight, setWeight] = useState<string>('500g');
+  const [weightValue, setWeightValue] = useState<number | ''>('');
+  const [unit, setUnit] = useState<string>('');
+  const [color, setColor] = useState<string>('');
+  const [flavor, setFlavor] = useState<string>('');
   const [badge, setBadge] = useState<string>('Sacred & Fresh');
   const [purityGrade, setPurityGrade] = useState<string>('Grade A+ Organic');
   const [origin, setOrigin] = useState<string>('Deoghar Sanctum, Jharkhand');
   const [vendor, setVendor] = useState<string>('');
+
+  // Variants
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
 
   // Media
   const [imageUrl, setImageUrl] = useState<string>('https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=800&q=80');
@@ -83,11 +90,15 @@ export const AddProductView: React.FC<AddProductViewProps> = ({ productId, onSuc
         setOriginalPrice(p.originalPrice || 699);
         setInStock(p.inStock ?? true);
         setStockCount(p.stockCount ?? 100);
-        setWeight(p.weight || '500g');
+        setWeightValue(p.weightValue || '');
+        setUnit(p.unit || '');
+        setColor(p.color || '');
+        setFlavor(p.flavor || '');
         setBadge(p.badge || '');
         setPurityGrade(p.purityGrade || '');
         setOrigin(p.origin || '');
         setVendor(p.vendor || '');
+        setVariants(p.variants || []);
         setImageUrl(p.image || '');
         if (p.gallery) setGallery(p.gallery);
         
@@ -296,7 +307,12 @@ export const AddProductView: React.FC<AddProductViewProps> = ({ productId, onSuc
       shortDesc: fullDesc.trim() || name.trim(),
       fullDesc: fullDesc.trim() || name.trim(),
       templeBlessing: templeBlessing.trim(),
-      weight: weight.trim() || '500g',
+      weight: 'Legacy',
+      weightValue: weightValue === '' ? undefined : Number(weightValue),
+      unit: unit.trim() || undefined,
+      color: color.trim() || undefined,
+      flavor: flavor.trim() || undefined,
+      variants: variants.length > 0 ? variants : undefined,
       inStock: inStock,
       stockCount: Number(stockCount),
       isBestSeller: true,
@@ -665,6 +681,199 @@ export const AddProductView: React.FC<AddProductViewProps> = ({ productId, onSuc
             </div>
           </div>
 
+          {/* Product Variants (Bundle & Save) */}
+          <div className="bg-[#2B1217] p-6 rounded-2xl border border-[#F4A62A]/30 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-[#F4A62A] uppercase tracking-wider flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#F4A62A]" /> Product Variants (Bundle & Save)
+                </h3>
+                <p className="text-[11px] text-[#FFF8F0]/60 mt-0.5">
+                  Create options like "Buy 1", "Buy 2", or different sizes.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVariants([...variants, { id: Date.now().toString(), name: '', price: 0, originalPrice: 0, badge: '', description: '' }])}
+                className="px-3 py-1.5 rounded-xl bg-[#500A18] text-[#F4A62A] border border-[#F4A62A]/30 text-xs font-bold hover:bg-[#7A1126] transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Variant
+              </button>
+            </div>
+
+            {variants.length > 0 ? (
+              <div className="space-y-3">
+                {variants.map((variant, index) => (
+                  <div key={variant.id} className="bg-[#1C080C] p-4 rounded-xl border border-[#F4A62A]/20 relative space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setVariants(variants.filter((_, i) => i !== index))}
+                      className="absolute top-2 right-2 p-1.5 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                      title="Remove Variant"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#F4A62A] mb-1">Variant Name (e.g. Buy 2)</label>
+                        <input
+                          type="text"
+                          required
+                          value={variant.name}
+                          onChange={e => {
+                            const newVariants = [...variants];
+                            newVariants[index].name = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-bold text-[#F4A62A] mb-1">Price (₹)</label>
+                          <input
+                            type="number"
+                            required
+                            value={variant.price}
+                            onChange={e => {
+                              const newVariants = [...variants];
+                              newVariants[index].price = Number(e.target.value);
+                              setVariants(newVariants);
+                            }}
+                            className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Orig. Price (₹)</label>
+                          <input
+                            type="number"
+                            value={variant.originalPrice || ''}
+                            onChange={e => {
+                              const newVariants = [...variants];
+                              newVariants[index].originalPrice = Number(e.target.value);
+                              setVariants(newVariants);
+                            }}
+                            className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Badge (e.g. SAVE 10%)</label>
+                        <input
+                          type="text"
+                          value={variant.badge || ''}
+                          onChange={e => {
+                            const newVariants = [...variants];
+                            newVariants[index].badge = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Description</label>
+                        <input
+                          type="text"
+                          value={variant.description || ''}
+                          onChange={e => {
+                            const newVariants = [...variants];
+                            newVariants[index].description = e.target.value;
+                            setVariants(newVariants);
+                          }}
+                          className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Weight/Size Value</label>
+                          <input
+                            type="number"
+                            value={variant.weight || ''}
+                            onChange={e => {
+                              const newVariants = [...variants];
+                              newVariants[index].weight = Number(e.target.value);
+                              setVariants(newVariants);
+                            }}
+                            className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Unit (kg, L, etc.)</label>
+                          <select
+                            value={variant.unit || ''}
+                            onChange={e => {
+                              const newVariants = [...variants];
+                              newVariants[index].unit = e.target.value;
+                              setVariants(newVariants);
+                            }}
+                            className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                          >
+                            <option value="">None</option>
+                            <option value="kg">kg</option>
+                            <option value="g">g</option>
+                            <option value="L">Liter (L)</option>
+                            <option value="ml">ml</option>
+                            <option value="piece">Piece(s)</option>
+                            <option value="pack">Pack</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Color (Hex)</label>
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="color"
+                              value={variant.color?.startsWith('#') ? variant.color : '#F4A62A'}
+                              onChange={e => {
+                                const newVariants = [...variants];
+                                newVariants[index].color = e.target.value;
+                                setVariants(newVariants);
+                              }}
+                              className="w-10 h-10 p-1 rounded-lg bg-[#120508] border border-[#F4A62A]/30 cursor-pointer"
+                            />
+                            <input
+                              type="text"
+                              placeholder="#FF0000"
+                              value={variant.color || ''}
+                              onChange={e => {
+                                const newVariants = [...variants];
+                                newVariants[index].color = e.target.value;
+                                setVariants(newVariants);
+                              }}
+                              className="flex-1 text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-[11px] font-bold text-[#FFF8F0]/70 mb-1">Flavor</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Kesar"
+                            value={variant.flavor || ''}
+                            onChange={e => {
+                              const newVariants = [...variants];
+                              newVariants[index].flavor = e.target.value;
+                              setVariants(newVariants);
+                            }}
+                            className="w-full text-xs p-2.5 rounded-lg bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A] h-10"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-6 border-2 border-dashed border-[#F4A62A]/20 rounded-xl bg-[#1C080C]">
+                <Layers className="w-8 h-8 text-[#F4A62A]/50 mx-auto mb-2" />
+                <p className="text-sm font-bold text-white mb-1">No variants added</p>
+                <p className="text-xs text-[#FFF8F0]/60">This product only has a standard price.</p>
+              </div>
+            )}
+          </div>
+
           {/* Search Engine Listing Section (Exact URL & Live Website Preview) */}
           <div className="bg-[#2B1217] p-6 rounded-2xl border border-[#F4A62A]/30 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
@@ -862,16 +1071,71 @@ export const AddProductView: React.FC<AddProductViewProps> = ({ productId, onSuc
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#FFF8F0]/80 mb-1.5">
-                Package Weight
-              </label>
-              <input
-                type="text"
-                value={weight}
-                onChange={e => setWeight(e.target.value)}
-                className="w-full text-xs p-3 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-[#FFF8F0]/80 mb-1.5">
+                  Weight/Size Value
+                </label>
+                <input
+                  type="number"
+                  value={weightValue}
+                  onChange={e => setWeightValue(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="w-full text-xs p-3 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#FFF8F0]/80 mb-1.5">
+                  Unit
+                </label>
+                <select
+                  value={unit}
+                  onChange={e => setUnit(e.target.value)}
+                  className="w-full text-xs p-3 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                >
+                  <option value="">None</option>
+                  <option value="kg">kg</option>
+                  <option value="g">g</option>
+                  <option value="L">Liter (L)</option>
+                  <option value="ml">ml</option>
+                  <option value="piece">Piece(s)</option>
+                  <option value="pack">Pack</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-[#FFF8F0]/80 mb-1.5">
+                  Color (Hex)
+                </label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={color?.startsWith('#') ? color : '#F4A62A'}
+                    onChange={e => setColor(e.target.value)}
+                    className="w-11 h-11 p-1 rounded-xl bg-[#120508] border border-[#F4A62A]/30 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    placeholder="#FF0000"
+                    value={color}
+                    onChange={e => setColor(e.target.value)}
+                    className="flex-1 text-xs p-3 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                  />
+                </div>
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-[#FFF8F0]/80 mb-1.5">
+                  Flavor
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Kesar"
+                  value={flavor}
+                  onChange={e => setFlavor(e.target.value)}
+                  className="w-full text-xs p-3 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white focus:outline-none focus:border-[#F4A62A]"
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-2 pt-1">

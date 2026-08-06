@@ -1,4 +1,4 @@
-import type { Product, CategoryInfo, Collection, Order, Coupon, DevoteeReview, DBTableInfo, AdminUserProfile, LoginLog, Vendor } from '../types/ecommerce';
+import type { Product, CategoryInfo, Collection, Order, Coupon, UpsellCondition, DevoteeReview, DBTableInfo, AdminUserProfile, LoginLog, Vendor } from '../types/ecommerce';
 import { PRODUCTS_DATA, CATEGORIES_DATA, COUPONS_DATA, DEVOTEE_REVIEWS, VENDORS_DATA } from './seedData';
 
 const STORAGE_KEY = 'babadham_mysql_db_v1';
@@ -9,6 +9,7 @@ interface DBStore {
   collections?: Collection[];
   orders: Order[];
   coupons: Coupon[];
+  upsellConditions?: UpsellCondition[];
   vendors?: Vendor[];
   reviews: DevoteeReview[];
   brandSettings: any;
@@ -29,14 +30,43 @@ class MySQLSim {
 
   constructor() {
     this.store = this.loadFromStorage();
+    this.syncWithServer();
+  }
+
+  private async syncWithServer() {
+    try {
+      let res = await fetch('/api/db');
+      if (!res.ok) {
+        res = await fetch('/babadham/api/index.php');
+      }
+      if (res.ok) {
+        const data = await res.json();
+        if (data && !data.empty && data.products) {
+          this.store = data;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          if (data.brandSettings) {
+            localStorage.setItem('babadham_brand_settings', JSON.stringify(data.brandSettings));
+          }
+          window.dispatchEvent(new Event('bbp_db_updated'));
+        }
+      }
+    } catch (e) {}
   }
 
   private loadFromStorage(): DBStore {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
+      let userCols: Collection[] | undefined = undefined;
+      try {
+        const cStr = localStorage.getItem('babadham_user_collections');
+        if (cStr) userCols = JSON.parse(cStr);
+      } catch {}
+
       if (saved) {
         const store: DBStore = JSON.parse(saved);
-        if (!store.collections || !Array.isArray(store.collections)) {
+        if (userCols && Array.isArray(userCols)) {
+          store.collections = userCols;
+        } else if (!store.collections || !Array.isArray(store.collections)) {
           store.collections = [...DEFAULT_COLLECTIONS_DATA];
         }
         return store;
@@ -100,6 +130,17 @@ class MySQLSim {
         }
       ],
       coupons: [...COUPONS_DATA],
+      upsellConditions: [
+        {
+          id: 'UP-1',
+          type: 'CART_TOTAL',
+          targetValue: 1000,
+          discountType: 'PERCENTAGE',
+          discountValue: 10,
+          description: 'Get 10% off when you spend more than ₹1000',
+          isActive: true
+        }
+      ],
       vendors: [...VENDORS_DATA],
       reviews: [...DEVOTEE_REVIEWS],
       brandSettings: {
@@ -130,12 +171,46 @@ class MySQLSim {
 
   private saveToStorage() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.store));
+      const dataStr = JSON.stringify(this.store);
+      localStorage.setItem(STORAGE_KEY, dataStr);
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new Event('bbp_db_updated'));
+      try {
+        const channel = new BroadcastChannel('bbp_db_sync');
+        channel.postMessage({ type: 'DB_UPDATED' });
+        channel.close();
+      } catch (err) {}
+
+      // Asynchronously post to central server DB file with CSRF & security headers
+      fetch('/api/db', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'babadham_sec_token_882910',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: dataStr
+      }).catch(() => {
+        fetch('/babadham/api/index.php', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': 'babadham_sec_token_882910',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: dataStr
+        }).catch(() => {});
+      });
+
     } catch (e) {
       console.warn('Failed to persist DB state', e);
     }
+  }
+
+  public clearAllProducts(): boolean {
+    this.store.products = [];
+    this.saveToStorage();
+    return true;
   }
 
   public getProducts(): Product[] {
@@ -238,6 +313,63 @@ class MySQLSim {
     return this.store.coupons;
   }
 
+  public addCoupon(coupon: Coupon): Coupon[] {
+    if (!this.store.coupons) this.store.coupons = [];
+    this.store.coupons.push(coupon);
+    this.saveToStorage();
+    return this.store.coupons;
+  }
+
+  public updateCoupon(code: string, updates: Partial<Coupon>): Coupon[] {
+    if (!this.store.coupons) return [];
+    const idx = this.store.coupons.findIndex(c => c.code === code);
+    if (idx >= 0) {
+      this.store.coupons[idx] = { ...this.store.coupons[idx], ...updates };
+      this.saveToStorage();
+    }
+    return this.store.coupons;
+  }
+
+  public deleteCoupon(code: string): Coupon[] {
+    if (!this.store.coupons) return [];
+    this.store.coupons = this.store.coupons.filter(c => c.code !== code);
+    this.saveToStorage();
+    return this.store.coupons;
+  }
+
+  public getUpsells(): UpsellCondition[] {
+    this.store = this.loadFromStorage();
+    return this.store.upsellConditions || [];
+  }
+
+  public addUpsell(upsell: Omit<UpsellCondition, 'id'>): UpsellCondition[] {
+    const newUpsell = {
+      ...upsell,
+      id: `UP-${Math.floor(Math.random() * 10000)}`
+    };
+    if (!this.store.upsellConditions) this.store.upsellConditions = [];
+    this.store.upsellConditions.unshift(newUpsell);
+    this.saveToStorage();
+    return this.store.upsellConditions;
+  }
+
+  public updateUpsell(id: string, updates: Partial<UpsellCondition>): UpsellCondition[] {
+    if (!this.store.upsellConditions) return [];
+    const idx = this.store.upsellConditions.findIndex(u => u.id === id);
+    if (idx >= 0) {
+      this.store.upsellConditions[idx] = { ...this.store.upsellConditions[idx], ...updates };
+      this.saveToStorage();
+    }
+    return this.store.upsellConditions;
+  }
+
+  public deleteUpsell(id: string): UpsellCondition[] {
+    if (!this.store.upsellConditions) return [];
+    this.store.upsellConditions = this.store.upsellConditions.filter(u => u.id !== id);
+    this.saveToStorage();
+    return this.store.upsellConditions;
+  }
+
   public getReviews(): DevoteeReview[] {
     this.store = this.loadFromStorage();
     return this.store.reviews;
@@ -272,6 +404,9 @@ class MySQLSim {
       shippingCost: 49
     }));
 
+    const logo = savedLogo || settings.logoImageUrl || (savedBrand as any).logoImageUrl || '/assets/logo.png';
+    const favicon = savedFavicon || settings.faviconUrl || (savedBrand as any).faviconUrl || '/assets/favicon.png';
+
     const defaultSettings = {
       brandName: 'BABA BAIDYANATH PRASADAM',
       tagline: 'aastha | seva | samarpan',
@@ -284,8 +419,8 @@ class MySQLSim {
       fssaiLicenseNumber: '11124999000123',
       needHelpText: 'Need Help?',
       logoIcon: 'ॐ',
-      logoImageUrl: savedLogo || '/assets/logo.svg',
-      faviconUrl: savedFavicon || '/assets/favicon.svg',
+      logoImageUrl: logo,
+      faviconUrl: favicon,
       paymentGateways: {
         globalPaymentMode: 'TEST',
         isRazorpayActive: false,
@@ -317,16 +452,30 @@ class MySQLSim {
       stateShippingRates: defaultShippingRates
     };
 
-    return {
+    const merged = {
       ...defaultSettings,
       ...settings,
       ...savedBrand,
+      logoImageUrl: logo,
+      faviconUrl: favicon,
       stateShippingRates: (settings.stateShippingRates && settings.stateShippingRates.length > 0)
         ? settings.stateShippingRates
-        : defaultShippingRates,
-      ...(savedLogo ? { logoImageUrl: savedLogo } : {}),
-      ...(savedFavicon ? { faviconUrl: savedFavicon } : {})
+        : defaultShippingRates
     };
+
+    if (settings && Array.isArray(settings.heroSlides) && settings.heroSlides.length > 0) {
+      merged.heroSlides = settings.heroSlides;
+    } else if (savedBrand && Array.isArray(savedBrand.heroSlides) && savedBrand.heroSlides.length > 0) {
+      merged.heroSlides = savedBrand.heroSlides;
+    }
+
+    if (settings && Array.isArray(settings.orderRequestHeroSlides) && settings.orderRequestHeroSlides.length > 0) {
+      merged.orderRequestHeroSlides = settings.orderRequestHeroSlides;
+    } else if (savedBrand && Array.isArray(savedBrand.orderRequestHeroSlides) && savedBrand.orderRequestHeroSlides.length > 0) {
+      merged.orderRequestHeroSlides = savedBrand.orderRequestHeroSlides;
+    }
+
+    return merged;
   }
 
   public updateBrandSettings(newSettings: any) {
@@ -358,6 +507,18 @@ class MySQLSim {
   public getOrders(): Order[] {
     this.store = this.loadFromStorage();
     return this.store.orders;
+  }
+
+  public addOrder(orderData: Omit<Order, 'id' | 'createdAt'>): Order {
+    const newOrder: Order = {
+      ...orderData,
+      id: `ORD${Math.floor(1000 + Math.random() * 9000)}`,
+      createdAt: new Date().toISOString()
+    };
+    if (!this.store.orders) this.store.orders = [];
+    this.store.orders.unshift(newOrder);
+    this.saveToStorage();
+    return newOrder;
   }
 
   public updateOrderStatus(orderId: string, status: Order['orderStatus']): Order | undefined {
@@ -395,6 +556,17 @@ class MySQLSim {
       } else {
         order.billingAddress = { ...(order.billingAddress || order.address), ...address };
       }
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public updateOrderTracking(orderId: string, courierName: string, trackingNumber: string, trackingUrl: string): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      order.courierName = courierName;
+      order.trackingNumber = trackingNumber;
+      order.trackingUrl = trackingUrl;
       this.saveToStorage();
     }
     return order;
@@ -440,12 +612,6 @@ class MySQLSim {
     this.store.products = this.store.products.filter(p => p.id !== id);
     this.saveToStorage();
     return this.store.products.length < initialLen;
-  }
-
-  public addCoupon(coupon: Coupon): Coupon {
-    this.store.coupons.unshift(coupon);
-    this.saveToStorage();
-    return coupon;
   }
 
   public executeSQL(query: string): { columns: string[]; rows: any[]; affectedRows?: number; message?: string } {
@@ -506,26 +672,45 @@ class MySQLSim {
   }
 
   public getAdminProfile(): AdminUserProfile {
-    if (!this.store.adminProfile) {
-      this.store.adminProfile = {
-        name: 'Admin Sevak',
-        designation: 'Super Administrator',
-        photoUrl: '',
-        adminId: 'admin',
-        passwordHash: 'baba@admin2026'
-      };
-      this.saveToStorage();
-    }
-    return this.store.adminProfile;
+    this.store = this.loadFromStorage();
+    let savedProfile: Partial<AdminUserProfile> = {};
+    try {
+      const pStr = localStorage.getItem('babadham_admin_profile');
+      if (pStr) savedProfile = JSON.parse(pStr);
+    } catch {}
+
+    const defaultProfile: AdminUserProfile = {
+      name: 'Admin Sevak',
+      designation: 'Super Administrator',
+      photoUrl: '',
+      adminId: 'admin',
+      passwordHash: 'baba@admin2026'
+    };
+
+    const profile = {
+      ...defaultProfile,
+      ...(this.store.adminProfile || {}),
+      ...savedProfile
+    };
+
+    this.store.adminProfile = profile;
+    return profile;
   }
 
   public saveAdminProfile(profile: Partial<AdminUserProfile>): AdminUserProfile {
-    this.store.adminProfile = {
-      ...this.getAdminProfile(),
-      ...profile
-    };
+    this.store = this.loadFromStorage();
+    const current = this.getAdminProfile();
+    const updated = { ...current, ...profile };
+    this.store.adminProfile = updated;
+    
+    try {
+      localStorage.setItem('babadham_admin_profile', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Failed to save dedicated admin profile key', e);
+    }
+
     this.saveToStorage();
-    return this.store.adminProfile;
+    return updated;
   }
 
   public getLoginLogs(): LoginLog[] {
@@ -570,6 +755,17 @@ class MySQLSim {
 
   public getCollections(): Collection[] {
     this.store = this.loadFromStorage();
+    let userCols: Collection[] | undefined = undefined;
+    try {
+      const cStr = localStorage.getItem('babadham_user_collections');
+      if (cStr) userCols = JSON.parse(cStr);
+    } catch {}
+
+    if (userCols && Array.isArray(userCols)) {
+      this.store.collections = userCols;
+      return userCols;
+    }
+
     if (!this.store.collections || !Array.isArray(this.store.collections)) {
       this.store.collections = [...DEFAULT_COLLECTIONS_DATA];
       this.saveToStorage();
@@ -586,6 +782,9 @@ class MySQLSim {
       collections.unshift(col);
     }
     this.store.collections = collections;
+    try {
+      localStorage.setItem('babadham_user_collections', JSON.stringify(collections));
+    } catch (e) {}
     this.saveToStorage();
     return this.store.collections;
   }
@@ -593,6 +792,20 @@ class MySQLSim {
   public deleteCollection(id: string): Collection[] {
     const collections = this.getCollections();
     this.store.collections = collections.filter(c => c.id !== id);
+    try {
+      localStorage.setItem('babadham_user_collections', JSON.stringify(this.store.collections));
+    } catch (e) {}
+    this.saveToStorage();
+    return this.store.collections;
+  }
+
+  public clearSampleCollections(): Collection[] {
+    const collections = this.getCollections();
+    const userCols = collections.filter(c => !['1', '2', '3', '4', '5'].includes(c.id));
+    this.store.collections = userCols;
+    try {
+      localStorage.setItem('babadham_user_collections', JSON.stringify(userCols));
+    } catch (e) {}
     this.saveToStorage();
     return this.store.collections;
   }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Product, Order, Collection, Coupon, BrandSettings, AdminUserProfile, LoginLog, CategoryInfo, Vendor } from '../types/ecommerce';
+import type { Product, Order, Collection, Coupon, BrandSettings, AdminUserProfile, LoginLog, CategoryInfo, Vendor, UpsellCondition, TimelineEvent, OrderAddress } from '../types/ecommerce';
 import { db } from '../db/mysqlSim';
 
 interface Toast {
@@ -23,20 +23,24 @@ interface AdminContextType {
   collections: Collection[];
   orders: Order[];
   coupons: Coupon[];
+  upsellConditions: UpsellCondition[];
   vendors: Vendor[];
   brandSettings: BrandSettings;
   adminProfile: AdminUserProfile;
   loginLogs: LoginLog[];
   
   // Actions
+  addOrder: (orderData: Omit<Order, 'id' | 'createdAt'>) => Order;
   updateOrderStatus: (orderId: string, status: Order['orderStatus']) => void;
   updateOrderPaymentStatus: (orderId: string, status: Order['paymentStatus']) => void;
   updateOrderNotes: (orderId: string, notes: string) => void;
   updateOrderAddress: (orderId: string, addressType: 'shipping' | 'billing', address: Partial<OrderAddress>) => void;
+  updateOrderTracking: (orderId: string, courierName: string, trackingNumber: string, trackingUrl: string) => void;
   addTimelineEvent: (orderId: string, event: Omit<TimelineEvent, 'id' | 'createdAt'>) => void;
   addProduct: (product: Omit<Product, 'id'>) => Product | void;
   updateProduct: (id: string, updates: Partial<Product>) => Product | void | undefined;
   deleteProduct: (id: string) => void;
+  clearAllProducts: () => void;
   addCategory: (category: Partial<CategoryInfo> & { name: string }) => void;
   deleteCategory: (id: string) => void;
   addVendor: (vendor: Omit<Vendor, 'id'> & { id?: string }) => void;
@@ -44,7 +48,13 @@ interface AdminContextType {
   deleteVendor: (id: string) => void;
   saveCollection: (col: Collection) => void;
   deleteCollection: (id: string) => void;
+  clearSampleCollections: () => void;
   addCoupon: (coupon: Coupon) => void;
+  updateCoupon: (code: string, updates: Partial<Coupon>) => void;
+  deleteCoupon: (code: string) => void;
+  addUpsell: (upsell: Omit<UpsellCondition, 'id'>) => void;
+  updateUpsell: (id: string, updates: Partial<UpsellCondition>) => void;
+  deleteUpsell: (id: string) => void;
   saveBrandSettings: (settings: Partial<BrandSettings>) => void;
   saveAdminProfile: (profile: Partial<AdminUserProfile>) => void;
   
@@ -68,6 +78,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [collections, setCollections] = useState<Collection[]>(() => db.getCollections());
   const [orders, setOrders] = useState<Order[]>(() => db.getOrders());
   const [coupons, setCoupons] = useState<Coupon[]>(() => db.getCoupons());
+  const [upsellConditions, setUpsellConditions] = useState<UpsellCondition[]>(() => db.getUpsells());
   const [vendors, setVendors] = useState<Vendor[]>(() => db.getVendors());
   const [brandSettings, setBrandSettings] = useState<BrandSettings>(() => db.getBrandSettings());
   const [adminProfile, setAdminProfile] = useState<AdminUserProfile>(() => db.getAdminProfile());
@@ -182,6 +193,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Logged out of Admin Portal.', 'info');
   };
 
+  const addOrder = (orderData: Omit<Order, 'id' | 'createdAt'>) => {
+    const newOrder = db.addOrder(orderData);
+    setOrders([...db.getOrders()]);
+    showToast('Order created successfully', 'success');
+    return newOrder;
+  };
+
   const updateOrderStatus = (orderId: string, status: Order['orderStatus']) => {
     db.updateOrderStatus(orderId, status);
     setOrders([...db.getOrders()]);
@@ -211,6 +229,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setOrders([...db.getOrders()]);
   };
 
+  const updateOrderTracking = (orderId: string, courierName: string, trackingNumber: string, trackingUrl: string) => {
+    db.updateOrderTracking(orderId, courierName, trackingNumber, trackingUrl);
+    setOrders([...db.getOrders()]);
+    showToast(`Tracking details updated for order ${orderId}`);
+  };
+
   const addProduct = (product: Omit<Product, 'id'>) => {
     const newProduct = db.addProduct(product);
     setProducts([...db.getProducts()]);
@@ -229,6 +253,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     db.deleteProduct(id);
     setProducts([...db.getProducts()]);
     showToast('Product removed from inventory');
+  };
+
+  const clearAllProducts = () => {
+    db.clearAllProducts();
+    setProducts([...db.getProducts()]);
+    showToast('All sample products cleared. Ready for your uploaded products!', 'info');
   };
 
   const addCategory = (catData: Partial<CategoryInfo> & { name: string }) => {
@@ -273,10 +303,46 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Collection removed from database', 'info');
   };
 
-  const addCoupon = (coupon: Coupon) => {
+  const clearSampleCollections = () => {
+    const updated = db.clearSampleCollections();
+    setCollections([...updated]);
+    showToast('Sample demo collections cleared. Only your created collections are now showing!', 'info');
+  };
+
+  const addCoupon = (coupon: Omit<Coupon, 'code'> & { code: string }) => {
     db.addCoupon(coupon);
     setCoupons([...db.getCoupons()]);
     showToast('New promo coupon code active!');
+  };
+
+  const updateCoupon = (code: string, updates: Partial<Coupon>) => {
+    db.updateCoupon(code, updates);
+    setCoupons([...db.getCoupons()]);
+    showToast('Coupon updated', 'success');
+  };
+
+  const deleteCoupon = (code: string) => {
+    db.deleteCoupon(code);
+    setCoupons([...db.getCoupons()]);
+    showToast('Coupon code removed', 'info');
+  };
+
+  const addUpsell = (upsell: Omit<UpsellCondition, 'id'>) => {
+    const updated = db.addUpsell(upsell);
+    setUpsellConditions([...updated]);
+    showToast('Upsell condition added', 'success');
+  };
+
+  const updateUpsell = (id: string, updates: Partial<UpsellCondition>) => {
+    const updated = db.updateUpsell(id, updates);
+    setUpsellConditions([...updated]);
+    showToast('Upsell condition updated', 'success');
+  };
+
+  const deleteUpsell = (id: string) => {
+    const updated = db.deleteUpsell(id);
+    setUpsellConditions([...updated]);
+    showToast('Upsell condition removed', 'success');
   };
 
   const saveBrandSettings = (settings: Partial<BrandSettings>) => {
@@ -306,19 +372,23 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         collections,
         orders,
         coupons,
+        upsellConditions,
         vendors,
         brandSettings,
         adminProfile,
         loginLogs,
         // Actions
+        addOrder,
         updateOrderStatus,
         updateOrderPaymentStatus,
         updateOrderNotes,
         updateOrderAddress,
+        updateOrderTracking,
         addTimelineEvent,
         addProduct,
         updateProduct,
         deleteProduct,
+        clearAllProducts,
         addCategory,
         deleteCategory,
         addVendor,
@@ -326,7 +396,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteVendor,
         saveCollection,
         deleteCollection,
+        clearSampleCollections,
         addCoupon,
+        updateCoupon,
+        deleteCoupon,
+        addUpsell,
+        updateUpsell,
+        deleteUpsell,
         saveBrandSettings,
         saveAdminProfile,
         toasts,

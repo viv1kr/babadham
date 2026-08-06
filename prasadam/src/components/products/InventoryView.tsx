@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Plus, Search, Trash2, Package, Eye, EyeOff, Pencil } from 'lucide-react';
+import { Plus, Search, Trash2, Package, Eye, EyeOff, Pencil, PackageX, PackageCheck, ShoppingBag } from 'lucide-react';
 
 interface InventoryViewProps {
   onAddProductClick?: () => void;
   onEditProductClick?: (id: string) => void;
+  allowDirectEdit?: boolean;
 }
 
-export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick, onEditProductClick }) => {
-  const { products, deleteProduct, updateProduct, searchQuery, setSearchQuery } = useAdmin();
+export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick, onEditProductClick, allowDirectEdit = false }) => {
+  const { products, orders, deleteProduct, updateProduct, searchQuery, setSearchQuery } = useAdmin();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'draft'>('all');
+
+  const getProductOrderStats = (productId: string) => {
+    let orderCount = 0;
+    let unitsSold = 0;
+    (orders || []).forEach(o => {
+      const found = o.items?.find(i => i.id === productId);
+      if (found) {
+        orderCount += 1;
+        unitsSold += (found.quantity || 1);
+      }
+    });
+    return { orderCount, unitsSold };
+  };
 
   const filteredProducts = products.filter(p => {
     // Text search
@@ -62,17 +76,21 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick,
             <Package className="w-5 h-5" /> All Listed Products ({products.length})
           </h3>
           <p className="text-xs text-[#FFF8F0]/70 mt-0.5">
-            Manage your store catalog, pricing, stock levels, categories, and temple suppliers.
+            {allowDirectEdit 
+              ? 'Manage your store stock levels, inventory counts, and status directly in the table.' 
+              : 'Manage your store catalog, pricing, categories, and temple suppliers.'}
           </p>
         </div>
-        {onAddProductClick && (
-          <button
-            onClick={onAddProductClick}
-            className="px-4 py-2.5 rounded-xl bg-[#F4A62A] text-[#2B1A16] font-bold text-xs hover:bg-white transition-all cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
-          >
-            <Plus className="w-4 h-4" /> Add Product
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onAddProductClick && (
+            <button
+              onClick={onAddProductClick}
+              className="px-4 py-2.5 rounded-xl bg-[#F4A62A] text-[#2B1A16] font-bold text-xs hover:bg-white transition-all cursor-pointer shadow-md flex items-center gap-1.5 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Add Product
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Product Inventory Table */}
@@ -129,7 +147,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick,
                 </th>
                 <th className="p-3">Product</th>
                 <th className="p-3">Status</th>
-                <th className="p-3">Inventory</th>
+                <th className="p-3 min-w-[180px]">
+                  {allowDirectEdit ? 'Inventory (Direct Update)' : 'Inventory'}
+                </th>
+                <th className="p-3">Total Orders</th>
                 <th className="p-3">Category</th>
                 <th className="p-3">Product type</th>
                 <th className="p-3">Vendor</th>
@@ -139,6 +160,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick,
             <tbody className="divide-y divide-[#F4A62A]/10">
               {filteredProducts.map(p => {
                 const isActive = p.status !== 'Draft';
+                const stats = getProductOrderStats(p.id);
                 return (
                   <tr key={p.id} className="hover:bg-[#1A0B0E]/60 transition-colors">
                     <td className="p-3 text-center">
@@ -164,20 +186,106 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick,
                         </div>
                       </div>
                     </td>
+
+                    {/* STATUS COLUMN */}
                     <td className="p-3">
-                      {isActive ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/30">
-                          Active
-                        </span>
+                      {allowDirectEdit ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleStatus(p.id, p.status)}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-all shadow-sm border select-none ${
+                            isActive 
+                              ? 'bg-emerald-950 text-emerald-300 border-emerald-500/40 hover:bg-emerald-900 hover:text-white' 
+                              : 'bg-red-950/80 text-red-300 border-red-500/40 hover:bg-red-900 hover:text-white'
+                          }`}
+                          title="Click to toggle Active / Inactive status"
+                        >
+                          {isActive ? 'Active' : 'Inactive'}
+                        </button>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#1A0B0E] text-[#FFF8F0]/70 border border-[#F4A62A]/30">
-                          Draft
-                        </span>
+                        isActive ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/80 text-red-300 border border-red-500/30">
+                            Inactive
+                          </span>
+                        )
                       )}
                     </td>
-                    <td className="p-3 text-[#FFF8F0]/80 font-medium">
-                      {p.inStock ? `${p.stockCount} in stock` : <span className="text-red-400 font-bold">Out of stock</span>}
+
+                    {/* INVENTORY COLUMN */}
+                    <td className="p-3">
+                      {allowDirectEdit ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const current = p.stockCount ?? 0;
+                              const next = Math.max(0, current - 1);
+                              updateProduct(p.id, { stockCount: next, inStock: next > 0 });
+                            }}
+                            className="w-6 h-6 rounded bg-[#120508] border border-[#F4A62A]/40 text-[#F4A62A] font-extrabold flex items-center justify-center hover:bg-[#7A1126] hover:text-white transition-colors cursor-pointer text-xs select-none shadow-sm"
+                            title="Decrease stock count"
+                          >
+                            -
+                          </button>
+
+                          <input
+                            type="number"
+                            min="0"
+                            value={p.stockCount ?? 0}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value, 10);
+                              const next = isNaN(val) ? 0 : Math.max(0, val);
+                              updateProduct(p.id, { stockCount: next, inStock: next > 0 });
+                            }}
+                            className="w-16 h-7 text-center rounded bg-[#120508] border border-[#F4A62A]/40 text-xs font-bold text-white focus:border-[#F4A62A] focus:outline-none shadow-inner"
+                            title="Directly edit stock count"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const current = p.stockCount ?? 0;
+                              const next = current + 1;
+                              updateProduct(p.id, { stockCount: next, inStock: next > 0 });
+                            }}
+                            className="w-6 h-6 rounded bg-[#120508] border border-[#F4A62A]/40 text-[#F4A62A] font-extrabold flex items-center justify-center hover:bg-[#7A1126] hover:text-white transition-colors cursor-pointer text-xs select-none shadow-sm"
+                            title="Increase stock count"
+                          >
+                            +
+                          </button>
+
+                          <span className="text-[11px] text-[#FFF8F0]/70 font-medium ml-1">
+                            {p.inStock && (p.stockCount ?? 0) > 0 ? 'in stock' : <span className="text-red-400 font-bold">Out of stock</span>}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-[#FFF8F0]/80 font-medium">
+                          {p.inStock && (p.stockCount ?? 0) > 0 ? (
+                            `${p.stockCount} in stock`
+                          ) : (
+                            <span className="text-red-400 font-bold">Out of stock</span>
+                          )}
+                        </div>
+                      )}
                     </td>
+
+                    {/* TOTAL ORDERS COLUMN */}
+                    <td className="p-3">
+                      <div className="flex items-center gap-1.5">
+                        <ShoppingBag className="w-3.5 h-3.5 text-[#F4A62A]" />
+                        <span className="font-bold text-[#F4A62A] text-xs">
+                          {stats.orderCount} {stats.orderCount === 1 ? 'order' : 'orders'}
+                        </span>
+                        {stats.unitsSold > 0 && (
+                          <span className="text-[10px] text-[#FFF8F0]/60 font-mono">({stats.unitsSold} pcs)</span>
+                        )}
+                      </div>
+                    </td>
+
                     <td className="p-3 text-[#FFF8F0]/80 capitalize font-medium">
                       {p.category}
                     </td>
@@ -188,44 +296,76 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ onAddProductClick,
                       {p.vendor || 'My Store'}
                     </td>
                     <td className="p-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      {allowDirectEdit ? (
                         <button
-                          onClick={() => onEditProductClick && onEditProductClick(p.id)}
-                          className="p-1.5 text-[#F4A62A] hover:text-white bg-[#500A18] hover:bg-[#7A1126] border border-[#F4A62A]/30 rounded-lg transition-colors cursor-pointer shadow-md"
-                          title="Edit product"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => toggleStatus(p.id, isActive ? 'Active' : 'Draft')}
-                          className={`p-1.5 rounded-lg transition-colors cursor-pointer shadow-md border ${
-                            isActive 
-                              ? 'text-emerald-300 hover:text-white bg-emerald-950 hover:bg-emerald-900 border-emerald-500/40' 
-                              : 'text-amber-300 hover:text-white bg-amber-950 hover:bg-amber-900 border-amber-500/40'
-                          }`}
-                          title={isActive ? "Disable product" : "Enable product"}
-                        >
-                          {isActive ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                        </button>
-                        <button
+                          type="button"
                           onClick={() => {
-                            if (confirm(`Are you sure you want to delete ${p.name}?`)) {
-                              deleteProduct(p.id);
+                            const isCurrentlyInStock = p.inStock && (p.stockCount ?? 0) > 0;
+                            if (isCurrentlyInStock) {
+                              updateProduct(p.id, { inStock: false, stockCount: 0 });
+                            } else {
+                              updateProduct(p.id, { inStock: true, stockCount: (p.stockCount && p.stockCount > 0) ? p.stockCount : 10 });
                             }
                           }}
-                          className="p-1.5 text-red-400 hover:text-red-200 bg-red-950/60 hover:bg-red-900 border border-red-500/30 rounded-lg transition-colors cursor-pointer shadow-md"
-                          title="Delete Product"
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md border inline-flex items-center gap-1.5 ${
+                            p.inStock && (p.stockCount ?? 0) > 0
+                              ? 'bg-red-950/80 text-red-300 border-red-500/40 hover:bg-red-900 hover:text-white'
+                              : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40 hover:bg-emerald-900 hover:text-white'
+                          }`}
+                          title={p.inStock && (p.stockCount ?? 0) > 0 ? "Click to set Out of Stock" : "Click to set In Stock"}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          {p.inStock && (p.stockCount ?? 0) > 0 ? (
+                            <>
+                              <PackageX className="w-3.5 h-3.5" />
+                              <span>Out of Stock</span>
+                            </>
+                          ) : (
+                            <>
+                              <PackageCheck className="w-3.5 h-3.5" />
+                              <span>In Stock</span>
+                            </>
+                          )}
                         </button>
-                      </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => onEditProductClick && onEditProductClick(p.id)}
+                            className="p-1.5 text-[#F4A62A] hover:text-white bg-[#500A18] hover:bg-[#7A1126] border border-[#F4A62A]/30 rounded-lg transition-colors cursor-pointer shadow-md"
+                            title="Edit product"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => toggleStatus(p.id, isActive ? 'Active' : 'Draft')}
+                            className={`p-1.5 rounded-lg transition-colors cursor-pointer shadow-md border ${
+                              isActive 
+                                ? 'text-emerald-300 hover:text-white bg-emerald-950 hover:bg-emerald-900 border-emerald-500/40' 
+                                : 'text-amber-300 hover:text-white bg-amber-950 hover:bg-amber-900 border-amber-500/40'
+                            }`}
+                            title={isActive ? "Disable product" : "Enable product"}
+                          >
+                            {isActive ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to delete ${p.name}?`)) {
+                                deleteProduct(p.id);
+                              }
+                            }}
+                            className="p-1.5 text-red-400 hover:text-red-200 bg-red-950/60 hover:bg-red-900 border border-red-500/30 rounded-lg transition-colors cursor-pointer shadow-md"
+                            title="Delete Product"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );
               })}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-[#FFF8F0]/50 font-medium">
+                  <td colSpan={9} className="p-8 text-center text-[#FFF8F0]/50 font-medium">
                     No products found matching your criteria.
                   </td>
                 </tr>

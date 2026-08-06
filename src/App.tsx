@@ -22,26 +22,35 @@ import { CartDrawer } from './components/cart/CartDrawer';
 import { CheckoutModal } from './components/checkout/CheckoutModal';
 import { OrderSuccessModal } from './components/checkout/OrderSuccessModal';
 import { DatabaseExplorerModal } from './components/db/DatabaseExplorerModal';
-import { AdminPortal } from './components/admin/AdminPortal';
 import { ScriptInjector } from './components/util/ScriptInjector';
+import { useStore } from './context/StoreContext';
+import { OrderRequestFloatingButton } from './components/orderRequest/OrderRequestFloatingButton';
+import { OrderRequestPage } from './components/orderRequest/OrderRequestPage';
 
 
 export const AppContent: React.FC = () => {
+  const { activePage, setActivePage } = useStore();
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] text-[#2B1A16] flex flex-col font-sans selection:bg-[#7A1126] selection:text-[#F4A62A]">
       <Navbar />
 
       <main className="flex-1">
-        <HeroSection />
-        <MarqueeTicker />
-        <CategoryCards />
-        <FeaturedProducts />
-        <BestSellersSection />
-        <OfferBanner />
-        <WhyChooseUs />
-        <Testimonials />
-        <FAQSection />
+        {activePage === 'order-request' ? (
+          <OrderRequestPage />
+        ) : (
+          <>
+            <HeroSection />
+            <MarqueeTicker />
+            <CategoryCards />
+            <FeaturedProducts />
+            <BestSellersSection />
+            <OfferBanner />
+            <WhyChooseUs />
+            <Testimonials />
+            <FAQSection />
+          </>
+        )}
       </main>
 
       <Footer />
@@ -50,6 +59,11 @@ export const AppContent: React.FC = () => {
       <ToastContainer />
       <SearchModal />
 
+      {/* Floating Order Request Button at Left Side Footer (Hidden on Order Request Page) */}
+      {activePage !== 'order-request' && (
+        <OrderRequestFloatingButton onClick={() => { setActivePage('order-request'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+      )}
+
       {/* Modals & Lightboxes */}
       <ProductQuickViewModal />
       <ProductDetailModal />
@@ -57,7 +71,6 @@ export const AppContent: React.FC = () => {
       <CheckoutModal />
       <OrderSuccessModal />
       <DatabaseExplorerModal />
-      <AdminPortal />
       <ScriptInjector />
     </div>
   );

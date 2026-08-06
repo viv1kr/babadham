@@ -53,18 +53,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const menuItems: { id: string; label: string; icon: any; count?: number }[] = [
     { id: 'analytics', label: 'Dashboard & Analytics', icon: LayoutDashboard },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
+    { id: 'order-requests', label: 'Order Requests', icon: FileText },
     { id: 'content', label: 'Content & Media Library', icon: FolderOpen },
     { id: 'coupons', label: 'Coupons & Discounts', icon: Tag },
     { id: 'branding', label: 'Brand & Header Editor', icon: Palette },
-    { id: 'devotees', label: 'Devotee Directory', icon: Users },
   ];
 
   const productSubItems: { id: ProductSubTab; label: string }[] = [
     { id: 'collections', label: 'Collections' },
     { id: 'products', label: 'Products' },
-    { id: 'purchase-orders', label: 'Purchase orders' },
+    { id: 'inventory', label: 'Inventory' },
     { id: 'vendors', label: 'Vendors' },
-    { id: 'gift-cards', label: 'Gift cards' },
   ];
 
   const policySubItems: { id: PolicySubTab; label: string; icon: any }[] = [

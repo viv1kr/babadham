@@ -8,6 +8,19 @@ export type ProductCategory =
   | 'kits'
   | (string & {});
 
+export interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  badge?: string;
+  description?: string;
+  weight?: number;
+  unit?: string;
+  color?: string;
+  flavor?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -25,7 +38,11 @@ export interface Product {
   shortDesc: string;
   fullDesc: string;
   templeBlessing: string;
-  weight: string;
+  weight: string; // legacy weight string
+  weightValue?: number;
+  unit?: string;
+  color?: string;
+  flavor?: string;
   inStock: boolean;
   stockCount: number;
   isBestSeller?: boolean;
@@ -37,6 +54,7 @@ export interface Product {
   sacredIngredients?: string[];
   usageGuidelines?: string;
   status?: 'Active' | 'Draft' | 'Archived';
+  variants?: ProductVariant[];
 }
 
 export interface Vendor {
@@ -94,15 +112,27 @@ export interface Coupon {
   maxDiscount: number;
 }
 
+export interface UpsellCondition {
+  id: string;
+  type: 'CART_TOTAL' | 'SPECIFIC_PRODUCT' | 'PRODUCT_BUNDLE';
+  targetValue: string | number | string[]; // e.g., 1000 for total, 'product_id' for specific product, or ['id1', 'id2'] for bundle
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING' | 'FREE_PRODUCT' | 'DISCOUNTED_PRODUCT';
+  discountValue: number; // For DISCOUNTED_PRODUCT, this is the discount amount/percent on the reward product
+  rewardProductId?: string; // Only used when discountType is FREE_PRODUCT or DISCOUNTED_PRODUCT
+  description: string;
+  isActive: boolean;
+}
+
 export interface OrderAddress {
   fullName: string;
-  phone: string;
   email: string;
+  phone: string;
   addressLine: string;
-  landmark: string;
+  landmark?: string;
   city: string;
   state: string;
   pincode: string;
+  country: string;
 }
 
 export interface TrackingStep {
@@ -133,11 +163,14 @@ export interface Order {
   totalAmount: number;
   paymentMethod: 'UPI' | 'CARD' | 'COD';
   paymentStatus: 'PAID' | 'PENDING' | 'REFUNDED';
-  orderStatus: 'ORDER_PLACED' | 'TEMPLE_BLESSING' | 'PACKED' | 'IN_TRANSIT' | 'DELIVERED';
+  orderStatus: 'ORDER_PLACED' | 'TEMPLE_BLESSING' | 'PACKED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
   trackingSteps: TrackingStep[];
   notes?: string;
   billingAddress?: OrderAddress;
   timelineEvents?: TimelineEvent[];
+  courierName?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
 }
 
 export interface DevoteeReview {
@@ -263,8 +296,25 @@ export interface BrandSettings {
   manufacturingDetailsPolicy?: string;
   shippingPolicy?: string;
   paymentGateways?: PaymentGatewayConfig;
-  stateShippingRates?: StateShippingTax[];
   emailWhatsappConfig?: EmailWhatsappConfig;
+  orderRequestTrustBadges?: OrderRequestTrustBadge[];
+  orderRequestMediaConfig?: OrderRequestMediaConfig;
+  orderRequestHeroSlides?: HeroSlide[];
+}
+
+export interface OrderRequestTrustBadge {
+  id: string;
+  iconName: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface OrderRequestMediaConfig {
+  videoUrl?: string;
+  videoTitle?: string;
+  videoSubtitle?: string;
+  bannerBgImageUrl?: string;
+  bellAudioUrl?: string;
 }
 
 export interface AdminUserProfile {

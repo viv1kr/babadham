@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Search, SlidersHorizontal, ArrowDown, ArrowUpDown, ChevronDown, Download, FilePlus } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowDown, ArrowUpDown, ChevronDown, Download, FilePlus, Bell } from 'lucide-react';
 import { OrderDetailView } from './OrderDetailView';
+import { CreateOrderView } from './CreateOrderView';
 
 export const OrdersView: React.FC = () => {
   const { orders, updateOrderStatus, searchQuery, setSearchQuery } = useAdmin();
   const [activeFilterTab, setActiveFilterTab] = useState('All');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   let baseOrders = orders?.filter(o => 
     o?.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -48,7 +50,7 @@ export const OrdersView: React.FC = () => {
   };
 
   const handleCreateOrder = () => {
-    alert('Create Order module will launch here. This will open the order creation form.');
+    setIsCreatingOrder(true);
   };
 
   const formatOrderDate = (dateString?: string) => {
@@ -75,8 +77,12 @@ export const OrdersView: React.FC = () => {
     }
   }
 
+  if (isCreatingOrder) {
+    return <CreateOrderView onBack={() => setIsCreatingOrder(false)} />;
+  }
+
   return (
-    <div className="max-w-[1400px] mx-auto space-y-4 font-sans pb-12 animate-fade-in">
+    <div className="w-full pt-4 sm:pt-6 space-y-5 font-sans pb-12 animate-fade-in">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
@@ -87,9 +93,6 @@ export const OrdersView: React.FC = () => {
         <div className="flex items-center gap-2">
           <button onClick={handleExport} className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#2B1217] hover:bg-[#3d1921] text-[#FFF8F0] border border-white/10 transition-colors shadow-sm">
             Export
-          </button>
-          <button className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#2B1217] hover:bg-[#3d1921] text-[#FFF8F0] border border-white/10 transition-colors shadow-sm flex items-center gap-1.5">
-            More actions <ChevronDown className="w-3.5 h-3.5 opacity-70" />
           </button>
           <button onClick={handleCreateOrder} className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#14A800] hover:bg-[#118A00] text-white transition-colors shadow-sm">
             Create order
@@ -144,14 +147,13 @@ export const OrdersView: React.FC = () => {
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Order</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white flex items-center gap-1">Date <ArrowDown className="w-3.5 h-3.5" /></th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Customer</th>
-                <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Channel</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white text-right">Total</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Payment status</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Fulfillment status</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Items</th>
-                <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Delivery status</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Delivery method</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Tags</th>
+                <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white text-center">Notification</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -165,14 +167,31 @@ export const OrdersView: React.FC = () => {
                 filteredOrders.map(order => {
                   
                   const isUnpaid = (order.paymentMethod || '').toUpperCase() === 'COD' && order.orderStatus !== 'DELIVERED';
-                  const paymentPillClass = isUnpaid 
-                    ? 'bg-[#F4A62A]/15 text-[#F4A62A] border-[#F4A62A]/20' 
-                    : 'bg-white/10 text-white border-white/10';
+                  const paymentPillClass = order.paymentStatus === 'PAID'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+                    : 'bg-white/10 text-white/60 border-white/10'; // gray for not paid / refunded
                   
-                  const isUnfulfilled = order.orderStatus === 'ORDER_PLACED' || order.orderStatus === 'TEMPLE_BLESSING';
-                  const fulfillmentPillClass = isUnfulfilled
+                  const fulfillmentPillClass = order.orderStatus === 'DELIVERED'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+                    : order.orderStatus === 'IN_TRANSIT'
+                    ? 'bg-blue-500/15 text-blue-400 border-blue-500/20'
+                    : order.orderStatus === 'CANCELLED'
+                    ? 'bg-red-500/15 text-red-400 border-red-500/20'
+                    : order.orderStatus === 'ORDER_PLACED' || order.orderStatus === 'TEMPLE_BLESSING'
                     ? 'bg-[#F4A62A]/15 text-[#F4A62A] border-[#F4A62A]/20'
                     : 'bg-white/10 text-white border-white/10';
+
+                  const fulfillmentBulletClass = order.orderStatus === 'DELIVERED'
+                    ? 'bg-emerald-400'
+                    : order.orderStatus === 'IN_TRANSIT'
+                    ? 'bg-blue-400'
+                    : order.orderStatus === 'CANCELLED'
+                    ? 'bg-red-400'
+                    : order.orderStatus === 'ORDER_PLACED' || order.orderStatus === 'TEMPLE_BLESSING'
+                    ? 'bg-[#F4A62A]'
+                    : 'bg-white/70';
+
+                  const msgCount = (order.timelineEvents || []).filter(e => e.author === order.address?.fullName || e.author === 'Customer').length;
 
                   return (
                     <tr key={order.id} onClick={() => setSelectedOrderId(order.id)} className="hover:bg-white/[0.04] transition-colors group cursor-pointer">
@@ -180,43 +199,57 @@ export const OrdersView: React.FC = () => {
                       <td className="px-4 py-2.5 font-bold hover:underline">#{(order?.id || '').slice(-4).toUpperCase()}</td>
                       <td className="px-4 py-2.5 text-[#FFF8F0]/80">{formatOrderDate(order.createdAt)}</td>
                       <td className="px-4 py-2.5 font-medium">{order?.address?.fullName || 'No customer'}</td>
-                      <td className="px-4 py-2.5 text-[#FFF8F0]/60">Online Store</td>
                       <td className="px-4 py-2.5 font-medium text-right">₹{Number(order?.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                       
                       {/* Payment Status Pill */}
                       <td className="px-4 py-2.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md border font-medium text-xs ${paymentPillClass}`}>
-                          <div className={`w-1.5 h-1.5 rounded-full ${isUnpaid ? 'bg-[#F4A62A]' : 'bg-white/70'}`}></div>
-                          {isUnpaid ? 'Payment pending' : 'Paid'}
+                          <div className={`w-1.5 h-1.5 rounded-full ${order.paymentStatus === 'PAID' ? 'bg-emerald-400' : 'bg-white/40'}`}></div>
+                          {order.paymentStatus === 'PAID' ? 'Paid' : order.paymentStatus === 'REFUNDED' ? 'Refunded' : 'Not paid'}
                         </span>
                       </td>
 
                       <td className="px-4 py-2.5" onClick={e => e.stopPropagation()}>
-                        <select 
-                          value={order.orderStatus}
-                          onChange={e => updateOrderStatus(order.id, e.target.value as any)}
-                          className={`appearance-none cursor-pointer outline-none inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md border font-medium text-xs ${fulfillmentPillClass}`}
-                        >
-                          <option className="bg-[#1C080C] text-[#FFF8F0]" value="ORDER_PLACED">Unfulfilled</option>
-                          <option className="bg-[#1C080C] text-[#FFF8F0]" value="TEMPLE_BLESSING">Temple Blessing</option>
-                          <option className="bg-[#1C080C] text-[#FFF8F0]" value="PACKED">Packed</option>
-                          <option className="bg-[#1C080C] text-[#FFF8F0]" value="IN_TRANSIT">In Transit</option>
-                          <option className="bg-[#1C080C] text-[#FFF8F0]" value="DELIVERED">Fulfilled</option>
-                        </select>
+                        <div className={`relative inline-flex items-center px-2.5 py-0.5 rounded-md border font-medium text-xs ${fulfillmentPillClass}`}>
+                          <select 
+                            value={order.orderStatus}
+                            onChange={e => updateOrderStatus(order.id, e.target.value as any)}
+                            className="appearance-none cursor-pointer outline-none bg-transparent pr-4 z-10"
+                          >
+                            <option className="bg-[#1C080C] text-[#FFF8F0]" value="ORDER_PLACED">Unfulfilled</option>
+                            <option className="bg-[#1C080C] text-[#FFF8F0]" value="TEMPLE_BLESSING">Temple Blessing</option>
+                            <option className="bg-[#1C080C] text-[#FFF8F0]" value="PACKED">Packed</option>
+                            <option className="bg-[#1C080C] text-[#FFF8F0]" value="IN_TRANSIT">In Transit</option>
+                            <option className="bg-[#1C080C] text-[#FFF8F0]" value="DELIVERED">Delivered</option>
+                            <option className="bg-[#1C080C] text-[#FFF8F0]" value="CANCELLED">Cancelled</option>
+                          </select>
+                          <ChevronDown className="w-3 h-3 opacity-50 absolute right-1 pointer-events-none" />
+                        </div>
                       </td>
 
                       <td className="px-4 py-2.5 text-[#FFF8F0]/80">{(order.items || []).reduce((acc, it) => acc + (it.quantity || 1), 0)} item{(order.items || []).length !== 1 ? 's' : ''}</td>
                       
-                      <td className="px-4 py-2.5">
-                        {order.orderStatus === 'IN_TRANSIT' && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/10 text-white font-medium text-xs border border-white/10">
-                            Tracking added
-                          </span>
-                        )}
-                      </td>
+
                       
                       <td className="px-4 py-2.5 text-[#FFF8F0]/80">Shipping</td>
-                      <td className="px-4 py-2.5 text-[#FFF8F0]/80"></td>
+                      <td className="px-4 py-2.5 text-center">
+                        <div className="inline-flex items-center justify-center">
+                          <div className="relative flex h-2.5 w-2.5">
+                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${fulfillmentBulletClass}`}></span>
+                            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${fulfillmentBulletClass}`}></span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-center relative" onClick={e => e.stopPropagation()}>
+                        <div className="inline-block relative">
+                          <Bell className="w-5 h-5 text-[#FFF8F0]/60 hover:text-white transition-colors cursor-pointer" />
+                          {msgCount > 0 && (
+                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-1 ring-black">
+                              {msgCount}
+                            </span>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   );
                 })
