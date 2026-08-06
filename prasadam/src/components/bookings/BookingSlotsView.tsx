@@ -7,9 +7,11 @@ export const BookingSlotsView: React.FC = () => {
   const { showToast, db } = useAdmin();
   
   const [timeLimit, setTimeLimit] = useState('23:59');
-  const [totalSlotLimit, setTotalSlotLimit] = useState('500');
-  const [confirmBookingAmount, setConfirmBookingAmount] = useState('1100');
-  const [confirmBookingDiscount, setConfirmBookingDiscount] = useState('0');
+  const [totalSlotLimit, setTotalSlotLimit] = useState('1000');
+  const [availableSlotsCount, setAvailableSlotsCount] = useState('54');
+  const [slotPeriodText, setSlotPeriodText] = useState('1St Week');
+  const [confirmBookingAmount, setConfirmBookingAmount] = useState('251');
+  const [confirmBookingDiscount, setConfirmBookingDiscount] = useState('12');
   const [isSaving, setIsSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
 
@@ -27,9 +29,11 @@ export const BookingSlotsView: React.FC = () => {
       
       if (config) {
         if (config.timeLimit) setTimeLimit(config.timeLimit);
-        if (config.totalSlotLimit) setTotalSlotLimit(config.totalSlotLimit);
-        if (config.confirmBookingAmount) setConfirmBookingAmount(config.confirmBookingAmount);
-        if (config.confirmBookingDiscount) setConfirmBookingDiscount(config.confirmBookingDiscount);
+        if (config.totalSlotLimit !== undefined) setTotalSlotLimit(String(config.totalSlotLimit));
+        if (config.availableSlotsCount !== undefined) setAvailableSlotsCount(String(config.availableSlotsCount));
+        if (config.slotPeriodText !== undefined) setSlotPeriodText(config.slotPeriodText);
+        if (config.confirmBookingAmount !== undefined) setConfirmBookingAmount(String(config.confirmBookingAmount));
+        if (config.confirmBookingDiscount !== undefined) setConfirmBookingDiscount(String(config.confirmBookingDiscount));
       }
     } catch (e) {
       console.error('Error loading booking slots config', e);
@@ -43,7 +47,9 @@ export const BookingSlotsView: React.FC = () => {
     try {
       const configObj = {
         timeLimit,
-        totalSlotLimit: parseInt(totalSlotLimit) || 0,
+        totalSlotLimit: parseInt(totalSlotLimit) || 1000,
+        availableSlotsCount: parseInt(availableSlotsCount) || 54,
+        slotPeriodText,
         confirmBookingAmount,
         confirmBookingDiscount
       };
@@ -222,7 +228,7 @@ export const BookingSlotsView: React.FC = () => {
               <Tag className="w-4 h-4 text-[#F4A62A]" /> Booking Discount
             </h3>
             <p className="text-xs text-[#FFF8F0]/60 mt-1">
-              Set any discount amount or percentage applied during confirm booking.
+              Set any discount percentage applied during confirm booking.
             </p>
           </div>
           <div className="p-6 bg-[#120508] flex-1">
@@ -235,12 +241,99 @@ export const BookingSlotsView: React.FC = () => {
               max="100"
               value={confirmBookingDiscount}
               onChange={(e) => setConfirmBookingDiscount(e.target.value)}
-              placeholder="e.g. 10"
+              placeholder="e.g. 12"
               className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
             />
           </div>
         </motion.div>
 
+        {/* Slot Period Title / Week Label */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-[#1A0B0E] rounded-2xl border border-[#F4A62A]/20 overflow-hidden flex flex-col"
+        >
+          <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
+            <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#F4A62A]" /> Slot Period Label
+            </h3>
+            <p className="text-xs text-[#FFF8F0]/60 mt-1">
+              Custom text displayed on the slot bar (e.g., "1St Week", "2nd Week").
+            </p>
+          </div>
+          <div className="p-6 bg-[#120508] flex-1">
+            <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
+              Period Text
+            </label>
+            <input
+              type="text"
+              value={slotPeriodText}
+              onChange={(e) => setSlotPeriodText(e.target.value)}
+              placeholder="e.g. 1St Week"
+              className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
+            />
+          </div>
+        </motion.div>
+
+        {/* Available Slots Count */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-[#1A0B0E] rounded-2xl border border-[#F4A62A]/20 overflow-hidden flex flex-col"
+        >
+          <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
+            <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#F4A62A]" /> Available / Remaining Slots
+            </h3>
+            <p className="text-xs text-[#FFF8F0]/60 mt-1">
+              Current remaining slots count shown on the slot progress bar.
+            </p>
+          </div>
+          <div className="p-6 bg-[#120508] flex-1">
+            <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
+              Available Count
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={availableSlotsCount}
+              onChange={(e) => setAvailableSlotsCount(e.target.value)}
+              placeholder="e.g. 54"
+              className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
+            />
+          </div>
+        </motion.div>
+
+      </div>
+
+      {/* Live Slot Banner Preview Block */}
+      <div className="bg-[#1A0B0E] rounded-2xl border border-[#F4A62A]/30 p-6 mt-6">
+        <h4 className="text-xs font-bold text-[#F4A62A] uppercase tracking-wider mb-3">
+          Live Slot Banner Preview (Customer View)
+        </h4>
+        <div className="w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-xl p-3.5 border border-red-900/60 shadow-lg select-none">
+          <div className="flex items-center justify-between gap-2 mb-2 px-1">
+            <span className="text-xs sm:text-sm font-medium text-white/90">
+              Available Slots:
+            </span>
+            <span className="text-lg sm:text-2xl font-black text-white tracking-wide">
+              {slotPeriodText || '1St Week'}
+            </span>
+            <span className="text-xs sm:text-sm font-extrabold text-[#F4A62A]">
+              {availableSlotsCount || 54} / {totalSlotLimit || 1000}
+            </span>
+          </div>
+          <div className="w-full bg-black/50 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
+            <div 
+              className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(244,166,42,0.8)]"
+              style={{ 
+                width: `${Math.min(100, Math.max(2, (Number(availableSlotsCount || 54) / Number(totalSlotLimit || 1000)) * 100))}%` 
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Save Button floating at bottom */}
