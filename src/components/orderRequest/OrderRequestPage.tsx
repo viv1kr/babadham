@@ -475,7 +475,7 @@ export const OrderRequestPage: React.FC = () => {
                       <label className="text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
                         {lang === 'hi' ? 'क्या आपने कभी बाबा धाम (देवघर) की यात्रा की है?' : 'Have you ever visited Baba Dham (Deoghar)?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex flex-row gap-2 sm:gap-3">
+                      <div className="flex flex-row gap-2 sm:gap-3 w-full">
                         <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-sm transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
                           {hasVisited === 'yes' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />} 
                           {lang === 'hi' ? 'हाँ, गया हूँ' : 'Yes, I have'}
@@ -518,11 +518,13 @@ export const OrderRequestPage: React.FC = () => {
                       <label className="text-lg sm:text-xl font-extrabold text-[#500A18] block leading-tight">
                         {lang === 'hi' ? 'आपका उद्देश्य क्या है?' : 'What is your intent?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <button type="button" onClick={() => setIntent('prasadi')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-2 gap-2 font-bold text-xs sm:text-sm transition-all ${intent === 'prasadi' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}`}>
+                      <div className="flex flex-row gap-2 sm:gap-3 w-full">
+                        <button type="button" onClick={() => setIntent('prasadi')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'prasadi' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
+                          {intent === 'prasadi' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
                           {lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}
                         </button>
-                        <button type="button" onClick={() => setIntent('booking')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-2 gap-2 font-bold text-xs sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}`}>
+                        <button type="button" onClick={() => setIntent('booking')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
+                          {intent === 'booking' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
                           {lang === 'hi' ? 'बुकिंग की पुष्टि (₹151)' : 'Confirm Booking'}
                         </button>
                       </div>
