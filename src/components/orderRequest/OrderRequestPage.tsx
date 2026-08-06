@@ -24,7 +24,8 @@ import {
   ChevronRight,
   Play,
   Pause,
-  Tv
+  Tv,
+  ExternalLink
 } from 'lucide-react';
 
 export const OrderRequestPage: React.FC = () => {
@@ -353,23 +354,9 @@ export const OrderRequestPage: React.FC = () => {
         
         {/* Featured Video Branding Section */}
         {videoEmbed && (
-          <div className="bg-[#2B1217] p-5 sm:p-7 rounded-3xl border-2 border-[#F4A62A]/40 shadow-2xl space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#F4A62A]/20 pb-3">
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#1A0B0E] border border-[#F4A62A]/50 text-[#F4A62A] text-[10px] font-black uppercase tracking-wider mb-1">
-                  <Tv className="w-3.5 h-3.5 text-[#F4A62A]" /> Sacred Temple Video
-                </span>
-                <h3 className="font-serif-temple text-lg sm:text-2xl font-extrabold text-[#F4A62A]">
-                  {mediaConfig?.videoTitle || 'Deoghar Baba Dham Garbhagriha & Mahaprasad Video'}
-                </h3>
-              </div>
-              {mediaConfig?.videoSubtitle && (
-                <p className="text-xs text-[#FFF8F0]/85 font-medium max-w-sm sm:text-right leading-relaxed">
-                  {mediaConfig.videoSubtitle}
-                </p>
-              )}
-            </div>
-
+          <div className="bg-[#2B1217] p-4 sm:p-6 rounded-3xl border-2 border-[#F4A62A]/40 shadow-2xl space-y-4">
+            
+            {/* Video Player (Rendered First) */}
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-[#F4A62A]/30 bg-black shadow-2xl">
               {videoEmbed.isIframe ? (
                 <iframe
@@ -388,6 +375,36 @@ export const OrderRequestPage: React.FC = () => {
                 />
               )}
             </div>
+
+            {/* Optional Bottom Details & Link (Rendered Below Video ONLY if present) */}
+            {(Boolean(mediaConfig?.videoTitle?.trim()) || Boolean(mediaConfig?.videoSubtitle?.trim()) || Boolean(mediaConfig?.videoCtaUrl?.trim())) && (
+              <div className="pt-2 border-t border-[#F4A62A]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-1 max-w-xl">
+                  {mediaConfig?.videoTitle && mediaConfig.videoTitle.trim().length > 0 && (
+                    <h3 className="font-serif-temple text-lg sm:text-xl font-extrabold text-[#F4A62A]">
+                      {mediaConfig.videoTitle}
+                    </h3>
+                  )}
+                  {mediaConfig?.videoSubtitle && mediaConfig.videoSubtitle.trim().length > 0 && (
+                    <p className="text-xs text-[#FFF8F0]/85 leading-relaxed font-medium">
+                      {mediaConfig.videoSubtitle}
+                    </p>
+                  )}
+                </div>
+
+                {mediaConfig?.videoCtaUrl && mediaConfig.videoCtaUrl.trim().length > 0 && (
+                  <a
+                    href={mediaConfig.videoCtaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-[#2B1A16] font-extrabold text-xs hover:bg-white transition-all shadow-md shrink-0 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {mediaConfig?.videoCtaText?.trim() || 'Watch / Learn More'} <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </div>
+            )}
+
           </div>
         )}
 

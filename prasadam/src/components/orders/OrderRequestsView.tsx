@@ -1015,22 +1015,45 @@ export const OrderRequestsView: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Video Section Title</label>
+                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Video Section Title (Bottom of Video)</label>
                     <input
                       type="text"
                       value={mediaConfig.videoTitle || ''}
                       onChange={e => setMediaConfig({ ...mediaConfig, videoTitle: e.target.value })}
-                      placeholder="e.g. Deoghar Temple Darshan Video"
+                      placeholder="Leave empty if you don't want title..."
                       className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Video Description</label>
+                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Video Description (Bottom of Video)</label>
                     <input
                       type="text"
                       value={mediaConfig.videoSubtitle || ''}
                       onChange={e => setMediaConfig({ ...mediaConfig, videoSubtitle: e.target.value })}
-                      placeholder="e.g. Watch divine garbhagriha bhog ritual..."
+                      placeholder="Leave empty if you don't want description..."
+                      className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Optional Action Link URL (Below Video)</label>
+                    <input
+                      type="text"
+                      value={mediaConfig.videoCtaUrl || ''}
+                      onChange={e => setMediaConfig({ ...mediaConfig, videoCtaUrl: e.target.value })}
+                      placeholder="e.g. https://youtube.com/channel/... or /catalog"
+                      className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">Action Link Button Text</label>
+                    <input
+                      type="text"
+                      value={mediaConfig.videoCtaText || ''}
+                      onChange={e => setMediaConfig({ ...mediaConfig, videoCtaText: e.target.value })}
+                      placeholder="e.g. Watch Full Darshan / Learn More"
                       className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/30 focus:border-[#F4A62A] focus:outline-none"
                     />
                   </div>

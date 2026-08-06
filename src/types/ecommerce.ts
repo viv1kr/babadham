@@ -200,5 +200,7 @@ export interface OrderRequestMediaConfig {
   videoSubtitle?: string;
   bannerBgImageUrl?: string;
   bellAudioUrl?: string;
+  videoCtaUrl?: string;
+  videoCtaText?: string;
 }
 
