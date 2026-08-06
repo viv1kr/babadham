@@ -278,7 +278,7 @@ export const OrderRequestPage: React.FC = () => {
         {slides.length > 1 && (
           <button
             onClick={() => setIsPlaying(prev => !prev)}
-            className="absolute bottom-3 right-4 z-20 w-9 h-9 rounded-full bg-white/20 hover:bg-white/40 text-white border border-white/50 flex items-center justify-center shadow-lg backdrop-blur-md transition-all cursor-pointer"
+            className="absolute bottom-4 right-4 z-20 w-10 h-10 rounded-full aspect-square flex-shrink-0 bg-white/20 hover:bg-white/40 text-white border border-white/50 flex items-center justify-center shadow-lg backdrop-blur-md transition-all cursor-pointer"
             aria-label={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
             title={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
           >
