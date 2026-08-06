@@ -508,9 +508,16 @@ export const OrderRequestPage: React.FC = () => {
                           {intent === 'prasadi' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
                           {lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}
                         </button>
-                        <button type="button" onClick={() => setIntent('booking')} className={`relative overflow-hidden flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
-                          <div className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-bl-lg shadow-sm animate-pulse z-10">
-                            10% OFF
+                        <button type="button" onClick={() => setIntent('booking')} className={`relative flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
+                          {/* Floating Rounded Star Badge */}
+                          <div className="absolute -top-3 right-2 sm:-top-4 sm:right-4 z-20 animate-bounce drop-shadow-md">
+                            <div className="relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9">
+                              <div className="absolute inset-0 bg-red-500 rotate-45 rounded-[4px] sm:rounded-[6px] animate-spin" style={{ animationDuration: '4s' }} />
+                              <div className="absolute inset-0 bg-red-500 rounded-[4px] sm:rounded-[6px] animate-spin" style={{ animationDuration: '4s' }} />
+                              <div className="relative text-white font-black text-[7px] sm:text-[8px] leading-tight text-center z-10 drop-shadow-sm">
+                                10%<br/>OFF
+                              </div>
+                            </div>
                           </div>
                           <span className="flex items-center gap-1.5 relative z-10">
                             {intent === 'booking' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
@@ -519,6 +526,30 @@ export const OrderRequestPage: React.FC = () => {
                         </button>
                       </div>
                   </div>
+
+                  <AnimatePresence>
+                    {intent === 'booking' && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        className="bg-[#FFF8F0] border border-[#F4E1D2] rounded-[16px] p-3 flex items-center justify-between shadow-sm overflow-hidden"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FDF1D9] flex items-center justify-center shrink-0 border border-[#F3E5C8]">
+                            <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
+                          </div>
+                          <div>
+                            <p className="text-sm sm:text-base font-bold text-[#500A18] leading-tight">{lang === 'hi' ? 'प्री-बुकिंग शुल्क' : 'Pre-booking Charge'}</p>
+                            <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">{lang === 'hi' ? 'बुकिंग कन्फर्म करने के लिए' : 'To confirm your booking'}</p>
+                          </div>
+                        </div>
+                        <div className="text-xl sm:text-2xl font-black text-[#500A18] text-right drop-shadow-sm">
+                          <span className="line-through text-gray-400 text-xs sm:text-sm mr-1.5 font-medium">₹168</span>₹151
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div className="pt-4">
                     <button
