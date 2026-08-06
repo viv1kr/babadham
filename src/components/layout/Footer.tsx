@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
       <div className="absolute inset-0 opacity-5 pointer-events-none bg-cream-pattern" />
 
       {/* Trust Badges Strip */}
-      <div className="w-full py-8 border-b border-[#F4A62A]/20">
+      <div className="w-full py-8 bg-[#4A0813] border-b border-[#F4A62A]/20">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 divide-y lg:divide-y-0 divide-[#F4A62A]/10 lg:divide-x lg:divide-[#F4A62A]/20">
           
           <div className="flex items-center justify-center gap-4 lg:px-4 pt-4 lg:pt-0 first:pt-0 first:border-0">
