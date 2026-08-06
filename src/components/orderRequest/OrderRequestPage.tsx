@@ -227,9 +227,6 @@ export const OrderRequestPage: React.FC = () => {
     return () => clearInterval(textInterval);
   }, []);
 
-      </div>
-    </div>
-  );
 
   const [showLiveBooking, setShowLiveBooking] = useState(false);
   const [liveBookingIndex, setLiveBookingIndex] = useState(0);
