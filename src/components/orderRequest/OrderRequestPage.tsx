@@ -508,9 +508,14 @@ export const OrderRequestPage: React.FC = () => {
                           {intent === 'prasadi' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
                           {lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}
                         </button>
-                        <button type="button" onClick={() => setIntent('booking')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
-                          {intent === 'booking' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
-                          {lang === 'hi' ? 'बुकिंग की पुष्टि (₹151)' : 'Confirm Booking'}
+                        <button type="button" onClick={() => setIntent('booking')} className={`relative overflow-hidden flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-1 gap-1.5 font-bold text-[11px] sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'}`}>
+                          <div className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-bl-lg shadow-sm animate-pulse z-10">
+                            10% OFF
+                          </div>
+                          <span className="flex items-center gap-1.5 relative z-10">
+                            {intent === 'booking' ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" /> : <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300" />}
+                            {lang === 'hi' ? 'बुकिंग की पुष्टि (₹151)' : 'Confirm Booking'}
+                          </span>
                         </button>
                       </div>
                   </div>
