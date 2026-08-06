@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Calendar, Save, AlertCircle, Clock, Users } from 'lucide-react';
+import { Calendar, Save, AlertCircle, Clock, Users, IndianRupee, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const BookingSlotsView: React.FC = () => {
@@ -8,6 +8,8 @@ export const BookingSlotsView: React.FC = () => {
   
   const [timeLimit, setTimeLimit] = useState('23:59');
   const [totalSlotLimit, setTotalSlotLimit] = useState('500');
+  const [confirmBookingAmount, setConfirmBookingAmount] = useState('1100');
+  const [confirmBookingDiscount, setConfirmBookingDiscount] = useState('0');
   const [isSaving, setIsSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
 
@@ -18,6 +20,8 @@ export const BookingSlotsView: React.FC = () => {
         const config = JSON.parse(stored);
         if (config.timeLimit) setTimeLimit(config.timeLimit);
         if (config.totalSlotLimit) setTotalSlotLimit(config.totalSlotLimit);
+        if (config.confirmBookingAmount) setConfirmBookingAmount(config.confirmBookingAmount);
+        if (config.confirmBookingDiscount) setConfirmBookingDiscount(config.confirmBookingDiscount);
       }
     } catch (e) {
       console.error('Error loading booking slots config', e);
@@ -31,7 +35,9 @@ export const BookingSlotsView: React.FC = () => {
     try {
       localStorage.setItem('babadham_booking_slots_config', JSON.stringify({
         timeLimit,
-        totalSlotLimit: parseInt(totalSlotLimit) || 0
+        totalSlotLimit: parseInt(totalSlotLimit) || 0,
+        confirmBookingAmount,
+        confirmBookingDiscount
       }));
     } catch (e) {
       showToast('Failed to save settings.', 'error');
@@ -134,6 +140,65 @@ export const BookingSlotsView: React.FC = () => {
               value={totalSlotLimit}
               onChange={(e) => setTotalSlotLimit(e.target.value)}
               placeholder="e.g. 500"
+              className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
+            />
+          </div>
+        </motion.div>
+
+        {/* Confirm Booking Amount Setting */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-[#1A0B0E] rounded-2xl border border-[#F4A62A]/20 overflow-hidden flex flex-col"
+        >
+          <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
+            <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
+              <IndianRupee className="w-4 h-4 text-[#F4A62A]" /> Booking Amount
+            </h3>
+            <p className="text-xs text-[#FFF8F0]/60 mt-1">
+              Set the required amount for confirming a booking slot.
+            </p>
+          </div>
+          <div className="p-6 bg-[#120508] flex-1">
+            <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
+              Amount (₹)
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={confirmBookingAmount}
+              onChange={(e) => setConfirmBookingAmount(e.target.value)}
+              placeholder="e.g. 1100"
+              className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
+            />
+          </div>
+        </motion.div>
+
+        {/* Confirm Booking Discount Setting */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-[#1A0B0E] rounded-2xl border border-[#F4A62A]/20 overflow-hidden flex flex-col"
+        >
+          <div className="bg-[#2B1217] p-4 border-b border-[#F4A62A]/20">
+            <h3 className="font-bold text-[#FFF8F0] flex items-center gap-2">
+              <Tag className="w-4 h-4 text-[#F4A62A]" /> Booking Discount
+            </h3>
+            <p className="text-xs text-[#FFF8F0]/60 mt-1">
+              Set any discount amount or percentage applied during confirm booking.
+            </p>
+          </div>
+          <div className="p-6 bg-[#120508] flex-1">
+            <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
+              Discount Amount
+            </label>
+            <input
+              type="text"
+              value={confirmBookingDiscount}
+              onChange={(e) => setConfirmBookingDiscount(e.target.value)}
+              placeholder="e.g. 100 or 10%"
               className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
             />
           </div>
