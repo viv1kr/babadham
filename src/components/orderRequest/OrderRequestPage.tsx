@@ -817,8 +817,16 @@ export const OrderRequestPage: React.FC = () => {
                 
                 {/* Booking Slots Bar */}
                 <div className="relative z-10 w-full max-w-md mt-4 select-none">
-                  <div className="w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-xl p-3 sm:p-3.5 border border-red-900/60 shadow-lg">
-                    <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                  <div className="relative overflow-hidden w-full bg-gradient-to-r from-[#4A0812] via-[#6B0D1B] to-[#3B060E] rounded-xl p-3 sm:p-3.5 border border-red-900/60 shadow-lg">
+                    {/* Animated Sweeping Light Beam Shine Effect */}
+                    <motion.div
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '200%' }}
+                      transition={{ repeat: Infinity, duration: 2.8, ease: 'linear', repeatDelay: 0.8 }}
+                      className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 pointer-events-none z-0"
+                    />
+
+                    <div className="relative z-10 flex items-center justify-between gap-2 mb-2 px-1">
                       <span className="text-xs sm:text-sm font-medium text-white/90 shrink-0">
                         {lang === 'hi' ? 'उपलब्ध स्लॉट:' : 'Available Slots:'}
                       </span>
@@ -829,7 +837,7 @@ export const OrderRequestPage: React.FC = () => {
                         {liveTotalBookedSlots} / {totalSlotLimit}
                       </span>
                     </div>
-                    <div className="w-full bg-black/50 h-2 sm:h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                    <div className="relative z-10 w-full bg-black/50 h-2 sm:h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
                       <div 
                         className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(244,166,42,0.8)]"
                         style={{ 
