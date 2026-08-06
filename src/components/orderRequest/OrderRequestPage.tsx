@@ -469,7 +469,7 @@ export const OrderRequestPage: React.FC = () => {
                     </button>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
+                  <div className="bg-[#FFF4F4] p-4 sm:p-5 rounded-[24px] border border-[#F2D6D6] shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                         <Landmark className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
@@ -491,7 +491,7 @@ export const OrderRequestPage: React.FC = () => {
                       </div>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
+                  <div className="bg-[#FFF9E6] p-4 sm:p-5 rounded-[24px] border border-[#F2E6C6] shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                         <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
@@ -514,7 +514,7 @@ export const OrderRequestPage: React.FC = () => {
                       </div>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
+                  <div className="bg-[#F4F9F4] p-4 sm:p-5 rounded-[24px] border border-[#DCECDC] shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                         <Package className="w-5 h-5 sm:w-6 sm:h-6 text-[#C16200]" />
