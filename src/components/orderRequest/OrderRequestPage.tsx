@@ -28,7 +28,11 @@ import {
   ExternalLink,
   X,
   Globe,
-  Loader2
+  Loader2,
+  XCircle,
+  Landmark,
+  Gift,
+  Send
 } from 'lucide-react';
 
 export const OrderRequestPage: React.FC = () => {
@@ -325,7 +329,7 @@ export const OrderRequestPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto px-0 sm:px-6 pt-0 space-y-8">
         {/* Main Request Form or Confirmation Card */}
-        <div className="bg-[#FFF8F0] rounded-none sm:rounded-3xl border-y-2 sm:border-2 border-[#F4A62A]/40 p-4 sm:p-8 shadow-2xl space-y-6 text-[#2B1A16]">
+        <div className="bg-[#FDFBF7] rounded-none sm:rounded-3xl border-y-2 sm:border-2 border-[#E8E1D5] p-4 sm:p-8 shadow-sm space-y-6 text-[#2B1A16] sm:shadow-2xl">
           
           {isSubmitted ? (
             <div className="text-center space-y-6 py-6 animate-in fade-in">
@@ -372,145 +376,144 @@ export const OrderRequestPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="border-b border-[#F4A62A]/20 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-serif-temple text-lg sm:text-xl font-bold text-[#500A18]">
-                    {lang === 'hi' ? 'भक्त विवरण और अनुरोध' : 'Devotee Details & Request Specifications'}
-                  </h3>
-                  <p className="text-xs text-[#2B1A16]/70 mt-0.5">
-                    {lang === 'hi' ? 'कृपया नीचे दिया गया फॉर्म भरें। तारांकित (*) फ़ील्ड अनिवार्य हैं।' : 'Please fill out the form below. Required fields are marked with an asterisk (*).'}
-                  </p>
+              <div className="flex flex-col items-center justify-center text-center mb-8 gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#6E1120] rounded-full flex items-center justify-center border-4 border-[#FDFBF7] shadow-lg shrink-0 relative">
+                     <div className="absolute inset-0 rounded-full border border-[#6E1120]/30 scale-[1.15]" />
+                     <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-serif-temple text-xl sm:text-2xl font-bold text-[#6E1120] leading-tight">
+                      {lang === 'hi' ? 'भक्त विवरण और\nअनुरोध निर्दिष्टीकरण' : 'Devotee Details &\nRequest Specifications'}
+                    </h3>
+                  </div>
                 </div>
-                
-                <div className="flex bg-white p-1 rounded-full border border-[#F4A62A]/20 shadow-sm self-start sm:self-auto shrink-0">
+                <p className="text-xs sm:text-sm text-gray-600 mt-2 font-medium">
+                  {lang === 'hi' ? 'कृपया अपनी जानकारी भरें, हमारी टीम आपसे संपर्क करेगी।' : 'Please fill in your details, our team will contact you.'}
+                </p>
+                <div className="flex items-center gap-2 text-[#D4AF37] opacity-60 mt-1">
+                  <div className="w-6 h-[1px] bg-[#D4AF37]" />
+                  <Sparkles className="w-3 h-3" />
+                  <div className="w-6 h-[1px] bg-[#D4AF37]" />
+                </div>
+              </div>
+
+              {/* Language Selector */}
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  भाषा चुनें / Select Language
+                </label>
+                <div className="flex bg-white rounded-full border border-gray-300 overflow-hidden w-fit shadow-sm">
                   <button
                     type="button"
                     onClick={() => setLang('hi')}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer ${
+                    className={`px-8 py-2 text-sm font-bold transition-colors ${
                       lang === 'hi' 
-                        ? 'bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-white shadow-md scale-105' 
-                        : 'text-[#2B1A16]/60 hover:text-[#E59210]'
+                        ? 'bg-white text-gray-800' 
+                        : 'bg-[#6E1120] text-white hover:bg-[#8B1528]'
                     }`}
                   >
-                    हिं
+                    हिंदी
                   </button>
                   <button
                     type="button"
                     onClick={() => setLang('en')}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer ${
+                    className={`px-8 py-2 text-sm font-bold transition-colors ${
                       lang === 'en' 
-                        ? 'bg-gradient-to-r from-[#F4A62A] to-[#E59210] text-white shadow-md scale-105' 
-                        : 'text-[#2B1A16]/60 hover:text-[#E59210]'
+                        ? 'bg-white text-gray-800' 
+                        : 'bg-[#6E1120] text-white hover:bg-[#8B1528]'
                     }`}
                   >
-                    EN
+                    English
                   </button>
                 </div>
-              </div>
-
-              {/* Step Indicator */}
-              <div className="mb-8 flex items-center justify-center gap-3 max-w-xs mx-auto">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${step >= 1 ? 'bg-[#500A18] text-white shadow-lg scale-110' : 'bg-gray-200 text-gray-500'}`}>1</div>
-                <div className="flex-1 h-1 bg-[#500A18]/10 rounded-full overflow-hidden">
-                  <div className={`h-full bg-[#500A18] transition-all duration-700 ease-in-out ${step >= 2 ? 'w-full' : 'w-0'}`} />
-                </div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${step >= 2 ? 'bg-[#500A18] text-white shadow-lg scale-110' : 'bg-[#500A18]/10 text-[#500A18]'}`}>2</div>
               </div>
 
               <AnimatePresence mode="wait">
               {step === 1 ? (
                 <motion.form 
                   key="step1"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
-                  className="space-y-6 text-sm"
+                  className="space-y-4"
                 >
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="space-y-3"
-                  >
-                    <label className="block text-[#500A18] font-bold">
-                      {lang === 'hi' ? 'क्या आपने बाबा धाम देवघर के दर्शन किए हैं?' : 'Have you visited Baba Dham Deoghar?'} *
-                    </label>
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] space-y-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <Landmark className="w-5 h-5 text-[#8A5A2B]" />
+                      </div>
+                      <label className="text-sm font-bold text-gray-800">
+                        {lang === 'hi' ? 'क्या आपने कभी बाबा धाम (देवघर) की यात्रा की है?' : 'Have you ever visited Baba Dham (Deoghar)?'} <span className="text-red-500">*</span>
+                      </label>
+                    </div>
                     <div className="flex gap-4">
-                      <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-3.5 rounded-xl border-2 transition-all duration-300 font-bold hover:scale-[1.02] active:scale-95 ${hasVisited === 'yes' ? 'border-[#500A18] bg-[#500A18]/10 text-[#500A18] shadow-sm' : 'border-[#500A18]/20 bg-white text-[#2B1A16] hover:border-[#500A18]/50'}`}>
-                        {lang === 'hi' ? 'हाँ' : 'Yes'}
+                      <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-green-200 bg-green-50/50 text-green-700 hover:bg-green-50'}`}>
+                        <CheckCircle2 className="w-5 h-5" /> {lang === 'hi' ? 'हाँ' : 'Yes'}
                       </button>
-                      <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-3.5 rounded-xl border-2 transition-all duration-300 font-bold hover:scale-[1.02] active:scale-95 ${hasVisited === 'no' ? 'border-[#500A18] bg-[#500A18]/10 text-[#500A18] shadow-sm' : 'border-[#500A18]/20 bg-white text-[#2B1A16] hover:border-[#500A18]/50'}`}>
-                        {lang === 'hi' ? 'नहीं' : 'No'}
+                      <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-3.5 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all ${hasVisited === 'no' ? 'border-red-500 bg-red-100 text-red-800 shadow-sm' : 'border-red-200 bg-red-50/50 text-red-700 hover:bg-red-50'}`}>
+                        <XCircle className="w-5 h-5" /> {lang === 'hi' ? 'नहीं' : 'No'}
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
 
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="space-y-3"
-                  >
-                    <label className="block text-[#500A18] font-bold">
-                      {lang === 'hi' ? 'आपकी आयु (Age) क्या है?' : 'What is your age?'} *
-                    </label>
-                    <div className="relative group">
-                      <User className="w-5 h-5 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3.5" />
-                      <input
-                        type="number"
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] space-y-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <User className="w-5 h-5 text-[#8A5A2B]" />
+                      </div>
+                      <label className="text-sm font-bold text-gray-800">
+                        {lang === 'hi' ? 'आपकी आयु क्या है?' : 'What is your age?'} <span className="text-red-500">*</span>
+                      </label>
+                    </div>
+                    <input
+                      type="number"
+                      required
+                      value={age}
+                      onChange={e => setAge(e.target.value)}
+                      placeholder={lang === 'hi' ? 'उदाहरण: 25' : 'Example: 25'}
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#6E1120] transition-colors"
+                    />
+                  </div>
+
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-2xl border border-[#E8E1D5] space-y-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                        <Gift className="w-5 h-5 text-[#8A5A2B]" />
+                      </div>
+                      <label className="text-sm font-bold text-gray-800">
+                        {lang === 'hi' ? 'आपका उद्देश्य क्या है?' : 'What is your intent?'} <span className="text-red-500">*</span>
+                      </label>
+                    </div>
+                    <div className="relative">
+                      <select
                         required
-                        value={age}
-                        onChange={e => setAge(e.target.value)}
-                        placeholder={lang === 'hi' ? 'उदा. 35' : 'e.g. 35'}
-                        className="w-full pl-11 pr-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] transition-all hover:border-[#500A18]/50 shadow-none"
-                      />
-                    </div>
-                  </motion.div>
-
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="space-y-3"
-                  >
-                    <label className="block text-[#500A18] font-bold">
-                      {lang === 'hi' ? 'आप क्या अनुरोध करना चाहते हैं?' : 'What is your intent?'} *
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div 
-                        onClick={() => setIntent('prasadi')} 
-                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center text-center gap-2 hover:scale-[1.02] active:scale-95 ${intent === 'prasadi' ? 'border-[#500A18] bg-[#500A18]/10 shadow-sm' : 'border-[#500A18]/20 bg-white hover:border-[#500A18]/50'}`}
+                        value={intent}
+                        onChange={e => setIntent(e.target.value as any)}
+                        className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 text-gray-800 focus:outline-none focus:border-[#6E1120] transition-colors appearance-none pr-10"
                       >
-                        <Package className={`w-8 h-8 transition-colors ${intent === 'prasadi' ? 'text-[#500A18]' : 'text-[#500A18]/40'}`} />
-                        <span className="font-bold text-[#500A18]">{lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}</span>
-                      </div>
-                      
-                      <div 
-                        onClick={() => setIntent('booking')} 
-                        className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center justify-center text-center gap-2 hover:scale-[1.02] active:scale-95 ${intent === 'booking' ? 'border-[#500A18] bg-[#500A18]/10 shadow-sm' : 'border-[#500A18]/20 bg-white hover:border-[#500A18]/50'}`}
-                      >
-                        <CheckCircle2 className={`w-8 h-8 transition-colors ${intent === 'booking' ? 'text-[#500A18]' : 'text-[#500A18]/40'}`} />
-                        <span className="font-bold text-[#500A18]">{lang === 'hi' ? 'बुकिंग की पुष्टि करें (₹151 प्री-बुकिंग)' : 'Confirm Booking (₹151 pre-booking)'}</span>
-                      </div>
+                        <option value="" disabled>{lang === 'hi' ? 'चुनें' : 'Select'}</option>
+                        <option value="prasadi">{lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}</option>
+                        <option value="booking">{lang === 'hi' ? 'बुकिंग की पुष्टि करें (₹151)' : 'Confirm Booking (₹151)'}</option>
+                      </select>
+                      <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-3.5 pointer-events-none" />
                     </div>
-                  </motion.div>
+                  </div>
 
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="pt-6 flex items-center justify-end"
-                  >
+                  <div className="pt-4">
                     <button
                       type="submit"
                       disabled={!hasVisited || !age || !intent}
-                      className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="w-full py-4 rounded-xl bg-[#6E1120] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#8B1528] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100 shadow-md"
                     >
-                      {lang === 'hi' ? 'अगला कदम' : 'Next Step'} <ChevronRight className="w-4 h-4" />
+                      <Send className="w-5 h-5" /> {lang === 'hi' ? 'अनुरोध भेजें' : 'Next Step'}
                     </button>
-                  </motion.div>
+                    <div className="text-center mt-4 text-xs text-gray-500 flex items-center justify-center gap-1.5 font-medium">
+                      <ShieldCheck className="w-4 h-4 text-[#D4AF37]" /> {lang === 'hi' ? 'आपकी जानकारी सुरक्षित है। हम आपकी गोपनीयता का सम्मान करते हैं।' : 'Your data is safe. We respect your privacy.'}
+                    </div>
+                  </div>
                 </motion.form>
               ) : (
                 <motion.form 
