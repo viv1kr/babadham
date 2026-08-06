@@ -591,10 +591,13 @@ export const OrderRequestPage: React.FC = () => {
       email: 'devotee@babadham.org',
       address: `${streetAddress ? streetAddress + ', ' : ''}${city ? city + ', ' : ''}${stateName ? stateName + ', ' : ''}${pincode}`,
       requestType: intent === 'booking' ? `Confirmed Booking (₹${finalBookingAmount})` : 'Prasadi Request',
-      details: `Visited: ${hasVisited}, Age: ${age}`,
+      details: `Visited: ${hasVisited || 'N/A'}, Age: ${age || 'N/A'}${specialRequest ? ' | Note: ' + specialRequest : ''}`,
+      visited: hasVisited || 'N/A',
+      age: age || 'N/A',
+      specialRequest: specialRequest || '',
       preferredDate: new Date().toISOString().split('T')[0],
       estimatedAmount: intent === 'booking' ? finalBookingAmount : 0,
-      status: intent === 'booking' ? 'Payment Pending' : 'Pending',
+      status: 'Pending',
       createdAt: new Date().toISOString()
     };
 

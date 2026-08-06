@@ -46,6 +46,9 @@ export interface OrderRequest {
   address: string;
   requestType: string;
   details: string;
+  visited?: string;
+  age?: string;
+  specialRequest?: string;
   preferredDate: string;
   estimatedAmount: number;
   status: 'Pending' | 'Approved' | 'Processing' | 'Completed' | 'Rejected';
@@ -63,6 +66,9 @@ const INITIAL_REQUESTS: OrderRequest[] = [
     address: 'Bari Bazaar, Deoghar, Jharkhand - 814112',
     requestType: 'Special Mahaprasad & Rudrabhishek Bhog',
     details: '5kg Pure Cow Milk Peda, 2 Litres Sacred Gangajal & Fresh Belpatra Garland for Somvar Special Puja.',
+    visited: 'Yes',
+    age: '45',
+    specialRequest: 'Morning garbhagriha touch blessing requested.',
     preferredDate: '2026-08-10',
     estimatedAmount: 3500,
     status: 'Pending',
@@ -78,6 +84,9 @@ const INITIAL_REQUESTS: OrderRequest[] = [
     address: 'Kankurgachi, Kolkata, West Bengal - 700054',
     requestType: 'Bulk Peda Prasad for Family Anushthan',
     details: '15kg Special Peda Prasad packed in 250g tamper-proof sacred gift tins.',
+    visited: 'Yes',
+    age: '52',
+    specialRequest: 'Pack in sacred red gift tins.',
     preferredDate: '2026-08-15',
     estimatedAmount: 9600,
     status: 'Approved',
@@ -93,6 +102,9 @@ const INITIAL_REQUESTS: OrderRequest[] = [
     address: 'Boring Road, Patna, Bihar - 800001',
     requestType: 'Authentic Sphatik & Silver Shivalinga Pack',
     details: '108 Bead Original Haridwar Sphatik Mala + Baidyanath Jyotirlinga Silver Idol for Griha Pravesh.',
+    visited: 'No',
+    age: '38',
+    specialRequest: 'Include energized bilva leaf.',
     preferredDate: '2026-08-12',
     estimatedAmount: 5400,
     status: 'Processing',
@@ -107,6 +119,9 @@ const INITIAL_REQUESTS: OrderRequest[] = [
     address: 'VVIP Guest House Road, Deoghar, Jharkhand - 814112',
     requestType: 'Chandi Path Prasad Box',
     details: '2kg Kesar Peda, Silver Coin & Blessed Chunri.',
+    visited: 'Yes',
+    age: '61',
+    specialRequest: 'Direct pickup from temple desk.',
     preferredDate: '2026-08-08',
     estimatedAmount: 2800,
     status: 'Completed',
@@ -120,13 +135,71 @@ export const OrderRequestsView: React.FC = () => {
   const { brandSettings, saveBrandSettings, showToast } = useAdmin();
   const [activeSubTab, setActiveSubTab] = useState<'leads' | 'hero' | 'trust' | 'media' | 'manage-slots'>('leads');
 
-  const [requests, setRequests] = useState<OrderRequest[]>(() => {
+  const [requests, setRequests] = useState<OrderRequest[]>([]);
+
+  const loadOrderRequests = () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return INITIAL_REQUESTS;
-  });
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setRequests(parsed);
+          return;
+        }
+      }
+
+      const dbStr = localStorage.getItem('babadham_mysql_db_v1');
+      if (dbStr) {
+        const parsedDb = JSON.parse(dbStr);
+        if (Array.isArray(parsedDb.orderRequests) && parsedDb.orderRequests.length > 0) {
+          setRequests(parsedDb.orderRequests);
+          return;
+        }
+      }
+
+      setRequests(INITIAL_REQUESTS);
+    } catch (e) {
+      setRequests(INITIAL_REQUESTS);
+    }
+  };
+
+  useEffect(() => {
+    loadOrderRequests();
+
+    const handleSync = () => {
+      loadOrderRequests();
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('bbp_db_updated', handleSync);
+    window.addEventListener('bbp_requests_updated', handleSync);
+
+    const interval = setInterval(handleSync, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('bbp_db_updated', handleSync);
+      window.removeEventListener('bbp_requests_updated', handleSync);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const persistRequests = (updatedRequests: OrderRequest[]) => {
+    try {
+      setRequests(updatedRequests);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRequests));
+
+      const dbStr = localStorage.getItem('babadham_mysql_db_v1');
+      if (dbStr) {
+        const parsedDb = JSON.parse(dbStr);
+        parsedDb.orderRequests = updatedRequests;
+        localStorage.setItem('babadham_mysql_db_v1', JSON.stringify(parsedDb));
+      }
+
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('bbp_db_updated'));
+    } catch (err) {}
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -186,12 +259,6 @@ export const OrderRequestsView: React.FC = () => {
     }
   );
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
-    } catch {}
-  }, [requests]);
-
   const syncToStorefront = (updatedSettings: any) => {
     try {
       localStorage.setItem('babadham_brand_settings', JSON.stringify(updatedSettings));
@@ -233,7 +300,7 @@ export const OrderRequestsView: React.FC = () => {
 
     const newReq: OrderRequest = {
       id: `req-${Date.now()}`,
-      reqNo: `REQ-2026-${Math.floor(100 + Math.random() * 900)}`,
+      reqNo: `REQ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
       devoteeName: newDevoteeName,
       phone: newPhone,
       email: newEmail || 'devotee@babadham.org',
@@ -246,7 +313,7 @@ export const OrderRequestsView: React.FC = () => {
       createdAt: new Date().toISOString()
     };
 
-    setRequests([newReq, ...requests]);
+    persistRequests([newReq, ...requests]);
     setIsCreateModalOpen(false);
     showToast('New Custom Order Request logged!');
 
@@ -1021,11 +1088,11 @@ export const OrderRequestsView: React.FC = () => {
       {/* Details Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#2B1217] border border-[#F4A62A]/40 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl relative animate-in fade-in">
+          <div className="bg-[#2B1217] border border-[#F4A62A]/40 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl relative animate-in fade-in max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-[#F4A62A]/20 pb-3">
               <div>
-                <span className="text-xs font-mono text-[#F4A62A]">{selectedRequest.reqNo}</span>
-                <h3 className="font-serif-temple font-bold text-lg text-white mt-0.5">Order Request Details</h3>
+                <span className="text-xs font-mono font-bold text-[#F4A62A]">{selectedRequest.reqNo}</span>
+                <h3 className="font-serif-temple font-bold text-lg text-white mt-0.5">Order Request Lead Details</h3>
               </div>
               <button
                 onClick={() => setSelectedRequest(null)}
@@ -1035,36 +1102,66 @@ export const OrderRequestsView: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="bg-[#1A0B0E] p-3 rounded-xl border border-[#F4A62A]/20 space-y-1.5">
-                <div className="font-bold text-[#F4A62A] flex items-center gap-1.5 text-sm">
-                  <User className="w-4 h-4" /> {selectedRequest.devoteeName}
+            <div className="space-y-3.5 text-xs">
+              {/* Devotee Info Box */}
+              <div className="bg-[#1A0B0E] p-3.5 rounded-xl border border-[#F4A62A]/20 space-y-2">
+                <div className="font-bold text-[#F4A62A] flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-4 h-4 text-[#F4A62A]" /> {selectedRequest.devoteeName}
+                  </div>
+                  <a
+                    href={`https://wa.me/91${selectedRequest.phone.replace(/\D/g, '')}?text=Har%20Har%20Mahadev%20${encodeURIComponent(selectedRequest.devoteeName)}!%20We%20received%20your%20Baidyanath%20Prasad%20Request%20${selectedRequest.reqNo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-[11px] flex items-center gap-1 transition-all shadow-sm"
+                  >
+                    <MessageSquare className="w-3 h-3 fill-current" /> WhatsApp
+                  </a>
                 </div>
+
                 <div className="text-[#FFF8F0]/80 flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-[#F4A62A]" /> {selectedRequest.phone} | {selectedRequest.email}
+                  <Phone className="w-3.5 h-3.5 text-[#F4A62A]" /> {selectedRequest.phone} {selectedRequest.email ? `| ${selectedRequest.email}` : ''}
                 </div>
+
                 <div className="text-[#FFF8F0]/80 flex items-start gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#F4A62A] shrink-0 mt-0.5" /> {selectedRequest.address}
+                  <MapPin className="w-3.5 h-3.5 text-[#F4A62A] shrink-0 mt-0.5" /> {selectedRequest.address || 'Address not provided'}
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <div className="font-bold text-[#F4A62A]">Request Description:</div>
-                <div className="bg-[#1A0B0E] p-3 rounded-xl border border-[#F4A62A]/20 text-[#FFF8F0]/90 leading-relaxed">
-                  <div className="font-bold text-white mb-1">{selectedRequest.requestType}</div>
-                  {selectedRequest.details}
+              {/* Devotee Answers & Lead Specifics */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div className="bg-[#1A0B0E] p-2.5 rounded-xl border border-[#F4A62A]/20">
+                  <div className="text-[#FFF8F0]/60 text-[10px]">Visited Temple?</div>
+                  <div className="font-bold text-white mt-0.5 text-xs">{selectedRequest.visited || 'N/A'}</div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#1A0B0E] p-3 rounded-xl border border-[#F4A62A]/20">
-                  <div className="text-[#FFF8F0]/60 text-[10px]">Preferred Date</div>
-                  <div className="font-bold text-white mt-0.5">{selectedRequest.preferredDate}</div>
+                <div className="bg-[#1A0B0E] p-2.5 rounded-xl border border-[#F4A62A]/20">
+                  <div className="text-[#FFF8F0]/60 text-[10px]">Age</div>
+                  <div className="font-bold text-white mt-0.5 text-xs">{selectedRequest.age || 'N/A'}</div>
                 </div>
-                <div className="bg-[#1A0B0E] p-3 rounded-xl border border-[#F4A62A]/20">
+                <div className="bg-[#1A0B0E] p-2.5 rounded-xl border border-[#F4A62A]/20 col-span-2 sm:col-span-1">
                   <div className="text-[#FFF8F0]/60 text-[10px]">Est. Amount</div>
-                  <div className="font-bold text-[#F4A62A] mt-0.5">₹{selectedRequest.estimatedAmount.toLocaleString('en-IN')}</div>
+                  <div className="font-bold text-[#F4A62A] mt-0.5 text-xs">₹{selectedRequest.estimatedAmount ? selectedRequest.estimatedAmount.toLocaleString('en-IN') : '0'}</div>
                 </div>
+              </div>
+
+              {/* Request Type & Summary */}
+              <div className="space-y-1.5">
+                <div className="font-bold text-[#F4A62A]">Request Category:</div>
+                <div className="bg-[#1A0B0E] p-3 rounded-xl border border-[#F4A62A]/20 text-[#FFF8F0]/90 font-bold text-xs">
+                  {selectedRequest.requestType}
+                </div>
+              </div>
+
+              {/* Special Instructions / Notes */}
+              <div className="space-y-1.5">
+                <div className="font-bold text-[#F4A62A]">Special Request & Details:</div>
+                <div className="bg-[#1A0B0E] p-3 rounded-xl border border-[#F4A62A]/20 text-[#FFF8F0]/90 leading-relaxed text-xs">
+                  {selectedRequest.specialRequest || selectedRequest.details || 'No special instructions recorded.'}
+                </div>
+              </div>
+
+              <div className="text-[10px] text-[#FFF8F0]/50 text-right">
+                Submitted on: {new Date(selectedRequest.createdAt).toLocaleString()}
               </div>
             </div>
 
@@ -1075,13 +1172,13 @@ export const OrderRequestsView: React.FC = () => {
                   <>
                     <button
                       onClick={() => updateStatus(selectedRequest.id, 'Approved')}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-950 text-emerald-300 hover:bg-emerald-900 border border-emerald-500/40 font-bold cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-950 text-emerald-300 hover:bg-emerald-900 border border-emerald-500/40 font-bold cursor-pointer text-xs"
                     >
                       Approve
                     </button>
                     <button
                       onClick={() => updateStatus(selectedRequest.id, 'Rejected')}
-                      className="px-3 py-1.5 rounded-xl bg-red-950 text-red-300 hover:bg-red-900 border border-red-500/40 font-bold cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-red-950 text-red-300 hover:bg-red-900 border border-red-500/40 font-bold cursor-pointer text-xs"
                     >
                       Reject
                     </button>
@@ -1090,7 +1187,7 @@ export const OrderRequestsView: React.FC = () => {
                 {selectedRequest.status === 'Approved' && (
                   <button
                     onClick={() => updateStatus(selectedRequest.id, 'Completed')}
-                    className="px-3 py-1.5 rounded-xl bg-blue-950 text-blue-300 hover:bg-blue-900 border border-blue-500/40 font-bold cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-blue-950 text-blue-300 hover:bg-blue-900 border border-blue-500/40 font-bold cursor-pointer text-xs"
                   >
                     Complete
                   </button>
