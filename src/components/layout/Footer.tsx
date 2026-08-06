@@ -56,40 +56,40 @@ export const Footer: React.FC = () => {
       {/* Background Line Art Overlay */}
       <div className="absolute inset-0 opacity-5 pointer-events-none bg-cream-pattern" />
 
-      {/* 2x2 Trust Features Grid */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 border-b border-[#F4A62A]/10">
-        <div className="grid grid-cols-2 gap-y-10 gap-x-4 sm:gap-x-12 text-center">
+      {/* Trust Badges Strip */}
+      <div className="w-full py-8 border-b border-[#F4A62A]/20">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 divide-y lg:divide-y-0 divide-[#F4A62A]/10 lg:divide-x lg:divide-[#F4A62A]/20">
           
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
-              <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8" />
+          <div className="flex items-center justify-center gap-4 lg:px-4 pt-4 lg:pt-0 first:pt-0 first:border-0">
+            <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-white font-bold text-sm sm:text-base leading-tight">100% Authentic</span>
+              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">प्रामाणिक प्रसाद</span>
             </div>
-            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">100% Authentic</h4>
-            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Direct from Garbhagriha of Baidyanath Dham</p>
           </div>
 
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
-              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8" />
+          <div className="flex items-center justify-center gap-4 lg:px-4 pt-4 lg:pt-0">
+            <Package className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-white font-bold text-sm sm:text-base leading-tight">Secure Packaging</span>
+              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">सुरक्षित पैकिंग</span>
             </div>
-            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">Pujari Blessed</h4>
-            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Chanted with Mahamrityunjaya Stotram</p>
           </div>
 
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
-              <Truck className="w-6 h-6 sm:w-8 sm:h-8" />
+          <div className="flex items-center justify-center gap-4 lg:px-4 pt-4 lg:pt-0">
+            <Truck className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-white font-bold text-sm sm:text-base leading-tight">Pan India Delivery</span>
+              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">संपूर्ण भारत में डिलीवरी</span>
             </div>
-            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">Express Air Courier</h4>
-            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Delivered across India in 24-48 Hours</p>
           </div>
 
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] bg-black/10 text-[#F4A62A] flex items-center justify-center mb-3 sm:mb-4 border border-[#F4A62A]/40 shadow-inner">
-              <Package className="w-6 h-6 sm:w-8 sm:h-8" />
+          <div className="flex items-center justify-center gap-4 lg:px-4 pt-4 lg:pt-0">
+            <HeartHandshake className="w-8 h-8 sm:w-10 sm:h-10 text-[#F4A62A] shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-white font-bold text-sm sm:text-base leading-tight">Baba's Blessings</span>
+              <span className="text-[#F4A62A]/90 text-xs sm:text-sm mt-0.5 font-medium">बाबा का आशीर्वाद</span>
             </div>
-            <h4 className="font-extrabold text-sm sm:text-lg text-[#F4A62A]">Sacred Packaging</h4>
-            <p className="text-xs sm:text-sm text-[#FFF8F0]/90 mt-1 max-w-[200px] leading-snug">Sealed in clean, air-tight food-grade containers</p>
           </div>
 
         </div>
