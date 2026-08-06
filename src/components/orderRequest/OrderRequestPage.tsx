@@ -380,7 +380,7 @@ export const OrderRequestPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <div className="flex flex-col items-center justify-center text-center mb-8 gap-3 relative -mx-4 sm:-mx-8 -mt-4 sm:-mt-8 pt-12 sm:pt-16 pb-10 overflow-hidden rounded-t-[22px]">
+              <div className="flex flex-col items-center justify-center text-center mb-6 gap-3 relative -mx-4 sm:-mx-8 -mt-4 sm:-mt-8 pt-12 sm:pt-16 pb-4 overflow-hidden rounded-t-[22px]">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-[0.12] mix-blend-multiply" 
                   style={{ backgroundImage: `url(${slides?.[0]?.imageUrl || '/assets/babadham_hero_slide-1785849874982_desk.webp'})` }} 
@@ -435,37 +435,22 @@ export const OrderRequestPage: React.FC = () => {
               </div>
 
               {/* Language Selector */}
-              <div className="mb-8 space-y-3 max-w-2xl mx-auto">
-                <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
-                  <Globe className="w-4 h-4 text-gray-600" />
-                  भाषा चुनें / Select Language
-                </label>
-                <div className="flex flex-row gap-3 w-full">
-                  <button
-                    type="button"
-                    onClick={() => setLang('hi')}
-                    className={`flex-1 py-3.5 rounded-full text-sm font-bold transition-all flex items-center justify-center gap-2 border-2 ${
-                      lang === 'hi' 
-                        ? 'bg-[#6E1120] text-white border-[#6E1120] shadow-md scale-[1.02]' 
-                        : 'bg-white text-gray-800 border-[#E8E1D5] hover:border-gray-400'
-                    }`}
-                  >
-                    हिंदी
-                    {lang === 'hi' && <div className="bg-white rounded-full p-0.5 ml-1"><CheckCircle2 className="w-3.5 h-3.5 text-[#6E1120]" /></div>}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLang('en')}
-                    className={`flex-1 py-3.5 rounded-full text-sm font-bold transition-all flex items-center justify-center gap-2 border-2 ${
-                      lang === 'en' 
-                        ? 'bg-[#6E1120] text-white border-[#6E1120] shadow-md scale-[1.02]' 
-                        : 'bg-white text-gray-800 border-[#E8E1D5] hover:border-gray-400'
-                    }`}
-                  >
-                    English
-                    {lang === 'en' && <div className="bg-white rounded-full p-0.5 ml-1"><CheckCircle2 className="w-3.5 h-3.5 text-[#6E1120]" /></div>}
-                  </button>
-                </div>
+              <div className="mb-6 flex items-center justify-center gap-3 text-sm font-medium">
+                <button
+                  type="button"
+                  onClick={() => setLang('hi')}
+                  className={`transition-colors px-2 py-1 ${lang === 'hi' ? 'text-[#500A18] font-bold underline underline-offset-4' : 'text-gray-400 hover:text-gray-700'}`}
+                >
+                  हिंदी
+                </button>
+                <span className="text-gray-300">|</span>
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className={`transition-colors px-2 py-1 ${lang === 'en' ? 'text-[#500A18] font-bold underline underline-offset-4' : 'text-gray-400 hover:text-gray-700'}`}
+                >
+                  English
+                </button>
               </div>
 
               <AnimatePresence mode="wait">
