@@ -67,6 +67,27 @@ export const OrderRequestPage: React.FC = () => {
   const [totalSlotLimit, setTotalSlotLimit] = useState(500);
   const [sessionConfirmedBookings, setSessionConfirmedBookings] = useState(0);
 
+  const liveDevoteeList = [
+    'राहुल कुमार (रांची)',
+    'अमित शर्मा (पटना)',
+    'प्रिया सिंह (देवघर)',
+    'दीपक वर्मा (कोलकाता)',
+    'सुरेश यादव (वाराणसी)',
+    'विकास गुप्ता (दिल्ली)',
+    'संजय झा (दरभंगा)'
+  ];
+  const [liveDevoteeIndex, setLiveDevoteeIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLiveDevoteeIndex(prev => (prev + 1) % liveDevoteeList.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentLiveDevotee = liveDevoteeList[liveDevoteeIndex];
+  const dynamicJoinedCount = 155 + sessionConfirmedBookings;
+
   const calculateLiveConfirmedBookings = () => {
     try {
       const stored = localStorage.getItem('babadham_order_requests');
@@ -180,6 +201,54 @@ export const OrderRequestPage: React.FC = () => {
     }, 1500);
     return () => clearInterval(textInterval);
   }, []);
+
+  const renderTrustBanner = () => (
+    <div className="bg-[#FFF8F0] border border-[#F4E1A1] rounded-[20px] p-3 sm:p-3.5 mb-4 flex items-center justify-between shadow-sm select-none">
+      <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+        {/* Overlapping Devotee Avatars */}
+        <div className="flex -space-x-2.5 sm:-space-x-3 overflow-hidden shrink-0">
+          <img 
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" 
+            className="inline-block h-9 w-9 sm:h-10 sm:w-10 rounded-full ring-2 ring-[#F4A62A] object-cover shadow-sm" 
+            alt="Devotee 1" 
+          />
+          <img 
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" 
+            className="inline-block h-9 w-9 sm:h-10 sm:w-10 rounded-full ring-2 ring-[#F4A62A] object-cover shadow-sm" 
+            alt="Devotee 2" 
+          />
+          <img 
+            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80" 
+            className="inline-block h-9 w-9 sm:h-10 sm:w-10 rounded-full ring-2 ring-[#F4A62A] object-cover shadow-sm" 
+            alt="Devotee 3" 
+          />
+        </div>
+
+        {/* Live Devotee Name & Dynamic Joined Count */}
+        <div className="min-w-0">
+          <h4 className="font-extrabold text-[#500A18] text-xs sm:text-sm leading-tight truncate">
+            {devoteeName ? devoteeName : currentLiveDevotee}
+          </h4>
+          <p className="text-[11px] sm:text-xs text-[#C16200] font-bold mt-0.5 truncate">
+            {dynamicJoinedCount}+ {lang === 'hi' ? 'भक्त जुड़े (आप भी जुड़ें बाबा के आशीर्वाद से)' : 'joined today with Baba\'s blessings'}
+          </p>
+        </div>
+      </div>
+
+      {/* Rating & Review Badge */}
+      <div className="bg-white/90 border border-[#F4E1A1] rounded-xl px-2 sm:px-2.5 py-1 sm:py-1.5 shadow-sm flex items-center gap-1.5 shrink-0 ml-2">
+        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#FFF4D9] flex items-center justify-center text-[#C16200] shrink-0">
+          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C16200]" />
+        </div>
+        <div className="text-right">
+          <div className="flex items-center gap-0.5 text-[#F4A62A] text-[10px] sm:text-xs font-black">
+            ★ 4.9 ★
+          </div>
+          <span className="text-[9px] sm:text-[10px] text-gray-500 font-bold block leading-none">(2k+ Reviews)</span>
+        </div>
+      </div>
+    </div>
+  );
 
   const [showLiveBooking, setShowLiveBooking] = useState(false);
   const [liveBookingIndex, setLiveBookingIndex] = useState(0);
@@ -893,6 +962,9 @@ export const OrderRequestPage: React.FC = () => {
                   </AnimatePresence>
 
                   <div className="pt-4">
+                    {/* Live Devotee Trust Banner */}
+                    {renderTrustBanner()}
+
                     <button
                       type="submit"
                       disabled={!intent}
@@ -1070,23 +1142,28 @@ export const OrderRequestPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="pt-4 flex items-center justify-between gap-4 border-t border-[#500A18]/10 mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="px-5 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#500A18] font-bold hover:bg-[#FDF4E3] hover:border-[#500A18]/50 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-none flex items-center gap-2"
-                    >
-                      <ChevronLeft className="w-4 h-4" /> {lang === 'hi' ? 'पीछे' : 'Back'}
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm"
-                    >
-                      <Sparkles className="w-4 h-4" /> 
-                      {intent === 'booking' 
-                        ? (lang === 'hi' ? `अभी भुगतान करें (₹${finalBookingAmount})` : `Pay Now (₹${finalBookingAmount})`)
-                        : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
-                    </button>
+                  <div className="pt-4 mt-6 border-t border-[#500A18]/10">
+                    {/* Live Devotee Trust Banner */}
+                    {renderTrustBanner()}
+
+                    <div className="flex items-center justify-between gap-4 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="px-5 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#500A18] font-bold hover:bg-[#FDF4E3] hover:border-[#500A18]/50 hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-none flex items-center gap-2"
+                      >
+                        <ChevronLeft className="w-4 h-4" /> {lang === 'hi' ? 'पीछे' : 'Back'}
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#500A18] to-[#7A1126] text-white font-extrabold hover:shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md flex items-center gap-2 text-sm"
+                      >
+                        <Sparkles className="w-4 h-4" /> 
+                        {intent === 'booking' 
+                          ? (lang === 'hi' ? `अभी भुगतान करें (₹${finalBookingAmount})` : `Pay Now (₹${finalBookingAmount})`)
+                          : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
+                      </button>
+                    </div>
                   </div>
                 </motion.form>
               )}
