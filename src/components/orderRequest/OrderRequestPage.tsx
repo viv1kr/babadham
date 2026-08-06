@@ -484,20 +484,20 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
                   className="space-y-4"
                 >
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-6 rounded-[24px] border border-[#E8E1D5] flex flex-col gap-4 shadow-sm items-center text-center">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                       <Landmark className="w-8 h-8 sm:w-10 sm:h-10 text-[#C16200]" />
                     </div>
-                    <div className="flex-1 space-y-3 pt-1">
+                    <div className="space-y-4 w-full">
                       <label className="text-sm sm:text-base font-bold text-gray-800 block">
                         {lang === 'hi' ? 'क्या आपने कभी बाबा धाम (देवघर) की यात्रा की है?' : 'Have you ever visited Baba Dham (Deoghar)?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-green-200 bg-[#F1F8EE] text-green-700 hover:bg-green-100'}`}>
-                          <CheckCircle2 className="w-4 h-4 text-green-700" /> {lang === 'hi' ? 'हाँ, गया हूँ' : 'Yes, I have'}
+                      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
+                        <button type="button" onClick={() => setHasVisited('yes')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'yes' ? 'border-green-500 bg-green-100 text-green-800 shadow-sm' : 'border-green-200 bg-[#F1F8EE] text-green-700 hover:bg-green-100'}`}>
+                          <CheckCircle2 className="w-5 h-5 text-green-700" /> {lang === 'hi' ? 'हाँ, गया हूँ' : 'Yes, I have'}
                         </button>
-                        <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'no' ? 'border-red-500 bg-red-100 text-red-800 shadow-sm' : 'border-red-200 bg-[#FCF3F3] text-red-700 hover:bg-red-100'}`}>
-                          <XCircle className="w-4 h-4 text-red-600" /> {lang === 'hi' ? 'नहीं, कभी नहीं गया' : 'No, never visited'}
+                        <button type="button" onClick={() => setHasVisited('no')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 font-bold text-sm transition-all ${hasVisited === 'no' ? 'border-red-500 bg-red-100 text-red-800 shadow-sm' : 'border-red-200 bg-[#FCF3F3] text-red-700 hover:bg-red-100'}`}>
+                          <XCircle className="w-5 h-5 text-red-600" /> {lang === 'hi' ? 'नहीं, कभी नहीं गया' : 'No, never visited'}
                         </button>
                       </div>
                     </div>
@@ -533,41 +533,14 @@ export const OrderRequestPage: React.FC = () => {
                       <label className="text-sm sm:text-base font-bold text-gray-800 block">
                         {lang === 'hi' ? 'आपका उद्देश्य क्या है?' : 'What is your intent?'} <span className="text-red-500">*</span>
                       </label>
-                      <div className="relative">
-                        <select
-                          required
-                          value={intent}
-                          onChange={e => setIntent(e.target.value as any)}
-                          className="w-full px-4 py-3 rounded-xl bg-white border border-[#E8E1D5] text-gray-800 focus:outline-none focus:border-[#C16200] transition-colors appearance-none pr-10"
-                        >
-                          <option value="" disabled>{lang === 'hi' ? 'चुनें' : 'Select'}</option>
-                          <option value="prasadi">{lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}</option>
-                          <option value="booking">{lang === 'hi' ? 'बुकिंग की पुष्टि करें (₹151)' : 'Confirm Booking (₹151)'}</option>
-                        </select>
-                        <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-3.5 pointer-events-none" />
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button type="button" onClick={() => setIntent('prasadi')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-2 gap-2 font-bold text-xs sm:text-sm transition-all ${intent === 'prasadi' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}`}>
+                          {lang === 'hi' ? 'केवल प्रसादी अनुरोध' : 'Prasadi Request Only'}
+                        </button>
+                        <button type="button" onClick={() => setIntent('booking')} className={`flex-1 py-2 sm:py-3 rounded-xl border flex items-center justify-center text-center px-2 gap-2 font-bold text-xs sm:text-sm transition-all ${intent === 'booking' ? 'border-[#C16200] bg-[#FFF8F0] text-[#C16200] shadow-sm' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'}`}>
+                          {lang === 'hi' ? 'बुकिंग की पुष्टि (₹151)' : 'Confirm Booking'}
+                        </button>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Special Message Box */}
-                  <div className="bg-[#FCF1ED] p-4 sm:p-5 rounded-[24px] border border-[#F6DFD7] flex gap-4 shadow-sm items-center">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#F6DFD7] flex items-center justify-center shrink-0 shadow-inner">
-                      <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-[#6E1120]" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <label className="text-sm sm:text-base font-bold text-[#6E1120] block">
-                        {lang === 'hi' ? 'विशेष अनुरोध या संदेश (वैकल्पिक)' : 'Special Request (Optional)'}
-                      </label>
-                      <input
-                        type="text"
-                        value={specialRequest}
-                        onChange={e => setSpecialRequest(e.target.value)}
-                        placeholder={lang === 'hi' ? 'अगर आपका कोई विशेष अनुरोध है तो यहाँ लिखें...' : 'Write any special requests...'}
-                        className="w-full bg-transparent border-none text-xs sm:text-sm text-[#6E1120]/80 placeholder-[#6E1120]/50 focus:outline-none p-0 m-0 focus:ring-0 shadow-none"
-                      />
-                    </div>
-                    <div className="shrink-0 pl-1 pr-2">
-                      <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8 text-[#FF4B4B] fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </div>
                   </div>
 
@@ -696,6 +669,28 @@ export const OrderRequestPage: React.FC = () => {
                       placeholder={lang === 'hi' ? 'घर का नंबर, गली, या कोई पहचान...' : 'House No, Street, or Landmark...'}
                       className="w-full p-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all leading-relaxed shadow-none"
                     />
+                  </div>
+
+                  {/* Special Message Box (Moved to Step 2) */}
+                  <div className="bg-[#FCF1ED] p-4 sm:p-5 rounded-[24px] border border-[#F6DFD7] flex gap-4 shadow-sm items-center mt-6">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#F6DFD7] flex items-center justify-center shrink-0 shadow-inner">
+                      <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-[#6E1120]" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <label className="text-sm sm:text-base font-bold text-[#6E1120] block">
+                        {lang === 'hi' ? 'विशेष अनुरोध या संदेश (वैकल्पिक)' : 'Special Request (Optional)'}
+                      </label>
+                      <input
+                        type="text"
+                        value={specialRequest}
+                        onChange={e => setSpecialRequest(e.target.value)}
+                        placeholder={lang === 'hi' ? 'अगर आपका कोई विशेष अनुरोध है तो यहाँ लिखें...' : 'Write any special requests...'}
+                        className="w-full bg-transparent border-none text-xs sm:text-sm text-[#6E1120]/80 placeholder-[#6E1120]/50 focus:outline-none p-0 m-0 focus:ring-0 shadow-none"
+                      />
+                    </div>
+                    <div className="shrink-0 pl-1 pr-2">
+                      <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8 text-[#FF4B4B] fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
                   </div>
 
                   <div className="pt-4 flex items-center justify-between gap-4 border-t border-[#500A18]/10 mt-6">
