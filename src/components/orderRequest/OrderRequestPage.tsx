@@ -115,6 +115,37 @@ export const OrderRequestPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleDetectLocation = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`);
+          const data = await res.json();
+          if (data && data.address) {
+            if (data.address.postcode) {
+              setPincode(data.address.postcode);
+            }
+            const addressParts = [];
+            if (data.address.road) addressParts.push(data.address.road);
+            if (data.address.suburb) addressParts.push(data.address.suburb);
+            if (data.address.neighbourhood) addressParts.push(data.address.neighbourhood);
+            
+            if (addressParts.length > 0) {
+              setStreetAddress(addressParts.join(', '));
+            }
+            showToast(lang === 'hi' ? 'स्थान सफलतापूर्वक पता चला!' : 'Location detected successfully!', 'success');
+          }
+        } catch (err) {
+          showToast(lang === 'hi' ? 'स्थान का पता लगाने में विफल' : 'Failed to detect location', 'error');
+        }
+      }, () => {
+        showToast(lang === 'hi' ? 'स्थान की अनुमति अस्वीकृत' : 'Location permission denied', 'error');
+      });
+    } else {
+      showToast(lang === 'hi' ? 'स्थान समर्थित नहीं है' : 'Geolocation is not supported', 'error');
+    }
+  };
+
   useEffect(() => {
     if (pincode.length === 6) {
       setIsFetchingPin(true);
@@ -738,113 +769,123 @@ export const OrderRequestPage: React.FC = () => {
                         {lang === 'hi' ? 'व्यक्तिगत विवरण' : 'Personal Details'}
                       </h3>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[#500A18] font-bold mb-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-2">
+                      <div className="relative group mt-2">
+                        <User className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3.5 z-10" />
+                        <input
+                          type="text"
+                          required
+                          value={devoteeName}
+                          onChange={e => setDevoteeName(e.target.value)}
+                          className="peer w-full pl-10 pr-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          placeholder={lang === 'hi' ? 'पूरा नाम *' : 'Devotee Name *'}
+                        />
+                        <label className={`absolute transition-all duration-200 pointer-events-none rounded-sm bg-white px-1
+                          ${devoteeName ? '-top-2.5 left-3 text-[11px] font-bold text-[#500A18]' : 'top-3.5 left-10 text-sm text-[#2B1A16]/50 peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-[#500A18]'}`}>
                           {lang === 'hi' ? 'पूरा नाम *' : 'Devotee Name *'}
                         </label>
-                        <div className="relative group">
-                          <User className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
-                          <input
-                            type="text"
-                            required
-                            value={devoteeName}
-                            onChange={e => setDevoteeName(e.target.value)}
-                            placeholder={lang === 'hi' ? 'उदा. रामेश्वर नाथ शर्मा' : 'e.g. Rameshwar Nath Sharma'}
-                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                          />
-                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[#500A18] font-bold mb-1.5">
+                      <div className="relative group mt-2">
+                        <Phone className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3.5 z-10" />
+                        <input
+                          type="tel"
+                          required
+                          value={whatsappNumber}
+                          onChange={e => setWhatsappNumber(e.target.value)}
+                          className="peer w-full pl-10 pr-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          placeholder={lang === 'hi' ? 'व्हाट्सएप नंबर *' : 'WhatsApp Number *'}
+                        />
+                        <label className={`absolute transition-all duration-200 pointer-events-none rounded-sm bg-white px-1
+                          ${whatsappNumber ? '-top-2.5 left-3 text-[11px] font-bold text-[#500A18]' : 'top-3.5 left-10 text-sm text-[#2B1A16]/50 peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-[#500A18]'}`}>
                           {lang === 'hi' ? 'व्हाट्सएप नंबर *' : 'WhatsApp Number *'}
                         </label>
-                        <div className="relative group">
-                          <Phone className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
-                          <input
-                            type="tel"
-                            required
-                            value={whatsappNumber}
-                            onChange={e => setWhatsappNumber(e.target.value)}
-                            placeholder="+91 98765 43210"
-                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                          />
-                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Delivery Address Block */}
                   <div className="bg-[#FFF4F4] p-4 sm:p-5 rounded-[24px] border border-[#F2D6D6] shadow-sm">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
-                        <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
+                          <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#C16200]" />
+                        </div>
+                        <h3 className="font-extrabold text-[#500A18] text-base sm:text-lg">
+                          {lang === 'hi' ? 'वितरण का पता' : 'Delivery Address'}
+                        </h3>
                       </div>
-                      <h3 className="font-extrabold text-[#500A18] text-base sm:text-lg">
-                        {lang === 'hi' ? 'वितरण का पता' : 'Delivery Address'}
-                      </h3>
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        className="text-[10px] sm:text-xs font-bold bg-[#500A18] text-white px-3 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 hover:bg-[#7A1323] transition-colors shadow-sm active:scale-95"
+                      >
+                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        {lang === 'hi' ? 'लोकेशन डिटेक्ट करें' : 'Detect Location'}
+                      </button>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                      <div>
-                        <label className="block text-[#500A18] font-bold mb-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-2 mb-5">
+                      <div className="relative group mt-2">
+                        <MapPin className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3.5 z-10" />
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          value={pincode}
+                          onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
+                          className="peer w-full pl-10 pr-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          placeholder={lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
+                        />
+                        <label className={`absolute transition-all duration-200 pointer-events-none rounded-sm bg-white px-1
+                          ${pincode ? '-top-2.5 left-3 text-[11px] font-bold text-[#500A18]' : 'top-3.5 left-10 text-sm text-[#2B1A16]/50 peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-[#500A18]'}`}>
                           {lang === 'hi' ? 'पिनकोड *' : 'Pincode *'}
                         </label>
-                        <div className="relative group">
-                          <MapPin className="w-4 h-4 text-[#500A18]/60 group-focus-within:text-[#500A18] transition-colors absolute left-3.5 top-3" />
-                          <input
-                            type="text"
-                            required
-                            maxLength={6}
-                            value={pincode}
-                            onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
-                            placeholder="e.g. 814112"
-                            className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
-                          />
-                          {isFetchingPin && <Loader2 className="w-4 h-4 text-[#500A18] absolute right-3.5 top-3 animate-spin" />}
-                        </div>
+                        {isFetchingPin && <Loader2 className="w-4 h-4 text-[#500A18] absolute right-3.5 top-3.5 animate-spin" />}
                       </div>
                       
-                      <div>
-                        <label className="block text-[#500A18] font-bold mb-1.5">
-                          {lang === 'hi' ? 'शहर / ज़िला' : 'City / District'}
-                        </label>
+                      <div className="relative group mt-2">
                         <input
                           type="text"
                           value={city}
                           onChange={e => setCity(e.target.value)}
-                          placeholder={lang === 'hi' ? 'शहर दर्ज करें' : 'Enter City'}
-                          className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          className="peer w-full px-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          placeholder={lang === 'hi' ? 'शहर / ज़िला' : 'City / District'}
                         />
+                        <label className={`absolute transition-all duration-200 pointer-events-none rounded-sm bg-white px-1
+                          ${city ? '-top-2.5 left-3 text-[11px] font-bold text-[#500A18]' : 'top-3.5 left-3 text-sm text-[#2B1A16]/50 peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-[#500A18]'}`}>
+                          {lang === 'hi' ? 'शहर / ज़िला' : 'City / District'}
+                        </label>
                       </div>
 
-                      <div>
-                        <label className="block text-[#500A18] font-bold mb-1.5">
-                          {lang === 'hi' ? 'राज्य' : 'State'}
-                        </label>
+                      <div className="relative group mt-2">
                         <input
                           type="text"
                           value={stateName}
                           onChange={e => setStateName(e.target.value)}
-                          placeholder={lang === 'hi' ? 'राज्य दर्ज करें' : 'Enter State'}
-                          className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          className="peer w-full px-3 py-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all shadow-none"
+                          placeholder={lang === 'hi' ? 'राज्य' : 'State'}
                         />
+                        <label className={`absolute transition-all duration-200 pointer-events-none rounded-sm bg-white px-1
+                          ${stateName ? '-top-2.5 left-3 text-[11px] font-bold text-[#500A18]' : 'top-3.5 left-3 text-sm text-[#2B1A16]/50 peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-[#500A18]'}`}>
+                          {lang === 'hi' ? 'राज्य' : 'State'}
+                        </label>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[#500A18] font-bold mb-1.5">
-                        {lang === 'hi' ? 'सड़क का पता / लैंडमार्क *' : 'Street Address / Landmark *'}
-                      </label>
+                    <div className="relative group mt-2">
                       <textarea
                         rows={3}
                         required
                         value={streetAddress}
                         onChange={e => setStreetAddress(e.target.value)}
-                        placeholder={lang === 'hi' ? 'घर का नंबर, गली, या कोई पहचान...' : 'House No, Street, or Landmark...'}
-                        className="w-full p-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-[#2B1A16]/40 focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all leading-relaxed shadow-none"
+                        className="peer w-full p-3 rounded-xl bg-white border-2 border-[#500A18]/20 text-[#2B1A16] placeholder-transparent focus:outline-none focus:border-[#500A18] hover:border-[#500A18]/50 transition-all leading-relaxed shadow-none"
+                        placeholder={lang === 'hi' ? 'सड़क का पता / लैंडमार्क *' : 'Street Address / Landmark *'}
                       />
+                      <label className={`absolute transition-all duration-200 pointer-events-none rounded-sm bg-white px-1
+                        ${streetAddress ? '-top-2.5 left-3 text-[11px] font-bold text-[#500A18]' : 'top-3.5 left-3 text-sm text-[#2B1A16]/50 peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-[#500A18]'}`}>
+                        {lang === 'hi' ? 'सड़क का पता / लैंडमार्क *' : 'Street Address / Landmark *'}
+                      </label>
                     </div>
                   </div>
 
