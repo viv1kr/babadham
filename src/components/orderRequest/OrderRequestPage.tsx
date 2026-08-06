@@ -107,20 +107,20 @@ export const OrderRequestPage: React.FC = () => {
     } catch(e) {}
   };
 
+  const defaultDevotees = lang === 'hi'
+    ? ['राहुल कुमार (रांची)', 'अमित शर्मा (पटना)', 'प्रिया सिंह (देवघर)', 'दीपक वर्मा (कोलकाता)', 'सुरेश यादव (वाराणसी)', 'विकास गुप्ता (दिल्ली)', 'संजय झा (दरभंगा)']
+    : ['Rahul Kumar (Ranchi)', 'Amit Sharma (Patna)', 'Priya Singh (Deoghar)', 'Deepak Verma (Kolkata)', 'Suresh Yadav (Varanasi)', 'Vikas Gupta (Delhi)', 'Sanjay Jha (Darbhanga)'];
+
+  const devoteePool = realDevoteeNames.length > 0 ? [...realDevoteeNames, ...defaultDevotees] : defaultDevotees;
+
   const activeLatestName = devoteeName 
     ? devoteeName 
-    : (realDevoteeNames.length > 0 
-        ? realDevoteeNames[realDevoteeNames.length - 1] 
-        : (lang === 'hi' ? 'राहुल कुमार' : 'Rahul Kumar'));
-
-  const fallbackNames = lang === 'hi' 
-    ? ['अमित शर्मा', 'प्रिया सिंह', 'दीपक वर्मा'] 
-    : ['Amit Sharma', 'Priya Singh', 'Deepak Verma'];
+    : devoteePool[liveDevoteeIndex % devoteePool.length];
 
   const rawThreeNames = [
     activeLatestName,
-    realDevoteeNames.length > 1 ? realDevoteeNames[realDevoteeNames.length - 2] : fallbackNames[0],
-    realDevoteeNames.length > 2 ? realDevoteeNames[realDevoteeNames.length - 3] : fallbackNames[1]
+    devoteePool[(liveDevoteeIndex + 1) % devoteePool.length],
+    devoteePool[(liveDevoteeIndex + 2) % devoteePool.length]
   ];
 
   const recentThreeInitials = rawThreeNames.map(n => 
@@ -147,11 +147,20 @@ export const OrderRequestPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Latest Booking Devotee Name on Top & Subtext (No Number Prefix) */}
-      <div className="min-w-0 flex-1">
-        <h4 className="font-extrabold text-[#500A18] text-xs sm:text-sm leading-tight truncate">
-          {activeLatestName}
-        </h4>
+      {/* Dynamic Animated Booking Devotee Name on Top */}
+      <div className="min-w-0 flex-1 overflow-hidden h-9 flex flex-col justify-center">
+        <AnimatePresence mode="wait">
+          <motion.h4
+            key={activeLatestName}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.3 }}
+            className="font-extrabold text-[#500A18] text-xs sm:text-sm leading-tight truncate"
+          >
+            {activeLatestName}
+          </motion.h4>
+        </AnimatePresence>
         <p className="text-[11px] sm:text-xs text-[#C16200] font-bold mt-0.5 truncate">
           {lang === 'hi' ? 'भक्त जुड़े (आप भी जुड़ें बाबा के आशीर्वाद से)' : 'Devotees joined with Baba\'s blessings'}
         </p>
