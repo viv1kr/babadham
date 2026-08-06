@@ -91,8 +91,8 @@ export const OrderRequestPage: React.FC = () => {
     let timeoutId: NodeJS.Timeout;
 
     const scheduleNextBooking = () => {
-      // Random delay between 5 and 8 seconds
-      const randomDelay = Math.floor(Math.random() * (8000 - 5000 + 1)) + 5000;
+      // Random delay between 10 and 20 seconds for previous/dummy bookings
+      const randomDelay = Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000;
       
       timeoutId = setTimeout(() => {
         playTempleBell();
