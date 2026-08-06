@@ -18,7 +18,6 @@ import { CustomScriptsView } from './components/scripts/CustomScriptsView';
 import { UserProfileView } from './components/user/UserProfileView';
 import { PoliciesView, PolicySubTab } from './components/policies/PoliciesView';
 import { ToastContainer } from './components/ui/ToastContainer';
-import { BookingSlotsView } from './components/bookings/BookingSlotsView';
 
 export const AdminContent: React.FC = () => {
   const { isAuthenticated, activeTab } = useAdmin();
@@ -73,7 +72,6 @@ export const AdminContent: React.FC = () => {
           {activeTab === 'userProfile' && <UserProfileView />}
           {activeTab === 'scripts' && <CustomScriptsView />}
           {activeTab === 'database' && <DatabaseView />}
-          {activeTab === 'booking-slots' && <BookingSlotsView />}
         </main>
 
       </div>

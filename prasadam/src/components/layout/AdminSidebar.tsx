@@ -48,7 +48,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   // Desktop Admin Sidebar State (Default: true so text labels & accordion submenus are easily visible)
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [isProductAccordionOpen, setIsProductAccordionOpen] = useState(false);
-  const [isOrderRequestsAccordionOpen, setIsOrderRequestsAccordionOpen] = useState(false);
   const [isPolicyAccordionOpen, setIsPolicyAccordionOpen] = useState(false);
   const [isSettingsAccordionOpen, setIsSettingsAccordionOpen] = useState(false);
 
@@ -59,11 +58,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { id: 'content', label: 'Content & Media Library', icon: FolderOpen },
     { id: 'coupons', label: 'Coupons & Discounts', icon: Tag },
     { id: 'branding', label: 'Brand & Header Editor', icon: Palette },
-  ];
-
-  const orderRequestSubItems = [
-    { id: 'order-requests', label: 'View Requests' },
-    { id: 'booking-slots', label: 'Manage Booking Slot' },
   ];
 
   const productSubItems: { id: ProductSubTab; label: string }[] = [
@@ -90,7 +84,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   const isPolicyActive = activeTab.startsWith('policy');
   const isProductActive = activeTab.startsWith('product') || activeTab === 'inventory' || activeTab === 'products';
-  const isOrderRequestsActive = activeTab === 'order-requests' || activeTab === 'booking-slots';
 
   const handlePolicySubItemClick = (subTab: PolicySubTab) => {
     setActiveTab(`policy-${subTab}`);
@@ -159,9 +152,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
           return (
             <React.Fragment key={item.id}>
-              {item.id !== 'order-requests' && (
-                <button
-                  onClick={() => setActiveTab(item.id)}
+              <button
+                onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition-all group relative cursor-pointer ${
                   isActive 
                     ? 'text-[#F4A62A] font-extrabold bg-transparent border-none' 
@@ -204,115 +196,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   </span>
                 )}
               </button>
-              )}
-
-              {/* ORDER REQUESTS COLLAPSIBLE ACCORDION */}
-              {item.id === 'order-requests' && (
-                <div className="pt-1 pb-1 relative group/order-requests">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!isSidebarExpanded) {
-                        setIsSidebarExpanded(true);
-                        setIsOrderRequestsAccordionOpen(true);
-                      } else {
-                        setIsOrderRequestsAccordionOpen(!isOrderRequestsAccordionOpen);
-                      }
-                    }}
-                    className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all cursor-pointer group relative ${
-                      isOrderRequestsActive 
-                        ? 'text-[#F4A62A] font-extrabold bg-transparent border-none' 
-                        : 'text-[#FFF8F0]/90 hover:text-[#F4A62A] bg-transparent border-none'
-                    }`}
-                  >
-                    {isOrderRequestsActive && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-gradient-to-b from-[#F4A62A] to-[#D98C1F] rounded-r-full shadow-[0_0_10px_#F4A62A]" />
-                    )}
-
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-8 h-8 rounded-lg bg-transparent flex items-center justify-center shrink-0">
-                        <FileText className={`w-5 h-5 ${isOrderRequestsActive ? 'text-[#F4A62A] stroke-[2.5]' : 'text-[#FFF8F0]/60 group-hover:text-[#F4A62A]'}`} />
-                      </div>
-                      {isSidebarExpanded && (
-                        <span className="text-xs sm:text-[13px] tracking-wide text-left truncate font-semibold">
-                          Order Requests
-                        </span>
-                      )}
-                    </div>
-
-                    {isSidebarExpanded && (
-                      <div className={`shrink-0 ${isOrderRequestsActive ? 'text-[#F4A62A]' : 'text-[#FFF8F0]/60 group-hover:text-[#F4A62A]'}`}>
-                        {isOrderRequestsAccordionOpen ? (
-                          <ChevronUp className="w-4 h-4" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4" />
-                        )}
-                      </div>
-                    )}
-                  </button>
-
-                  {!isSidebarExpanded && (
-                    <div className="absolute left-16 top-0 ml-2 w-64 bg-[#1A0B0E] border border-[#F4A62A]/40 rounded-2xl shadow-2xl p-4 opacity-0 pointer-events-none group-hover/order-requests:opacity-100 group-hover/order-requests:pointer-events-auto transition-all duration-300 z-50">
-                      <div className="flex items-center gap-2.5 pb-3 border-b border-[#F4A62A]/20 mb-3">
-                        <div className="w-7 h-7 rounded-lg bg-transparent flex items-center justify-center">
-                          <FileText className="w-4 h-4 text-[#F4A62A]" />
-                        </div>
-                        <span className="font-extrabold text-xs text-[#F4A62A] tracking-wider uppercase">
-                          Order Requests
-                        </span>
-                      </div>
-
-                      <div className="ml-3 pl-3 border-l border-[#F4A62A]/40 space-y-2 relative">
-                        {orderRequestSubItems.map((subItem) => {
-                          const isSubActive = activeTab === subItem.id;
-                          return (
-                            <button
-                              key={subItem.id}
-                              type="button"
-                              onClick={() => setActiveTab(subItem.id)}
-                              className={`w-full flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-left transition-all text-xs font-medium cursor-pointer relative group/item ${
-                                isSubActive 
-                                  ? 'text-[#F4A62A] font-extrabold bg-transparent' 
-                                  : 'text-[#FFF8F0]/80 hover:text-[#F4A62A] bg-transparent'
-                              }`}
-                            >
-                              <span className={`absolute -left-[16.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[#F4A62A] transition-colors ${
-                                isSubActive ? 'bg-[#F4A62A] shadow-[0_0_8px_#F4A62A]' : 'bg-[#120508] group-hover/item:bg-[#F4A62A]'
-                              }`} />
-                              <span className="truncate">{subItem.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {isSidebarExpanded && isOrderRequestsAccordionOpen && (
-                    <div className="ml-5 mt-2 pl-3 border-l border-[#F4A62A]/40 space-y-2 relative">
-                      {orderRequestSubItems.map((subItem) => {
-                        const isSubActive = activeTab === subItem.id;
-                        return (
-                          <button
-                            key={subItem.id}
-                            type="button"
-                            onClick={() => setActiveTab(subItem.id)}
-                            className={`w-full flex items-center gap-2.5 py-1.5 px-3 rounded-lg text-left transition-all text-xs cursor-pointer relative group/item ${
-                              isSubActive 
-                                ? 'text-[#F4A62A] font-extrabold bg-transparent' 
-                                : 'text-[#FFF8F0]/70 hover:text-[#F4A62A] bg-transparent'
-                            }`}
-                          >
-                            <span className={`absolute -left-[16.5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-[#F4A62A] transition-colors ${
-                              isSubActive ? 'bg-[#F4A62A] shadow-[0_0_8px_#F4A62A]' : 'bg-[#120508] group-hover/item:bg-[#F4A62A]'
-                            }`} />
-                            <span className="truncate">{subItem.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* PRODUCTS COLLAPSIBLE ACCORDION RIGHT UNDER ORDERS */}
               {item.id === 'orders' && (

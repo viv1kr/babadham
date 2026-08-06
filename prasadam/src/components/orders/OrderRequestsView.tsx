@@ -35,6 +35,7 @@ import {
   Bell
 } from 'lucide-react';
 import type { HeroSlide, OrderRequestTrustBadge, OrderRequestMediaConfig } from '../../types/ecommerce';
+import { BookingSlotsView } from '../bookings/BookingSlotsView';
 
 export interface OrderRequest {
   id: string;
@@ -117,7 +118,7 @@ const STORAGE_KEY = 'babadham_order_requests';
 
 export const OrderRequestsView: React.FC = () => {
   const { brandSettings, saveBrandSettings, showToast } = useAdmin();
-  const [activeSubTab, setActiveSubTab] = useState<'leads' | 'hero' | 'trust' | 'media'>('leads');
+  const [activeSubTab, setActiveSubTab] = useState<'leads' | 'hero' | 'trust' | 'media' | 'manage-slots'>('leads');
 
   const [requests, setRequests] = useState<OrderRequest[]>(() => {
     try {
@@ -411,6 +412,7 @@ export const OrderRequestsView: React.FC = () => {
 
   const deskNavItems = [
     { id: 'leads', label: 'LEADS & SUBMISSIONS', icon: FileText, badge: requests.length },
+    { id: 'manage-slots', label: 'MANAGE BOOKING SLOT', icon: Calendar },
     { id: 'hero', label: 'HERO SLIDER BANNERS', icon: ImageIcon, badge: heroSlides.length },
     { id: 'trust', label: 'TRUST BADGES', icon: ShieldCheck },
     { id: 'media', label: 'TEMPLE BELL AUDIO SOUND', icon: Bell }
@@ -1004,6 +1006,12 @@ export const OrderRequestsView: React.FC = () => {
                   Upload your custom MP3/WAV temple bell sound. It will automatically ring when devotees land on the Order Request page and when touching the hanging 3D bell!
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeSubTab === 'manage-slots' && (
+            <div className="pt-2">
+              <BookingSlotsView />
             </div>
           )}
 
