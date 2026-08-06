@@ -503,11 +503,11 @@ export const OrderRequestPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-center">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                       <User className="w-8 h-8 sm:w-10 sm:h-10 text-[#C16200]" />
                     </div>
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-3 pt-1">
                       <label className="text-sm sm:text-base font-bold text-gray-800 block">
                         {lang === 'hi' ? 'आपकी आयु क्या है?' : 'What is your age?'} <span className="text-red-500">*</span>
                       </label>
@@ -525,11 +525,11 @@ export const OrderRequestPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-center">
+                  <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] space-y-0 flex gap-4 shadow-sm items-start">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
                       <Package className="w-8 h-8 sm:w-10 sm:h-10 text-[#C16200]" />
                     </div>
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-3 pt-1">
                       <label className="text-sm sm:text-base font-bold text-gray-800 block">
                         {lang === 'hi' ? 'आपका उद्देश्य क्या है?' : 'What is your intent?'} <span className="text-red-500">*</span>
                       </label>
