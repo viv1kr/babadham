@@ -437,24 +437,7 @@ export const OrderRequestPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Language Selector */}
-              <div className="mb-6 flex items-center justify-center gap-3 text-sm font-medium">
-                <button
-                  type="button"
-                  onClick={() => setLang('hi')}
-                  className={`transition-colors px-2 py-1 ${lang === 'hi' ? 'text-[#500A18] font-bold underline underline-offset-4' : 'text-gray-400 hover:text-gray-700'}`}
-                >
-                  हिंदी
-                </button>
-                <span className="text-gray-300">|</span>
-                <button
-                  type="button"
-                  onClick={() => setLang('en')}
-                  className={`transition-colors px-2 py-1 ${lang === 'en' ? 'text-[#500A18] font-bold underline underline-offset-4' : 'text-gray-400 hover:text-gray-700'}`}
-                >
-                  English
-                </button>
-              </div>
+
 
               <AnimatePresence mode="wait">
               {step === 1 ? (
@@ -467,6 +450,19 @@ export const OrderRequestPage: React.FC = () => {
                   onSubmit={(e) => { e.preventDefault(); setStep(2); }} 
                   className="space-y-4"
                 >
+                  {/* Language Toggle */}
+                  <div className="flex items-center gap-2 mb-2 ml-1">
+                    <span className={`text-[10px] sm:text-xs tracking-wider ${lang === 'hi' ? 'font-extrabold text-[#500A18]' : 'text-gray-400 font-medium'}`}>हिंदी</span>
+                    <button 
+                      type="button"
+                      onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
+                      className="w-8 h-4 sm:w-10 sm:h-5 bg-[#E8E1D5] rounded-full relative shadow-inner cursor-pointer"
+                    >
+                      <div className={`absolute top-[2px] w-3 h-3 sm:w-4 sm:h-4 bg-[#500A18] rounded-full transition-all ${lang === 'hi' ? 'left-[2px]' : 'left-[18px] sm:left-[22px]'}`} />
+                    </button>
+                    <span className={`text-[10px] sm:text-xs tracking-wider ${lang === 'en' ? 'font-extrabold text-[#500A18]' : 'text-gray-400 font-medium'}`}>ENG</span>
+                  </div>
+
                   <div className="bg-[#FAF6F0] p-4 sm:p-5 rounded-[24px] border border-[#E8E1D5] shadow-sm">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#FDF1D9] to-[#F3E5C8] flex items-center justify-center shrink-0 shadow-inner">
