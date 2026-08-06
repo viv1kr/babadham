@@ -61,6 +61,33 @@ export const OrderRequestPage: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 18, hours: 14, minutes: 22, seconds: 45 });
   const [blinkingTextIndex, setBlinkingTextIndex] = useState(0);
 
+  const [bookingAmount, setBookingAmount] = useState(151);
+  const [bookingDiscountPercent, setBookingDiscountPercent] = useState(0);
+
+  const loadBookingConfig = () => {
+    try {
+      const stored = localStorage.getItem('babadham_booking_slots_config');
+      if (stored) {
+        const config = JSON.parse(stored);
+        if (config.confirmBookingAmount) setBookingAmount(Number(config.confirmBookingAmount));
+        if (config.confirmBookingDiscount) setBookingDiscountPercent(Number(config.confirmBookingDiscount));
+      }
+    } catch(e) {}
+  };
+
+  useEffect(() => {
+    loadBookingConfig();
+    const handleStorage = () => loadBookingConfig();
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('bbp_booking_config_updated', handleStorage as any);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('bbp_booking_config_updated', handleStorage as any);
+    };
+  }, []);
+
+  const finalBookingAmount = Math.max(0, Math.round(bookingAmount - (bookingAmount * (bookingDiscountPercent / 100))));
+
   const blinkingTexts = [
     'BOOK NOW',
     'FAST BOOKING',
@@ -340,10 +367,10 @@ export const OrderRequestPage: React.FC = () => {
       phone: whatsappNumber,
       email: 'devotee@babadham.org',
       address: `${streetAddress ? streetAddress + ', ' : ''}${city ? city + ', ' : ''}${stateName ? stateName + ', ' : ''}${pincode}`,
-      requestType: intent === 'booking' ? 'Confirmed Booking (₹151)' : 'Prasadi Request',
+      requestType: intent === 'booking' ? `Confirmed Booking (₹${finalBookingAmount})` : 'Prasadi Request',
       details: `Visited: ${hasVisited}, Age: ${age}`,
       preferredDate: new Date().toISOString().split('T')[0],
-      estimatedAmount: intent === 'booking' ? 151 : 0,
+      estimatedAmount: intent === 'booking' ? finalBookingAmount : 0,
       status: intent === 'booking' ? 'Payment Pending' : 'Pending',
       createdAt: new Date().toISOString()
     };
@@ -975,7 +1002,7 @@ export const OrderRequestPage: React.FC = () => {
                     >
                       <Sparkles className="w-4 h-4" /> 
                       {intent === 'booking' 
-                        ? (lang === 'hi' ? 'अभी भुगतान करें (₹151)' : 'Pay Now (₹151)')
+                        ? (lang === 'hi' ? `अभी भुगतान करें (₹${finalBookingAmount})` : `Pay Now (₹${finalBookingAmount})`)
                         : (lang === 'hi' ? 'अनुरोध भेजें' : 'Submit Order Request')}
                     </button>
                   </div>

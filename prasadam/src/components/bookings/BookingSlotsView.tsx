@@ -39,6 +39,8 @@ export const BookingSlotsView: React.FC = () => {
         confirmBookingAmount,
         confirmBookingDiscount
       }));
+      window.dispatchEvent(new Event('bbp_booking_config_updated'));
+      window.dispatchEvent(new Event('storage'));
     } catch (e) {
       showToast('Failed to save settings.', 'error');
       setIsSaving(false);
@@ -192,13 +194,15 @@ export const BookingSlotsView: React.FC = () => {
           </div>
           <div className="p-6 bg-[#120508] flex-1">
             <label className="block text-sm font-medium text-[#FFF8F0]/80 mb-2">
-              Discount Amount
+              Discount Percentage (%)
             </label>
             <input
-              type="text"
+              type="number"
+              min="0"
+              max="100"
               value={confirmBookingDiscount}
               onChange={(e) => setConfirmBookingDiscount(e.target.value)}
-              placeholder="e.g. 100 or 10%"
+              placeholder="e.g. 10"
               className="w-full bg-[#000000]/50 text-[#FFF8F0] p-3 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none transition-all"
             />
           </div>
