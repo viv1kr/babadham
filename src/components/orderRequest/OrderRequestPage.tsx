@@ -107,28 +107,53 @@ export const OrderRequestPage: React.FC = () => {
     } catch(e) {}
   };
 
-  const activeName = devoteeName 
+  const activeLatestName = devoteeName 
     ? devoteeName 
     : (realDevoteeNames.length > 0 
-        ? realDevoteeNames[liveDevoteeIndex % realDevoteeNames.length] 
-        : (lang === 'hi' ? 'बाबा प्रसाद भक्त' : 'Baba Prasad Devotee'));
+        ? realDevoteeNames[realDevoteeNames.length - 1] 
+        : (lang === 'hi' ? 'राहुल कुमार' : 'Rahul Kumar'));
 
-  const initialLetter = activeName ? activeName.trim().charAt(0).toUpperCase() : 'B';
+  const fallbackNames = lang === 'hi' 
+    ? ['अमित शर्मा', 'प्रिया सिंह', 'दीपक वर्मा'] 
+    : ['Amit Sharma', 'Priya Singh', 'Deepak Verma'];
+
+  const rawThreeNames = [
+    activeLatestName,
+    realDevoteeNames.length > 1 ? realDevoteeNames[realDevoteeNames.length - 2] : fallbackNames[0],
+    realDevoteeNames.length > 2 ? realDevoteeNames[realDevoteeNames.length - 3] : fallbackNames[1]
+  ];
+
+  const recentThreeInitials = rawThreeNames.map(n => 
+    n ? n.trim().charAt(0).toUpperCase() : 'B'
+  );
 
   const renderTrustBanner = () => (
-    <div className="bg-[#FFF8F0] border border-[#F4E1A1] rounded-[20px] p-3 sm:p-3.5 mb-4 flex items-center gap-3 shadow-sm select-none">
-      {/* User Profile Circle Avatar with First Letter */}
-      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-[#7A1323] via-[#9E1B32] to-[#C16200] text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border-2 border-[#F4A62A] shrink-0">
-        {initialLetter}
+    <div className="bg-[#FFF8F0] border border-[#F4E1A1] rounded-[20px] p-3 sm:p-3.5 mb-4 flex items-center gap-3.5 shadow-sm select-none">
+      {/* 3 Overlapping User Profile Icons with Golden Rings */}
+      <div className="flex -space-x-3 overflow-hidden shrink-0">
+        {recentThreeInitials.map((initial, idx) => (
+          <div 
+            key={idx} 
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm text-white border-2 border-[#F4A62A] shadow-md transition-all ${
+              idx === 0 
+                ? 'bg-gradient-to-br from-[#7A1323] via-[#9E1B32] to-[#C16200] z-20' 
+                : idx === 1 
+                ? 'bg-gradient-to-br from-[#5A0D18] to-[#7A1323] z-10' 
+                : 'bg-gradient-to-br from-[#3B060E] to-[#5A0D18] z-0'
+            }`}
+          >
+            {initial}
+          </div>
+        ))}
       </div>
 
-      {/* Live Devotee Name & Real Dynamic Count */}
+      {/* Latest Booking Devotee Name on Top & Subtext (No Number Prefix) */}
       <div className="min-w-0 flex-1">
         <h4 className="font-extrabold text-[#500A18] text-xs sm:text-sm leading-tight truncate">
-          {activeName}
+          {activeLatestName}
         </h4>
         <p className="text-[11px] sm:text-xs text-[#C16200] font-bold mt-0.5 truncate">
-          {dynamicJoinedCount}+ {lang === 'hi' ? 'भक्त जुड़े (आप भी जुड़ें बाबा के आशीर्वाद से)' : 'devotees joined today with Baba\'s blessings'}
+          {lang === 'hi' ? 'भक्त जुड़े (आप भी जुड़ें बाबा के आशीर्वाद से)' : 'Devotees joined with Baba\'s blessings'}
         </p>
       </div>
     </div>
