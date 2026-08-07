@@ -126,6 +126,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       if (typeof window !== 'undefined') {
         if (window.location.pathname.endsWith('/order-request') || window.location.pathname.endsWith('/prebooking')) return 'prebooking';
+        if (window.location.pathname.endsWith('/success')) return 'success';
         if (window.location.pathname.endsWith('/categories')) return 'categories';
         const saved = localStorage.getItem('bbp_store_active_page');
         if (saved && ['home', 'categories', 'prebooking', 'success', 'not-found'].includes(saved)) {
@@ -149,12 +150,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (!window.location.pathname.endsWith('/prebooking')) {
             window.history.pushState({}, '', '/prebooking');
           }
+        } else if (page === 'success') {
+          if (!window.location.pathname.endsWith('/success')) {
+            window.history.pushState({}, '', '/success');
+          }
         } else if (page === 'categories') {
           if (!window.location.pathname.endsWith('/categories')) {
             window.history.pushState({}, '', '/categories');
           }
         } else {
-          if (window.location.pathname.endsWith('/categories')) {
+          if (window.location.pathname.endsWith('/categories') || window.location.pathname.endsWith('/prebooking') || window.location.pathname.endsWith('/success')) {
             window.history.pushState({}, '', '/');
           }
         }

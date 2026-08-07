@@ -153,6 +153,7 @@ export const PreBookingPage: React.FC = () => {
     addOrder(orderData);
     playTempleBell();
     setActivePage('success');
+    try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
   };
 
   return (
