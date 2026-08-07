@@ -404,7 +404,7 @@ export const PreBookingPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Action Button */}
+                  {/* Premium Single-Line Action Button */}
                   <div className="pt-4">
                     <button
                       type="button"
@@ -416,14 +416,14 @@ export const PreBookingPage: React.FC = () => {
                           handlePayLater();
                         }
                       }}
-                      className="w-full py-4 bg-[#7A1126] hover:bg-[#500A18] text-white rounded-xl font-extrabold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-[#7A1126] via-[#9B1635] to-[#7A1126] hover:from-[#500A18] hover:to-[#500A18] text-[#FFF8F0] rounded-2xl font-black text-xs sm:text-sm md:text-base uppercase tracking-wider shadow-lg hover:shadow-2xl border border-[#F4A62A]/40 transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed px-3 whitespace-nowrap"
                     >
-                      <span>
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#F4A62A] group-hover:scale-110 transition-transform shrink-0" />
+                      <span className="truncate">
                         {selectedPaymentMethod === 'ONLINE' 
-                          ? `Pay ₹${totalAmount} Online Now` 
-                          : `Confirm Booking & Pay Later (₹${totalAmount})`}
+                          ? `Pay Online Now • ₹${totalAmount}` 
+                          : `Confirm & Pay Later • ₹${totalAmount}`}
                       </span>
-                      <Zap className="w-5 h-5 text-[#F4A62A] group-hover:scale-110 transition-transform" />
                     </button>
                   </div>
                 </div>
