@@ -355,22 +355,28 @@ export const PreBookingPage: React.FC = () => {
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full shadow-xs flex items-center justify-center ${
-                        selectedPaymentMethod === 'ONLINE' ? 'bg-[#7A1126] text-white' : 'bg-gray-100 text-gray-600'
-                      }`}>
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div 
+                        style={{ borderRadius: '50%' }}
+                        className={`w-12 h-12 shrink-0 aspect-square shadow-xs flex items-center justify-center ${
+                          selectedPaymentMethod === 'ONLINE' ? 'bg-[#7A1126] text-white' : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
                         <CreditCard className="w-6 h-6" />
                       </div>
-                      <div className="text-left">
+                      <div className="text-left min-w-0">
                         <h3 className="font-bold text-gray-900 text-lg">Pay Now (Online)</h3>
                         <p className="text-xs text-gray-500 mt-1">UPI, QR Code, Cards, NetBanking via Razorpay</p>
                       </div>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      selectedPaymentMethod === 'ONLINE' ? 'border-[#7A1126]' : 'border-gray-300'
-                    }`}>
+                    <div 
+                      style={{ borderRadius: '50%' }}
+                      className={`w-6 h-6 shrink-0 aspect-square border-2 flex items-center justify-center ${
+                        selectedPaymentMethod === 'ONLINE' ? 'border-[#7A1126]' : 'border-gray-300'
+                      }`}
+                    >
                       {selectedPaymentMethod === 'ONLINE' && (
-                        <div className="w-3 h-3 rounded-full bg-[#7A1126]" />
+                        <div style={{ borderRadius: '50%' }} className="w-3 h-3 shrink-0 aspect-square bg-[#7A1126]" />
                       )}
                     </div>
                   </div>
@@ -384,22 +390,28 @@ export const PreBookingPage: React.FC = () => {
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        selectedPaymentMethod === 'COD' ? 'bg-[#7A1126] text-white' : 'bg-gray-100 text-gray-600'
-                      }`}>
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div 
+                        style={{ borderRadius: '50%' }}
+                        className={`w-12 h-12 shrink-0 aspect-square flex items-center justify-center ${
+                          selectedPaymentMethod === 'COD' ? 'bg-[#7A1126] text-white' : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
                         <Banknote className="w-6 h-6" />
                       </div>
-                      <div className="text-left">
+                      <div className="text-left min-w-0">
                         <h3 className="font-bold text-gray-900 text-lg">Pay Later</h3>
                         <p className="text-xs text-gray-500 mt-1">Cash on Delivery / Pay at Temple</p>
                       </div>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      selectedPaymentMethod === 'COD' ? 'border-[#7A1126]' : 'border-gray-300'
-                    }`}>
+                    <div 
+                      style={{ borderRadius: '50%' }}
+                      className={`w-6 h-6 shrink-0 aspect-square border-2 flex items-center justify-center ${
+                        selectedPaymentMethod === 'COD' ? 'border-[#7A1126]' : 'border-gray-300'
+                      }`}
+                    >
                       {selectedPaymentMethod === 'COD' && (
-                        <div className="w-3 h-3 rounded-full bg-[#7A1126]" />
+                        <div style={{ borderRadius: '50%' }} className="w-3 h-3 shrink-0 aspect-square bg-[#7A1126]" />
                       )}
                     </div>
                   </div>
