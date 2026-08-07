@@ -439,6 +439,20 @@ class MySQLSim {
     return banners;
   }
 
+  public addOrder(order: any): void {
+    this.store = this.loadFromStorage();
+    if (!this.store.orders || !Array.isArray(this.store.orders)) {
+      this.store.orders = [];
+    }
+    this.store.orders.unshift(order);
+    this.saveToStorage();
+  }
+
+  public getOrders(): any[] {
+    this.store = this.loadFromStorage();
+    return this.store.orders || [];
+  }
+
   public updateBrandSettings(newSettings: any) {
     this.store = this.loadFromStorage();
     const current = this.getBrandSettings();

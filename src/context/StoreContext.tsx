@@ -64,8 +64,9 @@ interface StoreContextType {
   setPreBookingProduct: (product: Product | null) => void;
   openPreBooking: (product?: Product | null) => void;
 
-  activeOrder: Order | null;
-  setActiveOrder: (order: Order | null) => void;
+  activeOrder: any | null;
+  setActiveOrder: (order: any | null) => void;
+  addOrder: (orderData: any) => void;
   placeOrder: (addressData: any, paymentMethod: 'UPI' | 'CARD' | 'COD') => Order;
 
 
@@ -577,6 +578,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return orderData;
   };
 
+  const addOrder = (orderData: any) => {
+    try {
+      db.addOrder(orderData);
+    } catch (e) {}
+    setActiveOrder(orderData);
+    try {
+      localStorage.setItem('bbp_active_order', JSON.stringify(orderData));
+    } catch (e) {}
+    showToast('Sacred Prebooking Order Placed!', 'success');
+  };
+
   return (
     <StoreContext.Provider value={{
       products,
@@ -624,6 +636,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       openPreBooking,
       activeOrder,
       setActiveOrder,
+      addOrder,
       placeOrder,
 
       adminAddProduct,
