@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ShieldCheck, MapPin, Phone, User, Landmark, Building, Navigation, Zap, CreditCard, Banknote, Sparkles, Truck } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Phone, User, Landmark, Building, Navigation, Zap, CreditCard, Banknote, Sparkles, Truck, Star } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useAudio } from '../../context/AudioContext';
 import { PrebookingHeroSection } from './PrebookingHeroSection';
@@ -344,24 +344,37 @@ export const PreBookingPage: React.FC = () => {
 
                   {/* Animated Free Shipping & Discount Offer Banner (Smooth English <-> Hindi Cycle) */}
                   <div className="pt-3 border-t border-orange-200/60 overflow-hidden">
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={offerLang}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.45, ease: "easeInOut" }}
-                        className="flex items-center justify-start gap-2.5 text-left py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200/80 shadow-2xs"
-                      >
-                        <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <p className="text-xs sm:text-sm font-bold text-emerald-800 tracking-wide text-left">
-                          {offerLang === 'EN' 
-                            ? "Pay online now & get FREE Shipping + ₹200 to ₹250 instant discount!" 
-                            : "अभी ऑनलाइन भुगतान करें और पाएं मुफ़्त डिलीवरी + ₹200 से ₹250 की भारी छूट!"
-                          }
-                        </p>
-                      </motion.div>
-                    </AnimatePresence>
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200/80 shadow-2xs space-y-1.5">
+                      {/* Rounded Star Badge ABOVE Description */}
+                      <div className="flex items-center gap-1.5 text-left">
+                        <span style={{ borderRadius: '9999px' }} className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-700 text-white font-extrabold text-[11px] sm:text-xs shadow-2xs uppercase tracking-wide shrink-0">
+                          <Star className="w-3 h-3 fill-amber-300 text-amber-300 shrink-0" /> ₹200 OFF
+                        </span>
+                        <span className="text-[11px] sm:text-xs font-bold text-emerald-800 uppercase tracking-wider">
+                          Limited Offer
+                        </span>
+                      </div>
+
+                      {/* Animated Text Description */}
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={offerLang}
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.4, ease: "easeInOut" }}
+                          className="flex items-center justify-start gap-2 text-left"
+                        >
+                          <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <p className="text-xs sm:text-sm font-bold text-emerald-900 tracking-wide text-left">
+                            {offerLang === 'EN' 
+                              ? "Pay online now & get FREE Shipping + ₹200 to ₹250 instant discount!" 
+                              : "अभी ऑनलाइन भुगतान करें और पाएं मुफ़्त डिलीवरी + ₹200 से ₹250 की भारी छूट!"
+                            }
+                          </p>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               </div>
