@@ -433,6 +433,29 @@ class MySQLSim {
     return this.getOrders();
   }
 
+  public updateOrderLeadStatus(orderId: string, leadStatus: string): any[] {
+    this.store = this.loadFromStorage();
+    if (this.store.orders) {
+      const idx = this.store.orders.findIndex((o: any) => o.orderId === orderId || o.id === orderId);
+      if (idx !== -1) {
+        this.store.orders[idx].leadStatus = leadStatus;
+      }
+    }
+    try {
+      const saved = localStorage.getItem('babadham_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const pIdx = parsed.findIndex((o: any) => o.orderId === orderId || o.id === orderId);
+        if (pIdx !== -1) {
+          parsed[pIdx].leadStatus = leadStatus;
+          localStorage.setItem('babadham_orders', JSON.stringify(parsed));
+        }
+      }
+    } catch(e) {}
+    this.saveToStorage();
+    return this.getOrders();
+  }
+
   public getBrandSettings(): any {
     this.store = this.loadFromStorage();
     const settings = this.store.brandSettings || {};

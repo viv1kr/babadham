@@ -123,16 +123,30 @@ export const PreBookingPage: React.FC = () => {
   };
 
   const processOrder = (method: 'ONLINE' | 'COD', transactionId?: string) => {
+    const origPrice = preBookingProduct?.originalPrice || (totalAmount * 2);
+    const discPercent = preBookingProduct?.discountPercentage || Math.round(((origPrice - totalAmount) / origPrice) * 100) || 50;
+
     const orderData = {
       orderId: `BBP-PRE-${Math.floor(100000 + Math.random() * 900000)}`,
+      leadStatus: 'PENDING' as 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONVERTED',
       status: 'pending' as const,
       customerName: name,
       customerPhone: whatsapp,
-      shippingAddress: `${address}, ${landmark ? landmark + ', ' : ''}${city}, ${state} - ${pincode}`,
+      addressDetails: {
+        address,
+        landmark,
+        city,
+        state,
+        pincode
+      },
+      shippingAddress: `${address}${landmark ? ', Landmark: ' + landmark : ''}, ${city}, ${state} - ${pincode}`,
       totalAmount: totalAmount,
+      originalPrice: origPrice,
+      discountPercent: discPercent,
       items: preBookingProduct ? [{ product: preBookingProduct, quantity: 1 }] : [],
       paymentMethod: method,
       transactionId: transactionId || '',
+      bookingTime: new Date().toISOString(),
       date: new Date().toISOString()
     };
 

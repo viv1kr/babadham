@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAdmin } from "../../context/AdminContext";
 import { 
   Save, 
@@ -16,7 +16,14 @@ import {
   Users,
   RefreshCw,
   Search,
-  MessageCircle
+  MessageCircle,
+  CheckCircle,
+  XCircle,
+  Zap,
+  Eye,
+  X,
+  MapPin,
+  Calendar
 } from "lucide-react";
 import type { HeroBannerItem } from "../../types/ecommerce";
 import { compressImage } from "../../utils/mediaDB";
@@ -34,6 +41,7 @@ export const PreBookingView: React.FC = () => {
   // Real-time Prebooking Leads / Orders State
   const [orders, setOrders] = useState<any[]>(() => db.getOrders());
   const [leadSearch, setLeadSearch] = useState("");
+  const [selectedLeadModal, setSelectedLeadModal] = useState<any | null>(null);
 
   const refreshOrders = () => {
     setOrders(db.getOrders());
@@ -51,11 +59,30 @@ export const PreBookingView: React.FC = () => {
     };
   }, []);
 
+  const handleUpdateStatus = (orderId: string, newStatus: string) => {
+    const updated = db.updateOrderLeadStatus(orderId, newStatus);
+    setOrders(updated);
+    if (selectedLeadModal && (selectedLeadModal.orderId === orderId || selectedLeadModal.id === orderId)) {
+      setSelectedLeadModal({ ...selectedLeadModal, leadStatus: newStatus });
+    }
+  };
+
   const handleDeleteLead = (orderId: string) => {
-    if (window.confirm("Are you sure you want to delete this lead?")) {
+    if (window.confirm("Are you sure you want to delete this prebooking lead?")) {
       const updated = db.deleteOrder(orderId);
       setOrders(updated);
+      if (selectedLeadModal && (selectedLeadModal.orderId === orderId || selectedLeadModal.id === orderId)) {
+        setSelectedLeadModal(null);
+      }
     }
+  };
+
+  const getWhatsAppMessage = (lead: any) => {
+    const name = lead.customerName || lead.address?.fullName || "Devotee";
+    const leadId = lead.orderId || lead.id || "BBP-PRE-BOOKING";
+    const amt = lead.totalAmount || 251;
+    const msg = `Namaste ${name} Ji 🙏,\n\nYour sacred prebooking (${leadId}) for Baba Baidyanath Bhog Prasad of ₹${amt} has been APPROVED! 🔱\n\nYour Garbhagriha offered Prasad is being dispatched. Track updates at http://localhost:5173/prebooking\n\nHar Har Mahadev! 🚩`;
+    return encodeURIComponent(msg);
   };
 
   const saveBanners = (updated: HeroBannerItem[]) => {
@@ -118,7 +145,9 @@ export const PreBookingView: React.FC = () => {
     const phone = (o.customerPhone || o.address?.phone || "").toLowerCase();
     const id = (o.orderId || o.id || "").toLowerCase();
     const addr = (o.shippingAddress || "").toLowerCase();
-    return name.includes(q) || phone.includes(q) || id.includes(q) || addr.includes(q);
+    const city = (o.addressDetails?.city || "").toLowerCase();
+    const state = (o.addressDetails?.state || "").toLowerCase();
+    return name.includes(q) || phone.includes(q) || id.includes(q) || addr.includes(q) || city.includes(q) || state.includes(q);
   });
 
   return (
@@ -178,7 +207,7 @@ export const PreBookingView: React.FC = () => {
                   <h3 className="font-serif-temple text-base sm:text-lg font-bold text-[#F4A62A] flex items-center gap-2">
                     <Users className="w-5 h-5" /> Submitted Prebooking Leads ({orders.length})
                   </h3>
-                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions from storefront.</p>
+                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions, state/city address, amounts & actions.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -199,7 +228,7 @@ export const PreBookingView: React.FC = () => {
                     type="text"
                     value={leadSearch}
                     onChange={e => setLeadSearch(e.target.value)}
-                    placeholder="Search by devotee name, phone, order ID or city..."
+                    placeholder="Search by devotee name, phone, order ID, city or state..."
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#2B1217] border border-[#F4A62A]/20 text-white text-xs sm:text-sm outline-none focus:border-[#F4A62A]"
                   />
                 </div>
@@ -218,12 +247,12 @@ export const PreBookingView: React.FC = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-[#2B1217] text-[#F4A62A] border-b border-[#F4A62A]/20 text-xs font-bold uppercase tracking-wider">
-                        <th className="py-3 px-4">Lead ID & Date</th>
-                        <th className="py-3 px-4">Devotee Details</th>
-                        <th className="py-3 px-4">Delivery Address</th>
-                        <th className="py-3 px-4">Payment</th>
-                        <th className="py-3 px-4">Amount</th>
-                        <th className="py-3 px-4 text-center">Action</th>
+                        <th className="py-3.5 px-4">Booking Time & ID</th>
+                        <th className="py-3.5 px-4">Devotee Details</th>
+                        <th className="py-3.5 px-4">State & City Address</th>
+                        <th className="py-3.5 px-4">Amount & Discount</th>
+                        <th className="py-3.5 px-4">Status</th>
+                        <th className="py-3.5 px-4 text-center">Action Controls</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F4A62A]/10 text-xs text-[#FFF8F0]/90">
@@ -233,52 +262,190 @@ export const PreBookingView: React.FC = () => {
                         const phone = lead.customerPhone || lead.address?.phone || "";
                         const cleanPhone = phone.replace(/\D/g, "");
                         const isOnline = lead.paymentMethod === "ONLINE";
-                        const dateStr = lead.date ? new Date(lead.date).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }) : "Just now";
+                        
+                        // Time formatting
+                        const rawTime = lead.bookingTime || lead.date;
+                        const dateFormatted = rawTime 
+                          ? new Date(rawTime).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) 
+                          : "Just now";
+
+                        // Address extraction
+                        const city = lead.addressDetails?.city || "";
+                        const state = lead.addressDetails?.state || "";
+                        const pincode = lead.addressDetails?.pincode || "";
+                        const fullAddress = lead.shippingAddress || `${lead.addressDetails?.address || ''}, ${city}, ${state} - ${pincode}`;
+
+                        // Financials & Discount
+                        const prebookAmt = lead.totalAmount || 251;
+                        const origPrice = lead.originalPrice || (prebookAmt * 2);
+                        const discPercent = lead.discountPercent || Math.round(((origPrice - prebookAmt) / origPrice) * 100) || 50;
+
+                        // Status
+                        const status = lead.leadStatus || "PENDING";
+                        const isApproved = status === "APPROVED";
+                        const isRejected = status === "REJECTED";
+                        const isConverted = status === "CONVERTED";
 
                         return (
                           <tr key={leadId + idx} className="hover:bg-[#2B1217]/60 transition-colors">
-                            <td className="py-3 px-4">
-                              <span className="font-mono font-bold text-[#F4A62A] block">{leadId}</span>
-                              <span className="text-[10px] text-[#FFF8F0]/50">{dateStr}</span>
+                            
+                            {/* 1. Booking Time & ID */}
+                            <td className="py-3.5 px-4 align-top">
+                              <span className="font-mono font-bold text-[#F4A62A] block text-xs">{leadId}</span>
+                              <span className="text-[10px] text-[#FFF8F0]/60 flex items-center gap-1 mt-1">
+                                <Calendar className="w-3 h-3 text-[#F4A62A]/60 shrink-0" />
+                                {dateFormatted}
+                              </span>
                             </td>
-                            <td className="py-3 px-4">
-                              <span className="font-bold text-white block">{name}</span>
+
+                            {/* 2. Devotee Details */}
+                            <td className="py-3.5 px-4 align-top">
+                              <span className="font-bold text-white block text-xs">{name}</span>
                               {phone && (
                                 <a 
                                   href={`https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-[#25D366] hover:underline font-mono text-[11px] mt-0.5"
+                                  className="inline-flex items-center gap-1 text-[#25D366] hover:underline font-mono text-[11px] mt-1"
                                 >
                                   <MessageCircle className="w-3 h-3 fill-[#25D366] text-[#1A0B0E]" />
-                                  {phone}
+                                  +91 {phone}
                                 </a>
                               )}
                             </td>
-                            <td className="py-3 px-4 max-w-xs">
-                              <p className="line-clamp-2 text-[#FFF8F0]/80">{lead.shippingAddress || "N/A"}</p>
+
+                            {/* 3. Delivery Address State & City */}
+                            <td className="py-3.5 px-4 align-top max-w-xs">
+                              {(city || state) ? (
+                                <div className="space-y-0.5">
+                                  <span className="font-bold text-[#F4A62A] block text-[11px] flex items-center gap-1">
+                                    <MapPin className="w-3 h-3 text-[#F4A62A] shrink-0" />
+                                    {city && `${city}, `}{state} {pincode && `(${pincode})`}
+                                  </span>
+                                  <p className="text-[10px] text-[#FFF8F0]/70 line-clamp-2">{fullAddress}</p>
+                                </div>
+                              ) : (
+                                <p className="text-[10px] text-[#FFF8F0]/80 line-clamp-2">{fullAddress || "N/A"}</p>
+                              )}
                             </td>
-                            <td className="py-3 px-4">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                                isOnline 
+
+                            {/* 4. Actual Amount & Percentage Discount */}
+                            <td className="py-3.5 px-4 align-top">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-extrabold text-[#F4A62A] text-sm">₹{prebookAmt}</span>
+                                  <span className="text-[10px] text-[#FFF8F0]/40 line-through">₹{origPrice}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="inline-block px-1.5 py-0.2 bg-emerald-950 text-emerald-300 font-extrabold text-[10px] rounded border border-emerald-500/30">
+                                    {discPercent}% OFF
+                                  </span>
+                                  <span className={`text-[10px] font-bold ${isOnline ? "text-emerald-400" : "text-amber-400"}`}>
+                                    {isOnline ? "• Paid Online" : "• Pay Later"}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* 5. Status Badge */}
+                            <td className="py-3.5 px-4 align-top">
+                              <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                                isApproved 
                                   ? "bg-emerald-950 text-emerald-300 border-emerald-500/40"
+                                  : isRejected
+                                  ? "bg-red-950 text-red-300 border-red-500/40"
+                                  : isConverted
+                                  ? "bg-purple-950 text-purple-300 border-purple-500/40"
                                   : "bg-amber-950 text-amber-300 border-amber-500/40"
                               }`}>
-                                {isOnline ? "Online Paid" : "Pay Later (COD)"}
+                                {status}
                               </span>
                             </td>
-                            <td className="py-3 px-4 font-extrabold text-[#F4A62A]">
-                              ₹{lead.totalAmount || 251}
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteLead(leadId)}
-                                className="w-7 h-7 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 inline-flex items-center justify-center border border-red-500/30 cursor-pointer transition-all"
-                                title="Delete Lead"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+
+                            {/* 6. Action Buttons (Approve, Reject, Convert, See Details, WhatsApp) */}
+                            <td className="py-3.5 px-4 align-top">
+                              <div className="flex flex-col gap-1.5 items-center justify-center">
+
+                                {/* If APPROVED: show Send WhatsApp Confirmation, See Details, and option to Change to Reject */}
+                                {isApproved && (
+                                  <>
+                                    <a
+                                      href={`https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${getWhatsAppMessage(lead)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-2.5 py-1.2 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-[#1A0B0E] font-black text-[10px] flex items-center gap-1 shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                                      title="Send Confirmation Details on WhatsApp"
+                                    >
+                                      <MessageCircle className="w-3 h-3 fill-[#1A0B0E] text-[#25D366]" />
+                                      WhatsApp Confirm
+                                    </a>
+
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedLeadModal(lead)}
+                                        className="px-2 py-1 rounded-lg bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] text-[10px] font-bold border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all"
+                                      >
+                                        <Eye className="w-3 h-3" /> See Details
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleUpdateStatus(leadId, "REJECTED")}
+                                        className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 text-[10px] font-bold border border-red-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                        title="Change Status to Reject"
+                                      >
+                                        <XCircle className="w-3 h-3" /> Reject
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* If PENDING, REJECTED, or CONVERTED: show Approve, Reject, Convert, See Details */}
+                                {!isApproved && (
+                                  <div className="flex flex-wrap items-center justify-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateStatus(leadId, "APPROVED")}
+                                      className="px-2 py-1 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                      title="Approve Lead"
+                                    >
+                                      <CheckCircle className="w-3 h-3" /> Approve
+                                    </button>
+
+                                    {!isRejected && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleUpdateStatus(leadId, "REJECTED")}
+                                        className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 text-[10px] font-bold border border-red-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                        title="Reject Lead"
+                                      >
+                                        <XCircle className="w-3 h-3" /> Reject
+                                      </button>
+                                    )}
+
+                                    {!isConverted && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleUpdateStatus(leadId, "CONVERTED")}
+                                        className="px-2 py-1 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-300 text-[10px] font-bold border border-purple-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                        title="Convert Lead"
+                                      >
+                                        <Zap className="w-3 h-3" /> Convert
+                                      </button>
+                                    )}
+
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedLeadModal(lead)}
+                                      className="px-2 py-1 rounded-lg bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] text-[10px] font-bold border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all"
+                                      title="See Details"
+                                    >
+                                      <Eye className="w-3 h-3" /> Details
+                                    </button>
+                                  </div>
+                                )}
+
+                              </div>
                             </td>
                           </tr>
                         );
@@ -414,6 +581,150 @@ export const PreBookingView: React.FC = () => {
 
         </div>
       </div>
+
+      {/* ── SEE DETAILS MODAL ── */}
+      {selectedLeadModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A0B0E] border border-[#F4A62A]/40 rounded-2xl w-full max-w-xl p-6 text-white space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              type="button"
+              onClick={() => setSelectedLeadModal(null)}
+              className="absolute top-4 right-4 text-[#FFF8F0]/60 hover:text-white bg-[#2B1217] p-1.5 rounded-full border border-[#F4A62A]/20 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="border-b border-[#F4A62A]/20 pb-3 flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h3 className="text-base font-bold text-[#F4A62A] flex items-center gap-2">
+                  <Bookmark className="w-5 h-5 text-[#F4A62A]" /> Prebooking Lead Breakdown
+                </h3>
+                <p className="text-xs text-[#FFF8F0]/60 font-mono mt-0.5">
+                  ID: {selectedLeadModal.orderId || selectedLeadModal.id}
+                </p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${
+                selectedLeadModal.leadStatus === "APPROVED"
+                  ? "bg-emerald-950 text-emerald-300 border-emerald-500/40"
+                  : selectedLeadModal.leadStatus === "REJECTED"
+                  ? "bg-red-950 text-red-300 border-red-500/40"
+                  : selectedLeadModal.leadStatus === "CONVERTED"
+                  ? "bg-purple-950 text-purple-300 border-purple-500/40"
+                  : "bg-amber-950 text-amber-300 border-amber-500/40"
+              }`}>
+                {selectedLeadModal.leadStatus || "PENDING"}
+              </span>
+            </div>
+
+            {/* Devotee & Address Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 space-y-2">
+                <h4 className="font-bold text-[#F4A62A] flex items-center gap-1.5 uppercase text-[11px]">
+                  <Users className="w-3.5 h-3.5 text-[#F4A62A]" /> Devotee Info
+                </h4>
+                <p className="text-white font-bold">{selectedLeadModal.customerName || selectedLeadModal.address?.fullName || "Devotee"}</p>
+                <p className="text-[#FFF8F0]/70 font-mono">WhatsApp: +91 {(selectedLeadModal.customerPhone || selectedLeadModal.address?.phone || "N/A").replace(/\D/g, '')}</p>
+                <p className="text-[#FFF8F0]/60 text-[11px] flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-[#F4A62A]/60" />
+                  Booking Time: {new Date(selectedLeadModal.bookingTime || selectedLeadModal.date || Date.now()).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                </p>
+              </div>
+
+              <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 space-y-2">
+                <h4 className="font-bold text-[#F4A62A] flex items-center gap-1.5 uppercase text-[11px]">
+                  <MapPin className="w-3.5 h-3.5 text-[#F4A62A]" /> Delivery Location
+                </h4>
+                <p className="text-white font-semibold">
+                  City: <span className="text-[#F4A62A]">{selectedLeadModal.addressDetails?.city || "N/A"}</span>
+                </p>
+                <p className="text-white font-semibold">
+                  State: <span className="text-[#F4A62A]">{selectedLeadModal.addressDetails?.state || "N/A"}</span>
+                </p>
+                <p className="text-[#FFF8F0]/70 text-[11px]">
+                  Pincode: {selectedLeadModal.addressDetails?.pincode || "N/A"}
+                </p>
+                {selectedLeadModal.addressDetails?.landmark && (
+                  <p className="text-[#FFF8F0]/70 text-[11px]">
+                    Landmark: {selectedLeadModal.addressDetails?.landmark}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Full Shipping Address */}
+            <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 space-y-1 text-xs">
+              <h4 className="font-bold text-[#F4A62A] uppercase text-[11px]">Full Shipping Address</h4>
+              <p className="text-white/90 leading-relaxed">{selectedLeadModal.shippingAddress || "N/A"}</p>
+            </div>
+
+            {/* Financial Metrics */}
+            <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 flex items-center justify-between text-xs flex-wrap gap-2">
+              <div>
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Actual Prebooking Paid</span>
+                <span className="text-lg font-black text-[#F4A62A]">₹{selectedLeadModal.totalAmount || 251}</span>
+              </div>
+              <div>
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Original Product Price</span>
+                <span className="text-sm font-bold text-[#FFF8F0]/40 line-through">₹{selectedLeadModal.originalPrice || 502}</span>
+              </div>
+              <div>
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Discount %</span>
+                <span className="text-xs font-extrabold text-emerald-400">{selectedLeadModal.discountPercent || 50}% OFF</span>
+              </div>
+              <div>
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Payment Method</span>
+                <span className="text-xs font-extrabold text-white">{selectedLeadModal.paymentMethod === 'ONLINE' ? 'Paid Online' : 'Pay Later (COD)'}</span>
+              </div>
+            </div>
+
+            {/* Modal Action Controls */}
+            <div className="pt-3 flex flex-wrap gap-2 justify-end border-t border-[#F4A62A]/20">
+              <a
+                href={`https://wa.me/${(selectedLeadModal.customerPhone || '').replace(/\D/g, '')}?text=${getWhatsAppMessage(selectedLeadModal)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-[#1A0B0E] font-extrabold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 fill-[#1A0B0E] text-[#25D366]" />
+                WhatsApp Confirm
+              </a>
+
+              <button
+                type="button"
+                onClick={() => handleUpdateStatus(selectedLeadModal.orderId || selectedLeadModal.id, "APPROVED")}
+                className="px-3 py-2 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-emerald-300 font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <CheckCircle className="w-4 h-4" /> Approve
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleUpdateStatus(selectedLeadModal.orderId || selectedLeadModal.id, "REJECTED")}
+                className="px-3 py-2 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 font-bold text-xs border border-red-500/30 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <XCircle className="w-4 h-4" /> Reject
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleUpdateStatus(selectedLeadModal.orderId || selectedLeadModal.id, "CONVERTED")}
+                className="px-3 py-2 rounded-xl bg-purple-950 hover:bg-purple-900 text-purple-300 font-bold text-xs border border-purple-500/30 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Zap className="w-4 h-4" /> Convert
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDeleteLead(selectedLeadModal.orderId || selectedLeadModal.id)}
+                className="px-3 py-2 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-200 font-bold text-xs border border-red-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" /> Delete Lead
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 };
