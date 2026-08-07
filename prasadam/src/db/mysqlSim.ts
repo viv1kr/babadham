@@ -3,6 +3,8 @@ import { PRODUCTS_DATA, CATEGORIES_DATA, COUPONS_DATA, DEVOTEE_REVIEWS, VENDORS_
 
 const STORAGE_KEY = 'babadham_mysql_db_v1';
 
+import type { HeroBannerItem } from '../types/ecommerce';
+
 interface DBStore {
   products: Product[];
   categories: CategoryInfo[];
@@ -13,6 +15,7 @@ interface DBStore {
   vendors?: Vendor[];
   reviews: DevoteeReview[];
   brandSettings: any;
+  heroBanners?: HeroBannerItem[];
   adminProfile?: AdminUserProfile;
   loginLogs?: LoginLog[];
 }
@@ -46,6 +49,13 @@ class MySQLSim {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(this.store));
           if (data.brandSettings) {
             localStorage.setItem('babadham_brand_settings', JSON.stringify(data.brandSettings));
+            // Persist logo/favicon to dedicated keys
+            if (data.brandSettings.logoImageUrl && data.brandSettings.logoImageUrl !== '/assets/logo.svg') {
+              localStorage.setItem('babadham_logo_image', data.brandSettings.logoImageUrl);
+            }
+            if (data.brandSettings.faviconUrl) {
+              localStorage.setItem('babadham_favicon_image', data.brandSettings.faviconUrl);
+            }
             if (data.brandSettings.bookingSlotsConfig) {
               localStorage.setItem('babadham_booking_slots_config', JSON.stringify(data.brandSettings.bookingSlotsConfig));
             }
@@ -72,6 +82,14 @@ class MySQLSim {
         } else if (!store.collections || !Array.isArray(store.collections)) {
           store.collections = [...DEFAULT_COLLECTIONS_DATA];
         }
+        // Always load heroBanners from its dedicated key to survive quota truncation
+        try {
+          const hStr = localStorage.getItem('babadham_hero_banners');
+          if (hStr) {
+            const hParsed = JSON.parse(hStr);
+            if (Array.isArray(hParsed)) store.heroBanners = hParsed;
+          }
+        } catch {}
         return store;
       }
     } catch (e) {
@@ -461,6 +479,12 @@ class MySQLSim {
       stateShippingRates: defaultShippingRates
     };
 
+    let savedPrebookingSlides: any = null;
+    try {
+      const pStr = localStorage.getItem('babadham_prebooking_hero_slides');
+      if (pStr) savedPrebookingSlides = JSON.parse(pStr);
+    } catch (e) {}
+
     const merged = {
       ...defaultSettings,
       ...settings,
@@ -472,28 +496,94 @@ class MySQLSim {
         : defaultShippingRates
     };
 
-    if (settings && Array.isArray(settings.heroSlides) && settings.heroSlides.length > 0) {
-      merged.heroSlides = settings.heroSlides;
-    } else if (savedBrand && Array.isArray(savedBrand.heroSlides) && savedBrand.heroSlides.length > 0) {
-      merged.heroSlides = savedBrand.heroSlides;
-    }
-
-    if (settings && Array.isArray(settings.orderRequestHeroSlides) && settings.orderRequestHeroSlides.length > 0) {
-      merged.orderRequestHeroSlides = settings.orderRequestHeroSlides;
-    } else if (savedBrand && Array.isArray(savedBrand.orderRequestHeroSlides) && savedBrand.orderRequestHeroSlides.length > 0) {
-      merged.orderRequestHeroSlides = savedBrand.orderRequestHeroSlides;
-    }
-
     return merged;
+  }
+
+  public getHeroBanners(): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    if (this.store.heroBanners && Array.isArray(this.store.heroBanners)) {
+      return this.store.heroBanners;
+    }
+    if (this.store.brandSettings?.heroBanners && Array.isArray(this.store.brandSettings.heroBanners)) {
+      return this.store.brandSettings.heroBanners;
+    }
+    try {
+      const saved = localStorage.getItem('babadham_hero_banners');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  public saveHeroBanners(banners: HeroBannerItem[]): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    this.store.heroBanners = banners;
+    if (this.store.brandSettings) {
+      this.store.brandSettings.heroBanners = banners;
+    }
+    try {
+      localStorage.setItem('babadham_hero_banners', JSON.stringify(banners));
+    } catch (e) {}
+    try {
+      const channel = new BroadcastChannel('bbp_brand_sync');
+      channel.postMessage({ type: 'HERO_BANNERS_UPDATED', banners });
+      channel.close();
+    } catch (err) {}
+    window.dispatchEvent(new Event('bbp_db_updated'));
+    this.saveToStorage();
+    return banners;
+  }
+
+  public getPrebookingHeroBanners(): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    if ((this.store as any).prebookingHeroBanners && Array.isArray((this.store as any).prebookingHeroBanners)) {
+      return (this.store as any).prebookingHeroBanners;
+    }
+    try {
+      const saved = localStorage.getItem('babadham_prebooking_hero_banners');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  public savePrebookingHeroBanners(banners: HeroBannerItem[]): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    (this.store as any).prebookingHeroBanners = banners;
+    if (this.store.brandSettings) {
+      this.store.brandSettings.prebookingHeroBanners = banners;
+    }
+    try {
+      localStorage.setItem('babadham_prebooking_hero_banners', JSON.stringify(banners));
+    } catch (e) {}
+    try {
+      const channel = new BroadcastChannel('bbp_brand_sync');
+      channel.postMessage({ type: 'PREBOOKING_HERO_BANNERS_UPDATED', banners });
+      channel.close();
+    } catch (err) {}
+    window.dispatchEvent(new Event('bbp_db_updated'));
+    this.saveToStorage();
+    return banners;
   }
 
   public updateBrandSettings(newSettings: any) {
     this.store = this.loadFromStorage();
     const current = this.getBrandSettings();
     const updated = { ...current, ...newSettings };
+    if (newSettings.heroBanners !== undefined) {
+      updated.heroBanners = newSettings.heroBanners;
+      this.store.heroBanners = newSettings.heroBanners;
+    }
     this.store.brandSettings = updated;
     
     try {
+      if (updated.heroBanners !== undefined && Array.isArray(updated.heroBanners)) {
+        localStorage.setItem('babadham_hero_banners', JSON.stringify(updated.heroBanners));
+      }
       localStorage.setItem('babadham_brand_settings', JSON.stringify(updated));
       if (updated.logoImageUrl) {
         localStorage.setItem('babadham_logo_image', updated.logoImageUrl);
@@ -505,6 +595,13 @@ class MySQLSim {
       console.warn('Failed to save dedicated branding keys', e);
     }
 
+    try {
+      const channel = new BroadcastChannel('bbp_brand_sync');
+      channel.postMessage({ type: 'BRAND_SETTINGS_UPDATED', settings: updated });
+      channel.close();
+    } catch (err) {}
+
+    window.dispatchEvent(new Event('bbp_db_updated'));
     this.saveToStorage();
     return updated;
   }
@@ -543,6 +640,25 @@ class MySQLSim {
     const order = this.store.orders.find(o => o.id === orderId);
     if (order) {
       order.paymentStatus = status;
+      if (status === 'PAID') {
+        if (!order.timelineEvents) order.timelineEvents = [];
+        order.timelineEvents.push({
+          id: `te-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          type: 'system',
+          author: 'System',
+          content: 'Payment completed successfully.'
+        });
+      }
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public updateOrderPaymentMethod(orderId: string, method: Order['paymentMethod']): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      order.paymentMethod = method;
       this.saveToStorage();
     }
     return order;
@@ -565,6 +681,17 @@ class MySQLSim {
       } else {
         order.billingAddress = { ...(order.billingAddress || order.address), ...address };
       }
+      this.saveToStorage();
+    }
+    return order;
+  }
+
+  public updateOrderItems(orderId: string, items: any[], subtotal: number, totalAmount: number): Order | undefined {
+    const order = this.store.orders.find(o => o.id === orderId);
+    if (order) {
+      order.items = items;
+      order.subtotal = subtotal;
+      order.totalAmount = totalAmount;
       this.saveToStorage();
     }
     return order;

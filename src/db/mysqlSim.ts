@@ -1,14 +1,25 @@
-import type { Product, CategoryInfo, Order, Coupon, DevoteeReview, DBTableInfo } from '../types/ecommerce';
+import type { Product, CategoryInfo, Collection, Order, Coupon, DevoteeReview, DBTableInfo, HeroBannerItem } from '../types/ecommerce';
 import { PRODUCTS_DATA, CATEGORIES_DATA, COUPONS_DATA, DEVOTEE_REVIEWS } from './seedData';
 
 const STORAGE_KEY = 'babadham_mysql_db_v1';
 
+export const DEFAULT_COLLECTIONS_DATA: Collection[] = [
+  { id: '1', title: 'Baba Baidyanath Prasad', description: 'Direct sanctum offered Bhog Prasad items from Baba Dham Garbhagriha', image: 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=800&q=80', productsCount: 12, conditions: 'Automated (Category = Prasad)', salesChannels: 2, themeTemplate: 'Default collection', productIds: ['1', '2'], slug: 'baba-baidyanath-prasad' },
+  { id: '2', title: 'Deoghar Kesar Peda', description: 'Pure Cow Milk Peda Prasad prepared in holy ghee & kesar', image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80', productsCount: 8, conditions: 'Manual', salesChannels: 2, themeTemplate: 'Default collection', productIds: ['1'], slug: 'deoghar-kesar-peda' },
+  { id: '3', title: 'Sultanganj Gangajal', description: 'Sacred Uttarwahini Ganga Jal directly from holy Sultanganj Ghat', image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80', productsCount: 5, conditions: 'Automated (Category = Gangajal)', salesChannels: 2, themeTemplate: 'Default collection', productIds: ['3'], slug: 'sultanganj-gangajal' },
+  { id: '4', title: 'Rudraksha Essentials', description: 'Authentic lab-certified Nepal 5-Mukhi & Sidh Rudraksha Malas', image: 'https://images.unsplash.com/photo-1621570074981-ee6a0145c8b5?auto=format&fit=crop&w=800&q=80', productsCount: 15, conditions: 'Automated (Tag = Sacred)', salesChannels: 2, themeTemplate: 'Default collection', productIds: ['4'], slug: 'rudraksha-essentials' },
+  { id: '5', title: 'Panchdhatu Shiv Kada', description: 'Sacred Kada embossed with Trishul & Mahamrityunjaya Mantra', image: 'https://images.unsplash.com/photo-1611591475179-42cd34264d64?auto=format&fit=crop&w=800&q=80', productsCount: 6, conditions: 'Manual', salesChannels: 2, themeTemplate: 'Default collection', productIds: ['5'], slug: 'panchdhatu-shiv-kada' },
+  { id: '6', title: 'Mahadev Combo Kits', description: 'Grand devotional luxury boxes for family & festival offerings', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80', productsCount: 4, conditions: 'Automated (Category = Combos)', salesChannels: 2, themeTemplate: 'Default collection', productIds: ['6'], slug: 'mahadev-combo-kits' }
+];
+
 interface DBStore {
   products: Product[];
   categories: CategoryInfo[];
+  collections?: Collection[];
   orders: Order[];
   coupons: Coupon[];
   reviews: DevoteeReview[];
+  heroBanners?: HeroBannerItem[];
   brandSettings: any;
 }
 
@@ -18,6 +29,12 @@ class MySQLSim {
   constructor() {
     this.store = this.loadFromStorage();
     this.syncWithServer();
+    // Periodically poll server DB every 2 seconds for real-time instant cross-tab / cross-port updates
+    if (typeof window !== 'undefined') {
+      setInterval(() => {
+        this.syncWithServer();
+      }, 2000);
+    }
   }
 
   private async syncWithServer() {
@@ -30,12 +47,40 @@ class MySQLSim {
         const data = await res.json();
         if (data && !data.empty) {
           this.store = { ...this.store, ...data };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.store));
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.store)); } catch(e) {}
           if (data.brandSettings) {
-            localStorage.setItem('babadham_brand_settings', JSON.stringify(data.brandSettings));
-            if (data.brandSettings.bookingSlotsConfig) {
-              localStorage.setItem('babadham_booking_slots_config', JSON.stringify(data.brandSettings.bookingSlotsConfig));
+            try { localStorage.setItem('babadham_brand_settings', JSON.stringify(data.brandSettings)); } catch(e) {}
+            // Persist logo/favicon to dedicated keys so they're found by getBrandSettings()
+            if (data.brandSettings.logoImageUrl) {
+              try { localStorage.setItem('babadham_logo_image', data.brandSettings.logoImageUrl); } catch(e) {}
             }
+            if (data.brandSettings.faviconUrl) {
+              try { localStorage.setItem('babadham_favicon_image', data.brandSettings.faviconUrl); } catch(e) {}
+            }
+            if (data.brandSettings.bookingSlotsConfig) {
+              try { localStorage.setItem('babadham_booking_slots_config', JSON.stringify(data.brandSettings.bookingSlotsConfig)); } catch(e) {}
+            }
+
+            if (Array.isArray(data.heroBanners)) {
+              this.store.heroBanners = data.heroBanners;
+              try { localStorage.setItem('babadham_hero_banners', JSON.stringify(data.heroBanners)); } catch(e) {}
+            } else if (data.brandSettings && Array.isArray(data.brandSettings.heroBanners)) {
+              this.store.heroBanners = data.brandSettings.heroBanners;
+              try { localStorage.setItem('babadham_hero_banners', JSON.stringify(data.brandSettings.heroBanners)); } catch(e) {}
+            }
+
+            // Sync prebooking hero banners from server
+            if (Array.isArray((data as any).prebookingHeroBanners)) {
+              (this.store as any).prebookingHeroBanners = (data as any).prebookingHeroBanners;
+              try { localStorage.setItem('babadham_prebooking_hero_banners', JSON.stringify((data as any).prebookingHeroBanners)); } catch(e) {}
+            } else if (data.brandSettings && Array.isArray(data.brandSettings.prebookingHeroBanners)) {
+              (this.store as any).prebookingHeroBanners = data.brandSettings.prebookingHeroBanners;
+              try { localStorage.setItem('babadham_prebooking_hero_banners', JSON.stringify(data.brandSettings.prebookingHeroBanners)); } catch(e) {}
+            }
+          }
+          // Also save logo/favicon from top-level data if present
+          if (data.logoImageUrl) {
+            try { localStorage.setItem('babadham_logo_image', data.logoImageUrl); } catch(e) {}
           }
           window.dispatchEvent(new Event('bbp_db_updated'));
         }
@@ -43,16 +88,15 @@ class MySQLSim {
     } catch (e) {}
   }
 
-  private loadFromStorage(): DBStore {
+  private async persistSlidesToIDB(key: string, slides: any[]) {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.warn('Failed to load DB state, resetting to seed', e);
-    }
-    return {
+      const { setPersistentMedia } = await import('../utils/mediaDB');
+      await setPersistentMedia(key, slides);
+    } catch (e) {}
+  }
+
+  private loadFromStorage(): DBStore {
+    const defaultState = {
       products: [...PRODUCTS_DATA],
       categories: [...CATEGORIES_DATA],
       orders: [],
@@ -79,43 +123,49 @@ class MySQLSim {
         customDetails: [
           { id: '1', label: 'GSTIN Registration', value: '20AAAAA0000A1Z5' },
           { id: '2', label: 'Temple Board Reg No', value: 'DEO-TEMPLE-2024-88' }
-        ],
-        heroSlides: [
-          {
-            id: 'slide-1',
-            type: 'image',
-            mediaUrl: 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=1600&q=80',
-            mobileMediaUrl: 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=800&q=80',
-            enableGradient: true,
-            heading: 'Authentic Deoghar Baidyanath Temple Prasad',
-            description: 'Delivered directly to your doorstep from Baba Baidyanath Dham, Deoghar.',
-            buttonText: 'Explore Sacred Offerings',
-            buttonLink: '#featured-products'
-          },
-          {
-            id: 'slide-2',
-            type: 'image',
-            mediaUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=80',
-            mobileMediaUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
-            enableGradient: true,
-            heading: 'Pure Milk Peda Prasad & Sultanganj Gangajal',
-            description: 'Prepared with pure cow milk and blessed at the sacred Jyotirlinga.',
-            buttonText: 'Order Fresh Peda',
-            buttonLink: '#best-sellers'
-          },
-          {
-            id: 'slide-3',
-            type: 'video',
-            mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-candles-burning-in-a-dark-room-41551-large.mp4',
-            mobileMediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-candles-burning-in-a-dark-room-41551-large.mp4',
-            enableGradient: true,
-            heading: '24/7 Garbhagriha Live Temple Darshan',
-            description: 'Receive divine blessings anytime from Baba Baidyanath Dham.',
-            buttonText: 'Watch Live Darshan',
-            buttonLink: 'live-darshan'
-          }
         ]
       }
+    };
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      let userCols: Collection[] | undefined = undefined;
+      try {
+        const cStr = localStorage.getItem('babadham_user_collections');
+        if (cStr) userCols = JSON.parse(cStr);
+      } catch {}
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const store: DBStore = {
+          products: parsed.products || defaultState.products,
+          categories: parsed.categories || defaultState.categories,
+          collections: parsed.collections || defaultState.collections || [...DEFAULT_COLLECTIONS_DATA],
+          orders: parsed.orders || defaultState.orders,
+          coupons: parsed.coupons || defaultState.coupons,
+          reviews: parsed.reviews || defaultState.reviews,
+          brandSettings: parsed.brandSettings || defaultState.brandSettings,
+          heroBanners: parsed.heroBanners
+        };
+        if (userCols && Array.isArray(userCols)) {
+          store.collections = userCols;
+        }
+        // Always load heroBanners from its dedicated key to survive quota truncation
+        try {
+          const hStr = localStorage.getItem('babadham_hero_banners');
+          if (hStr) {
+            const hParsed = JSON.parse(hStr);
+            if (Array.isArray(hParsed)) store.heroBanners = hParsed;
+          }
+        } catch {}
+        return store;
+      }
+    } catch (e) {
+      console.warn('Failed to load DB state, resetting to seed', e);
+    }
+    return {
+      ...defaultState,
+      collections: [...DEFAULT_COLLECTIONS_DATA]
     };
   }
 
@@ -205,6 +255,63 @@ class MySQLSim {
     this.saveToStorage();
   }
 
+  public getCollections(): Collection[] {
+    this.store = this.loadFromStorage();
+    let userCols: Collection[] | undefined = undefined;
+    try {
+      const cStr = localStorage.getItem('babadham_user_collections');
+      if (cStr) userCols = JSON.parse(cStr);
+    } catch {}
+
+    if (userCols && Array.isArray(userCols)) {
+      this.store.collections = userCols;
+      return userCols;
+    }
+
+    if (!this.store.collections || !Array.isArray(this.store.collections)) {
+      this.store.collections = [...DEFAULT_COLLECTIONS_DATA];
+      this.saveToStorage();
+    }
+    return this.store.collections;
+  }
+
+  public saveCollection(col: Collection): Collection[] {
+    const collections = this.getCollections();
+    const idx = collections.findIndex(c => c.id === col.id);
+    if (idx >= 0) {
+      collections[idx] = col;
+    } else {
+      collections.unshift(col);
+    }
+    this.store.collections = collections;
+    try {
+      localStorage.setItem('babadham_user_collections', JSON.stringify(collections));
+    } catch (e) {}
+    this.saveToStorage();
+    return this.store.collections;
+  }
+
+  public deleteCollection(id: string): Collection[] {
+    const collections = this.getCollections();
+    this.store.collections = collections.filter(c => c.id !== id);
+    try {
+      localStorage.setItem('babadham_user_collections', JSON.stringify(this.store.collections));
+    } catch (e) {}
+    this.saveToStorage();
+    return this.store.collections;
+  }
+
+  public clearSampleCollections(): Collection[] {
+    const collections = this.getCollections();
+    const userCols = collections.filter(c => !['1', '2', '3', '4', '5', '6'].includes(c.id));
+    this.store.collections = userCols;
+    try {
+      localStorage.setItem('babadham_user_collections', JSON.stringify(userCols));
+    } catch (e) {}
+    this.saveToStorage();
+    return this.store.collections;
+  }
+
   public getCoupons(): Coupon[] {
     this.store = this.loadFromStorage();
     return this.store.coupons;
@@ -256,28 +363,96 @@ class MySQLSim {
       faviconUrl: favicon
     };
 
-    if (settings && Array.isArray(settings.heroSlides) && settings.heroSlides.length > 0) {
-      merged.heroSlides = settings.heroSlides;
-    } else if (savedBrand && Array.isArray(savedBrand.heroSlides) && savedBrand.heroSlides.length > 0) {
-      merged.heroSlides = savedBrand.heroSlides;
-    }
-
-    if (settings && Array.isArray(settings.orderRequestHeroSlides) && settings.orderRequestHeroSlides.length > 0) {
-      merged.orderRequestHeroSlides = settings.orderRequestHeroSlides;
-    } else if (savedBrand && Array.isArray((savedBrand as any).orderRequestHeroSlides) && (savedBrand as any).orderRequestHeroSlides.length > 0) {
-      merged.orderRequestHeroSlides = (savedBrand as any).orderRequestHeroSlides;
-    }
-
     return merged;
+  }
+
+  public getHeroBanners(): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    if (this.store.heroBanners && Array.isArray(this.store.heroBanners)) {
+      return this.store.heroBanners;
+    }
+    if (this.store.brandSettings?.heroBanners && Array.isArray(this.store.brandSettings.heroBanners)) {
+      return this.store.brandSettings.heroBanners;
+    }
+    try {
+      const saved = localStorage.getItem('babadham_hero_banners');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  public saveHeroBanners(banners: HeroBannerItem[]): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    this.store.heroBanners = banners;
+    if (this.store.brandSettings) {
+      this.store.brandSettings.heroBanners = banners;
+    }
+    try {
+      localStorage.setItem('babadham_hero_banners', JSON.stringify(banners));
+    } catch (e) {}
+    try {
+      const channel = new BroadcastChannel('bbp_brand_sync');
+      channel.postMessage({ type: 'HERO_BANNERS_UPDATED', banners });
+      channel.close();
+    } catch (err) {}
+    window.dispatchEvent(new Event('bbp_db_updated'));
+    this.saveToStorage();
+    return banners;
+  }
+
+  public getPrebookingHeroBanners(): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    // Check dedicated store key first
+    if ((this.store as any).prebookingHeroBanners && Array.isArray((this.store as any).prebookingHeroBanners)) {
+      return (this.store as any).prebookingHeroBanners;
+    }
+    // Fall back to dedicated localStorage key
+    try {
+      const saved = localStorage.getItem('babadham_prebooking_hero_banners');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  public savePrebookingHeroBanners(banners: HeroBannerItem[]): HeroBannerItem[] {
+    this.store = this.loadFromStorage();
+    (this.store as any).prebookingHeroBanners = banners;
+    if (this.store.brandSettings) {
+      this.store.brandSettings.prebookingHeroBanners = banners;
+    }
+    try {
+      localStorage.setItem('babadham_prebooking_hero_banners', JSON.stringify(banners));
+    } catch (e) {}
+    try {
+      const channel = new BroadcastChannel('bbp_brand_sync');
+      channel.postMessage({ type: 'PREBOOKING_HERO_BANNERS_UPDATED', banners });
+      channel.close();
+    } catch (err) {}
+    window.dispatchEvent(new Event('bbp_db_updated'));
+    this.saveToStorage();
+    return banners;
   }
 
   public updateBrandSettings(newSettings: any) {
     this.store = this.loadFromStorage();
     const current = this.getBrandSettings();
     const updated = { ...current, ...newSettings };
+    if (newSettings.heroBanners !== undefined) {
+      updated.heroBanners = newSettings.heroBanners;
+      this.store.heroBanners = newSettings.heroBanners;
+    }
     this.store.brandSettings = updated;
     
     try {
+      if (updated.heroBanners !== undefined && Array.isArray(updated.heroBanners)) {
+        localStorage.setItem('babadham_hero_banners', JSON.stringify(updated.heroBanners));
+      }
       localStorage.setItem('babadham_brand_settings', JSON.stringify(updated));
       if (updated.logoImageUrl) {
         localStorage.setItem('babadham_logo_image', updated.logoImageUrl);
@@ -298,9 +473,23 @@ class MySQLSim {
     return this.store.orders;
   }
 
-  public createOrder(order: Omit<Order, 'id' | 'createdAt' | 'trackingSteps'>): Order {
+  public createOrder(order: any): Order {
+    const safeAddress: OrderAddress = (typeof order.address === 'object' && order.address !== null)
+      ? order.address
+      : {
+          fullName: order.customerName || order.devoteeName || 'Devotee',
+          phone: order.phone || '',
+          email: order.email || 'devotee@babadham.org',
+          addressLine: typeof order.address === 'string' ? order.address : '',
+          landmark: '',
+          city: order.city || 'Deoghar',
+          state: order.state || order.stateName || 'Jharkhand',
+          pincode: order.pincode || '814112'
+        };
+
     const newOrder: Order = {
       ...order,
+      address: safeAddress,
       id: `BBP-ORD-${Math.floor(100000 + Math.random() * 900000)}`,
       createdAt: new Date().toISOString(),
       trackingSteps: [
@@ -338,7 +527,7 @@ class MySQLSim {
         },
         {
           title: 'Delivered at Your Doorstep',
-          location: order.address.city,
+          location: safeAddress.city || 'Your Address',
           timestamp: 'Est. 24-48 Hours',
           completed: false,
           active: false,
@@ -350,6 +539,16 @@ class MySQLSim {
     this.store.orders.unshift(newOrder);
     this.saveToStorage();
     return newOrder;
+  }
+
+  public updateOrder(orderId: string, updates: Partial<Order>): Order | undefined {
+    const orderIndex = this.store.orders.findIndex(o => o.id === orderId);
+    if (orderIndex !== -1) {
+      this.store.orders[orderIndex] = { ...this.store.orders[orderIndex], ...updates };
+      this.saveToStorage();
+      return this.store.orders[orderIndex];
+    }
+    return undefined;
   }
 
   public addReview(review: Omit<DevoteeReview, 'id' | 'date'>): DevoteeReview {

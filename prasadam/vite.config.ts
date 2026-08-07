@@ -15,7 +15,7 @@ function fileUploadPlugin() {
         res.setHeader('X-XSS-Protection', '1; mode=block');
         res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-        if (req.url === '/api/db' && req.method === 'GET') {
+        if (req.url.split('?')[0] === '/api/db' && req.method === 'GET') {
           try {
             const dbPath = path.resolve(__dirname, './public/data/database.json');
             if (fs.existsSync(dbPath)) {
@@ -30,7 +30,7 @@ function fileUploadPlugin() {
           return;
         }
 
-        if (req.url === '/api/db' && req.method === 'POST') {
+        if (req.url.split('?')[0] === '/api/db' && req.method === 'POST') {
           let body = '';
           req.on('data', chunk => { body += chunk.toString(); });
           req.on('end', () => {
@@ -59,6 +59,20 @@ function fileUploadPlugin() {
                 mergedData.brandSettings = { ...currentData.brandSettings, ...incomingData.brandSettings };
               }
 
+              if (incomingData.heroBanners !== undefined) {
+                mergedData.heroBanners = incomingData.heroBanners;
+                if (mergedData.brandSettings) {
+                  mergedData.brandSettings.heroBanners = incomingData.heroBanners;
+                }
+              }
+
+              if (incomingData.prebookingHeroBanners !== undefined) {
+                mergedData.prebookingHeroBanners = incomingData.prebookingHeroBanners;
+                if (mergedData.brandSettings) {
+                  mergedData.brandSettings.prebookingHeroBanners = incomingData.prebookingHeroBanners;
+                }
+              }
+
               const mergedStr = JSON.stringify(mergedData, null, 2);
 
               fs.writeFileSync(dbPath, mergedStr);
@@ -74,22 +88,29 @@ function fileUploadPlugin() {
           return;
         }
 
-        if (req.url === '/api/upload-image' && req.method === 'POST') {
-          let body = '';
-          req.on('data', chunk => { body += chunk.toString(); });
+        if (req.url.split('?')[0] === '/api/upload-image' && req.method === 'POST') {
+          const chunks: Buffer[] = [];
+          req.on('data', chunk => { chunks.push(chunk); });
           req.on('end', () => {
             try {
-              const data = JSON.parse(body);
-              const base64Data = data.image.replace(/^data:image\/\w+;base64,/, '');
-              const buffer = Buffer.from(base64Data, 'base64');
-              
-              let filename = `${data.type || 'upload'}.webp`;
-              if (data.type === 'babadham_favicon_image' || data.type === 'favicon') filename = 'favicon.png';
-              else if (data.type === 'babadham_logo_image' || data.type === 'logo') filename = 'logo.png';
-              else if (data.type === 'babadham_profile_photo' || data.type === 'profile') filename = 'profile.png';
-              else if (data.type === 'babadham_header_bg') filename = 'header-bg.webp';
-              else if (data.type === 'babadham_mobile_header_bg') filename = 'header-bg-mob.webp';
-              else filename = `${data.type || 'asset'}-${Date.now()}.webp`;
+              const raw = Buffer.concat(chunks);
+              let buffer: Buffer;
+              let filename = `hero-banner-${Date.now()}.webp`;
+
+              const bodyStr = raw.toString('utf8');
+              if (bodyStr.startsWith('{')) {
+                const data = JSON.parse(bodyStr);
+                const base64Data = data.image.replace(/^data:(image|video)\/\w+;base64,/, '');
+                buffer = Buffer.from(base64Data, 'base64');
+                if (data.type === 'babadham_favicon_image' || data.type === 'favicon') filename = 'favicon.png';
+                else if (data.type === 'babadham_logo_image' || data.type === 'logo') filename = 'logo.png';
+                else if (data.type === 'babadham_profile_photo' || data.type === 'profile') filename = 'profile.png';
+                else if (data.type === 'babadham_header_bg') filename = 'header-bg.webp';
+                else if (data.type === 'babadham_mobile_header_bg') filename = 'header-bg-mob.webp';
+                else filename = `${data.type || 'hero-banner'}-${Date.now()}.webp`;
+              } else {
+                buffer = raw;
+              }
 
               const pubDir = path.resolve(__dirname, '../public/assets');
               const adminPubDir = path.resolve(__dirname, './public/assets');

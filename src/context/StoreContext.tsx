@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Product, CartItem, ProductCategory, Order, Coupon } from '../types/ecommerce';
+import type { Product, CartItem, ProductCategory, Order, Coupon, Collection } from '../types/ecommerce';
 import { db } from '../db/mysqlSim';
 import { useAudio } from './AudioContext';
+import { setPersistentMedia } from '../utils/mediaDB';
 
 interface Toast {
   id: string;
@@ -12,6 +13,7 @@ interface Toast {
 interface StoreContextType {
   products: Product[];
   categories: ReturnType<typeof db.getCategories>;
+  collections: Collection[];
   selectedCategory: ProductCategory | 'all';
   setSelectedCategory: (cat: ProductCategory | 'all') => void;
   searchQuery: string;
@@ -50,8 +52,11 @@ interface StoreContextType {
   isSearchModalOpen: boolean;
   setIsSearchModalOpen: (open: boolean) => void;
   
-  activePage: 'home' | 'categories' | 'order-request';
-  setActivePage: (page: 'home' | 'categories' | 'order-request') => void;
+  isCheckoutOpen: boolean;
+  setIsCheckoutOpen: (open: boolean) => void;
+  
+  activePage: 'home' | 'categories' | 'prebooking' | 'success';
+  setActivePage: (page: 'home' | 'categories' | 'prebooking' | 'success') => void;
 
   isPreBookingOpen: boolean;
   setIsPreBookingOpen: (open: boolean) => void;
@@ -85,6 +90,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { playTempleBell } = useAudio();
   const [products, setProducts] = useState<Product[]>(() => db.getProducts());
   const [categories, setCategories] = useState(() => db.getCategories());
+  const [collections, setCollections] = useState<Collection[]>(() => db.getCollections());
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -115,35 +121,39 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [isDatabaseExplorerOpen, setIsDatabaseExplorerOpen] = useState<boolean>(false);
-  const [activePage, setActivePageState] = useState<'home' | 'categories' | 'order-request'>(() => {
+  const [activePage, setActivePageState] = useState<'home' | 'categories' | 'prebooking' | 'success' | 'not-found'>(() => {
     try {
       if (typeof window !== 'undefined') {
-        if (window.location.pathname.endsWith('/order-request')) return 'order-request';
+        if (window.location.pathname.endsWith('/order-request') || window.location.pathname.endsWith('/prebooking')) return 'prebooking';
         if (window.location.pathname.endsWith('/categories')) return 'categories';
         const saved = localStorage.getItem('bbp_store_active_page');
-        if (saved && ['home', 'categories', 'order-request'].includes(saved)) {
+        if (saved && ['home', 'categories', 'prebooking', 'success', 'not-found'].includes(saved)) {
           return saved as any;
         }
+        
+        const pathname = window.location.pathname.toLowerCase();
+        if (pathname === '/' || pathname === '' || pathname === '/babadham' || pathname === '/babadham/') return 'home';
+        return 'not-found';
       }
     } catch (e) {}
     return 'home';
   });
 
-  const setActivePage = (page: 'home' | 'categories' | 'order-request') => {
+  const setActivePage = (page: 'home' | 'categories' | 'prebooking' | 'success' | 'not-found') => {
     setActivePageState(page);
     try {
       if (typeof window !== 'undefined') {
         localStorage.setItem('bbp_store_active_page', page);
-        if (page === 'order-request') {
-          if (!window.location.pathname.endsWith('/order-request')) {
-            window.history.pushState({}, '', '/order-request');
+        if (page === 'prebooking') {
+          if (!window.location.pathname.endsWith('/prebooking')) {
+            window.history.pushState({}, '', '/prebooking');
           }
         } else if (page === 'categories') {
           if (!window.location.pathname.endsWith('/categories')) {
             window.history.pushState({}, '', '/categories');
           }
         } else {
-          if (window.location.pathname.endsWith('/order-request') || window.location.pathname.endsWith('/categories')) {
+          if (window.location.pathname.endsWith('/categories')) {
             window.history.pushState({}, '', '/');
           }
         }
@@ -177,15 +187,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         pathname.endsWith('/order-request') ||
         pathname.endsWith('/order-request/') ||
         pathname.endsWith('/request') ||
-        hash === '#order-request' ||
         hash === '#orderrequest' ||
         hash === '#request' ||
         hash === '#order-funnel' ||
         search.includes('page=order-request') ||
         search.includes('funnel=order-request') ||
-        search.includes('request=true')
+        search.includes('request=true') ||
+        pathname.endsWith('/prebooking')
       ) {
-        setActivePage('order-request');
+        setActivePage('prebooking');
       } else if (
         hash === '#prebook' || 
         hash === '#pre-booking' || 
@@ -197,6 +207,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         search.includes('page=prebook')
       ) {
         setIsPreBookingOpen(true);
+      }
+      
+      // Explicit route checks
+      if (pathname.endsWith('/success')) {
+        setActivePage('success');
+      } else if (pathname.endsWith('/categories')) {
+        setActivePage('categories');
+      } else if (
+        !pathname.endsWith('/order-request') &&
+        !pathname.endsWith('/prebooking') &&
+        pathname !== '/' && 
+        pathname !== '' && 
+        pathname !== '/babadham' && 
+        pathname !== '/babadham/'
+      ) {
+        setActivePage('not-found');
+      } else if (pathname === '/' || pathname === '' || pathname === '/babadham' || pathname === '/babadham/') {
+        // If it's the root path, check localStorage for previous state, otherwise default to home
+        const saved = localStorage.getItem('bbp_store_active_page');
+        if (saved === 'categories' || saved === 'prebooking' || saved === 'success' || saved === 'not-found') {
+          setActivePage(saved as any);
+        } else {
+          setActivePage('home');
+        }
       }
     };
     checkPathAndHash();
@@ -213,6 +247,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const syncDb = () => {
       setProducts([...db.getProducts()]);
       setCategories([...db.getCategories()]);
+      setCollections([...db.getCollections()]);
       setBrandSettings(db.getBrandSettings());
     };
 
@@ -332,6 +367,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const newSettings = event.data.settings;
           db.updateBrandSettings(newSettings);
           setBrandSettings(db.getBrandSettings());
+        } else if (event.data?.type === 'HERO_BANNERS_UPDATED') {
+          const banners = event.data.banners;
+          if (Array.isArray(banners)) {
+            db.saveHeroBanners(banners);
+            try { localStorage.setItem('babadham_hero_banners', JSON.stringify(banners)); } catch(e) {}
+            window.dispatchEvent(new Event('bbp_db_updated'));
+          }
         }
       };
     } catch (err) {
@@ -339,7 +381,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     // CROSS-ORIGIN SYNC LISTENER (For Prasadam on port 5174 syncing to Babadham on port 5173)
-    const handleMessageSync = (event: MessageEvent) => {
+    const handleMessageSync = async (event: MessageEvent) => {
       // Allow from typical Vite local ports
       if (!['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'].includes(event.origin) && !event.origin.includes('localhost')) {
         return;
@@ -347,9 +389,50 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       if (event.data?.type === 'SYNC_BRANDING_CROSS_ORIGIN') {
         const { logo, favicon, settings } = event.data;
-        if (logo) localStorage.setItem('babadham_logo_image', logo);
-        if (favicon) localStorage.setItem('babadham_favicon_image', favicon);
-        if (settings) localStorage.setItem('babadham_brand_settings', settings);
+        
+        // Save logo and favicon to dedicated keys
+        if (logo) {
+          localStorage.setItem('babadham_logo_image', logo);
+        }
+        if (favicon) {
+          localStorage.setItem('babadham_favicon_image', favicon);
+        }
+
+        if (settings) {
+          try {
+            const parsed = JSON.parse(settings);
+            
+            // Inject logo/favicon into parsed settings if provided separately
+            if (logo) parsed.logoImageUrl = logo;
+            if (favicon) parsed.faviconUrl = favicon;
+
+            // Save heroBanners to dedicated key
+            if (parsed.heroBanners !== undefined) {
+              try { localStorage.setItem('babadham_hero_banners', JSON.stringify(parsed.heroBanners)); } catch(e) {}
+              db.saveHeroBanners(parsed.heroBanners);
+            }
+            
+            // Update brand settings in db (saves logo, favicon, all settings)
+            db.updateBrandSettings(parsed);
+            
+            try {
+              localStorage.setItem('babadham_brand_settings', JSON.stringify(parsed));
+            } catch (err) {
+              console.warn('Cross origin sync localStorage save error', err);
+            }
+
+            window.dispatchEvent(new Event('bbp_db_updated'));
+          } catch (e) {
+            console.warn('Cross origin sync parsing error', e);
+          }
+        } else if (logo || favicon) {
+          // Even without full settings, update just logo/favicon in db
+          const partial: any = {};
+          if (logo) partial.logoImageUrl = logo;
+          if (favicon) partial.faviconUrl = favicon;
+          db.updateBrandSettings(partial);
+          window.dispatchEvent(new Event('bbp_db_updated'));
+        }
         
         // Force refresh state from updated localStorage
         setBrandSettings(db.getBrandSettings());
@@ -498,6 +581,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <StoreContext.Provider value={{
       products,
       categories,
+      collections,
       selectedCategory,
       setSelectedCategory,
       searchQuery,

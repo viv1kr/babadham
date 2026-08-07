@@ -1,247 +1,261 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../../context/StoreContext';
-import { useAudio } from '../../context/AudioContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, Pause, ArrowRight } from 'lucide-react';
-import type { HeroSlide } from '../../types/ecommerce';
+import { Play, Pause } from 'lucide-react';
+import type { HeroBannerItem } from '../../types/ecommerce';
+import { db } from '../../db/mysqlSim';
 
 export const HeroSection: React.FC = () => {
-  const { brandSettings, openPreBooking } = useStore();
-  const { playTempleBell } = useAudio();
-
-  const slides: HeroSlide[] = brandSettings?.heroSlides || [
-    {
-      id: 'default-1',
-      type: 'image',
-      mediaUrl: 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=1600&q=80',
-      mobileMediaUrl: 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=800&q=80',
-      enableGradient: true,
-      heading: 'Authentic Deoghar Baidyanath Temple Prasad',
-      description: 'Delivered directly to your doorstep from Baba Baidyanath Dham, Deoghar.',
-      buttonText: 'Explore Sacred Offerings',
-      buttonLink: '#featured-products'
-    }
-  ];
+  const { brandSettings } = useStore();
+  const [banners, setBanners] = useState<HeroBannerItem[]>(() => {
+    return db.getHeroBanners();
+  });
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  // Auto slide interval
+  // Sync banners with Database & StoreContext
   useEffect(() => {
-    if (slides.length <= 1 || !isPlaying) return;
+    const refreshBanners = () => {
+      const active = db.getHeroBanners();
+      if (active && Array.isArray(active)) {
+        setBanners(active);
+      } else if (brandSettings?.heroBanners && Array.isArray(brandSettings.heroBanners)) {
+        setBanners(brandSettings.heroBanners);
+      } else {
+        setBanners([]);
+      }
+    };
+
+    refreshBanners();
+
+    window.addEventListener('bbp_db_updated', refreshBanners);
+    window.addEventListener('storage', refreshBanners);
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('bbp_brand_sync');
+      channel.onmessage = (event) => {
+        if (event.data?.type === 'HERO_BANNERS_UPDATED' || event.data?.type === 'BRAND_SETTINGS_UPDATED') {
+          refreshBanners();
+        }
+      };
+    } catch (e) {}
+
+    const handleMsg = (event: MessageEvent) => {
+      if (event.data?.type === 'SYNC_BRANDING_CROSS_ORIGIN' || event.data?.type === 'HERO_BANNERS_UPDATED') {
+        refreshBanners();
+      }
+    };
+    window.addEventListener('message', handleMsg);
+
+    return () => {
+      window.removeEventListener('bbp_db_updated', refreshBanners);
+      window.removeEventListener('storage', refreshBanners);
+      window.removeEventListener('message', handleMsg);
+      if (channel) channel.close();
+    };
+  }, [brandSettings]);
+
+  // Auto slide timer
+  useEffect(() => {
+    if (banners.length <= 1 || !isPlaying) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % slides.length);
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [slides.length, isPlaying]);
+  }, [banners.length, isPlaying]);
+
+  // When all banners are deleted by user, return null (render NOTHING)
+  if (!banners || banners.length === 0) {
+    return null;
+  }
+
+  const currentBanner = banners[currentIndex] || banners[0];
+  if (!currentBanner) return null;
+
+  const hasDesktop = Boolean(currentBanner.desktopUrl && currentBanner.desktopUrl.trim() !== '');
+  const hasMobile = Boolean(currentBanner.mobileUrl && currentBanner.mobileUrl.trim() !== '');
+
+  // If banner has neither desktop nor mobile media uploaded, render nothing
+  if (!hasDesktop && !hasMobile) {
+    return null;
+  }
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
+    setCurrentIndex((prev) => (prev + 1) % banners.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
   };
-
-  const currentSlide = slides[currentIndex] || slides[0];
-  const hasTextContent = Boolean(currentSlide.heading?.trim() || currentSlide.description?.trim() || currentSlide.buttonText?.trim());
 
   return (
     <section className="relative w-full h-[40vh] min-h-[280px] sm:h-[50vh] sm:min-h-[380px] max-h-[550px] bg-black overflow-hidden select-none">
-
-      {/* Responsive Slide Media */}
+      
+      {/* Dynamic Animated Media Slide */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentSlide.id || currentIndex}
+          key={currentBanner.id || currentIndex}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
           className="absolute inset-0 w-full h-full"
         >
-          {/* Render Mobile Media for Mobile View & Desktop Media for Desktop View */}
-          {currentSlide.type === 'video' ? (
-            <>
-              {/* Mobile Video Banner */}
-              <video
-                src={(currentSlide.mobileMediaUrl && currentSlide.mobileMediaUrl.trim() !== '') ? currentSlide.mobileMediaUrl : currentSlide.mediaUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover block sm:hidden"
-              />
-              {/* Desktop Video Banner */}
-              <video
-                src={currentSlide.mediaUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover hidden sm:block"
-              />
-            </>
-          ) : (
-            <>
-              {/* Mobile Image Banner */}
-              <img
-                src={(currentSlide.mobileMediaUrl && currentSlide.mobileMediaUrl.trim() !== '') ? currentSlide.mobileMediaUrl : currentSlide.mediaUrl}
-                alt={currentSlide.heading || 'Mobile Hero Banner'}
-                className="w-full h-full object-cover block sm:hidden"
-              />
-              {/* Desktop Image Banner */}
-              <img
-                src={currentSlide.mediaUrl}
-                alt={currentSlide.heading || 'Desktop Hero Banner'}
-                className="w-full h-full object-cover hidden sm:block"
-              />
-            </>
+          {/* Desktop Media - Strictly rendered ONLY on Desktop screens (sm:block = min-width 640px) */}
+          {hasDesktop && (
+            <div className="w-full h-full hidden sm:block">
+              {currentBanner.mediaType === 'video' ? (
+                <video
+                  key={`desk-vid-${currentBanner.id}-${currentBanner.desktopUrl}`}
+                  src={currentBanner.desktopUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  key={`desk-img-${currentBanner.id}-${currentBanner.desktopUrl}`}
+                  src={currentBanner.desktopUrl}
+                  alt={currentBanner.title || 'Desktop Hero Banner'}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
           )}
 
-          {/* Optional Dark Gradient Overlay (Only applied if slide contains heading/description text) */}
-          {currentSlide.enableGradient !== false && hasTextContent && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/35" />
+          {/* Mobile Media - Strictly rendered ONLY on Mobile screens (block sm:hidden = max-width 639px) */}
+          {hasMobile ? (
+            <div className="w-full h-full block sm:hidden">
+              {currentBanner.mediaType === 'video' ? (
+                <video
+                  key={`mob-vid-${currentBanner.id}-${currentBanner.mobileUrl}`}
+                  src={currentBanner.mobileUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  key={`mob-img-${currentBanner.id}-${currentBanner.mobileUrl}`}
+                  src={currentBanner.mobileUrl}
+                  alt={currentBanner.title || 'Mobile Hero Banner'}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+          ) : (
+            /* Fallback to desktop media on mobile ONLY if no separate mobile media was uploaded */
+            hasDesktop && (
+              <div className="w-full h-full block sm:hidden">
+                {currentBanner.mediaType === 'video' ? (
+                  <video
+                    key={`mob-fallback-vid-${currentBanner.id}-${currentBanner.desktopUrl}`}
+                    src={currentBanner.desktopUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    key={`mob-fallback-img-${currentBanner.id}-${currentBanner.desktopUrl}`}
+                    src={currentBanner.desktopUrl}
+                    alt={currentBanner.title || 'Mobile Hero Banner'}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            )
           )}
         </motion.div>
       </AnimatePresence>
 
-      {/* Slide Content Overlay */}
-      <div className="relative z-10 max-w-7xl mx-auto h-full px-6 sm:px-20 lg:px-24 flex flex-col justify-center items-start text-[#FFF8F0]">
-        <div className="max-w-3xl space-y-2 sm:space-y-4">
-
-          {/* Prominent Heading */}
-          {currentSlide.heading && (
-            <motion.h1
-              key={`h-${currentIndex}`}
-              initial={{ y: 15, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="font-poppins font-extrabold text-xl sm:text-3xl lg:text-5xl text-[#F4A62A] leading-tight drop-shadow-xl tracking-tight"
-            >
-              {currentSlide.heading}
-            </motion.h1>
-          )}
-
-          {/* Prominent Clear Description */}
-          {currentSlide.description && (
-            <motion.p
-              key={`d-${currentIndex}`}
-              initial={{ y: 15, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="font-open-sans text-xs sm:text-base lg:text-lg text-[#FFF8F0] font-normal leading-relaxed max-w-2xl drop-shadow-md line-clamp-2 sm:line-clamp-none"
-            >
-              {currentSlide.description}
-            </motion.p>
-          )}
-
-          {/* Action Button */}
-          {currentSlide.buttonText && (
-            <motion.div
-              key={`b-${currentIndex}`}
-              initial={{ y: 15, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="pt-1.5 sm:pt-3"
-            >
-              <button
-                onClick={() => {
-                  playTempleBell();
-                  if (currentSlide.buttonLink === '#prebook' || currentSlide.buttonLink === '#prasad-booking') {
-                    openPreBooking();
-                  } else if (currentSlide.buttonLink?.startsWith('#')) {
-                    const el = document.querySelector(currentSlide.buttonLink);
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  } else if (currentSlide.buttonLink) {
-                    window.location.href = currentSlide.buttonLink;
-                  }
-                }}
-                className="px-5 py-2.5 min-h-[42px] sm:min-h-[48px] rounded-lg bg-[#7A1126] text-[#FFF8F0] hover:bg-[#F4A62A] hover:text-[#2B1A16] font-bold text-xs sm:text-sm transition-all duration-300 shadow-2xl flex items-center gap-2 border border-[#F4A62A]/40 cursor-pointer"
-              >
-                <span>{currentSlide.buttonText}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </motion.div>
-          )}
-
+      {/* Dot Pagination — bottom center */}
+      {banners.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+          {banners.map((_, idx) => (
+            <span
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              role="button"
+              aria-label={`Go to slide ${idx + 1}`}
+              style={{
+                display: 'inline-block',
+                borderRadius: '50%',
+                width: idx === currentIndex ? '10px' : '7px',
+                height: idx === currentIndex ? '10px' : '7px',
+                backgroundColor: idx === currentIndex ? '#F4A62A' : 'rgba(255,255,255,0.5)',
+                boxShadow: idx === currentIndex ? '0 0 6px 2px rgba(244,166,42,0.5)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                flexShrink: 0,
+              }}
+            />
+          ))}
         </div>
-      </div>
+      )}
 
-      {/* Manual Side Left Slide Button (Hidden on Mobile, Visible on Desktop sm+) */}
-      {slides.length > 1 && (
+      {/* Play / Pause — bottom right corner (Premium Glassmorphic Golden Pill/Circle) */}
+      {banners.length > 1 && (
         <button
-          onClick={handlePrev}
-          className="hidden sm:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 min-w-[48px] min-h-[48px] rounded-full shrink-0 aspect-square bg-white text-[#7A1126] hover:bg-[#F4A62A] hover:text-[#2B1A16] border-none items-center justify-center shadow-xl transition-all duration-200 p-0 focus:outline-none"
-          aria-label="Previous Slide"
-          title="Previous Slide"
+          onClick={() => setIsPlaying(!isPlaying)}
+          aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
+          style={{
+            position: 'absolute',
+            bottom: '16px',
+            right: '20px',
+            width: '44px',
+            height: '44px',
+            minWidth: '44px',
+            minHeight: '44px',
+            maxWidth: '44px',
+            maxHeight: '44px',
+            aspectRatio: '1 / 1',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(18, 5, 8, 0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: '1.5px solid rgba(244, 166, 42, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 20,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            flexShrink: 0,
+            padding: 0,
+            margin: 0,
+            outline: 'none',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(244, 166, 42, 0.15)',
+            boxSizing: 'border-box'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = 'rgba(122, 17, 38, 0.9)';
+            e.currentTarget.style.borderColor = '#F4A62A';
+            e.currentTarget.style.transform = 'scale(1.08)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'rgba(18, 5, 8, 0.75)';
+            e.currentTarget.style.borderColor = 'rgba(244, 166, 42, 0.5)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
         >
-          <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
+          {isPlaying ? (
+            <Pause className="w-5 h-5 text-[#F4A62A]" fill="#F4A62A" />
+          ) : (
+            <Play className="w-5 h-5 text-[#F4A62A] ml-0.5" fill="#F4A62A" />
+          )}
         </button>
       )}
-
-      {/* Manual Side Right Slide Button (Hidden on Mobile, Visible on Desktop sm+) */}
-      {slides.length > 1 && (
-        <button
-          onClick={handleNext}
-          className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 min-w-[48px] min-h-[48px] rounded-full shrink-0 aspect-square bg-white text-[#7A1126] hover:bg-[#F4A62A] hover:text-[#2B1A16] border-none items-center justify-center shadow-xl transition-all duration-200 p-0 focus:outline-none"
-          aria-label="Next Slide"
-          title="Next Slide"
-        >
-          <ChevronRight className="w-6 h-6 stroke-[2.5]" />
-        </button>
-      )}
-
-      {/* 100% PERFECT CIRCULAR BALL SLIDE DOTS */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
-          {slides.map((s, idx) => {
-            const isCurrent = idx === currentIndex;
-            const sizePx = isCurrent ? 12 : 9;
-            return (
-              <button
-                key={s.id || idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`shrink-0 transition-all duration-300 p-0 border-none outline-none cursor-pointer ${isCurrent
-                    ? 'bg-[#F4A62A] shadow-md ring-2 ring-[#7A1126]'
-                    : 'bg-white/70 hover:bg-white'
-                  }`}
-                style={{
-                  width: `${sizePx}px`,
-                  height: `${sizePx}px`,
-                  minWidth: `${sizePx}px`,
-                  minHeight: `${sizePx}px`,
-                  maxWidth: `${sizePx}px`,
-                  maxHeight: `${sizePx}px`,
-                  borderRadius: '50%',
-                  display: 'block',
-                  padding: 0,
-                  boxSizing: 'border-box'
-                }}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {/* Play & Pause Autoplay Control Button (Bottom Right) */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-2.5 right-3 sm:bottom-6 sm:right-6 z-20">
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="w-9 h-9 min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px] sm:w-12 sm:h-12 sm:min-w-[48px] sm:min-h-[48px] rounded-full shrink-0 aspect-square bg-white text-[#7A1126] hover:bg-[#F4A62A] hover:text-[#2B1A16] border-none flex items-center justify-center shadow-xl transition-all duration-200 p-0 focus:outline-none"
-            title={isPlaying ? 'Pause Slideshow to Read' : 'Resume Slideshow'}
-            aria-label={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
-          >
-            {isPlaying ? (
-              <Pause className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current" />
-            ) : (
-              <Play className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current ml-0.5" />
-            )}
-          </button>
-        </div>
-      )}
-
     </section>
   );
 };
+
+export default HeroSection;

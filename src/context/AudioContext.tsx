@@ -49,92 +49,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return audioCtx;
   };
 
-  // Synthesize new deep 432Hz sacred temple gong & crystal brass bell chime
+  // Bell function removed as requested
   const playTempleBell = () => {
-    if (!soundEnabled) return;
-    try {
-      const ctx = getAudioContext();
-      if (!ctx) return;
-
-      const now = ctx.currentTime;
-
-      // Master output gain & warm low-pass filter decay
-      const masterGain = ctx.createGain();
-      const masterFilter = ctx.createBiquadFilter();
-
-      masterFilter.type = 'lowpass';
-      masterFilter.frequency.setValueAtTime(7200, now);
-      masterFilter.frequency.exponentialRampToValueAtTime(1100, now + 4.5);
-
-      masterGain.gain.setValueAtTime(0.55, now);
-      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 5.0);
-
-      masterGain.connect(masterFilter);
-      masterFilter.connect(ctx.destination);
-
-      // 1. RICH BRASS CLAPPER STRIKE IMPACT
-      const strikeBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.025, ctx.sampleRate);
-      const outputData = strikeBuffer.getChannelData(0);
-      for (let i = 0; i < strikeBuffer.length; i++) {
-        outputData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.004));
-      }
-      const strikeSource = ctx.createBufferSource();
-      strikeSource.buffer = strikeBuffer;
-      const strikeFilter = ctx.createBiquadFilter();
-      strikeFilter.type = 'bandpass';
-      strikeFilter.frequency.setValueAtTime(3800, now);
-      strikeFilter.Q.setValueAtTime(2.5, now);
-
-      const strikeGain = ctx.createGain();
-      strikeGain.gain.setValueAtTime(0.35, now);
-      strikeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
-
-      strikeSource.connect(strikeFilter);
-      strikeFilter.connect(strikeGain);
-      strikeGain.connect(masterFilter);
-      strikeSource.start(now);
-
-      // 2. 432Hz SACRED HARMONIC OVERTONES (Sub-Gong 216Hz, Base 432Hz, Octave 864Hz, 1296Hz, 1728Hz, 2592Hz)
-      const modes = [
-        { freq: 216.0, gain: 0.50, decay: 5.0, type: 'sine' as OscillatorType },    // Sub-Gong Resonance (Deep 216Hz)
-        { freq: 432.0, gain: 0.60, decay: 4.6, type: 'sine' as OscillatorType },    // Sacred Fundamental 432Hz
-        { freq: 864.0, gain: 0.40, decay: 3.8, type: 'sine' as OscillatorType },    // Octave 864Hz
-        { freq: 1296.0, gain: 0.28, decay: 3.2, type: 'triangle' as OscillatorType },// Perfect Fifth (1296Hz)
-        { freq: 1728.0, gain: 0.18, decay: 2.5, type: 'sine' as OscillatorType },   // 2nd Octave (1728Hz)
-        { freq: 2592.0, gain: 0.10, decay: 1.8, type: 'triangle' as OscillatorType } // High Crystal Chime Ring
-      ];
-
-      // Chorusing Tremolo (4.8Hz pitch swell)
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      lfo.frequency.setValueAtTime(4.8, now);
-      lfoGain.gain.setValueAtTime(2.8, now);
-      lfo.connect(lfoGain);
-      lfo.start(now);
-      lfo.stop(now + 5.0);
-
-      modes.forEach((mode) => {
-        const osc = ctx.createOscillator();
-        const modeGain = ctx.createGain();
-
-        osc.type = mode.type;
-        osc.frequency.setValueAtTime(mode.freq, now);
-
-        lfoGain.connect(osc.frequency);
-        osc.frequency.exponentialRampToValueAtTime(mode.freq * 0.998, now + mode.decay);
-
-        modeGain.gain.setValueAtTime(mode.gain, now);
-        modeGain.gain.exponentialRampToValueAtTime(0.0001, now + mode.decay);
-
-        osc.connect(modeGain);
-        modeGain.connect(masterGain);
-
-        osc.start(now);
-        osc.stop(now + mode.decay + 0.1);
-      });
-    } catch (e) {
-      console.warn('Audio playback prevented or unsupported', e);
-    }
+    // No-op
   };
 
   // Synthesize a soft shankh / temple chime sound

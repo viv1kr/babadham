@@ -27,7 +27,7 @@ export const CartDrawer: React.FC = () => {
     applyCoupon,
     removeCoupon,
     discountAmount,
-    setIsCheckoutOpen
+    setActivePage
   } = useStore();
 
   const { playTempleBell } = useAudio();
@@ -234,7 +234,7 @@ export const CartDrawer: React.FC = () => {
               <button
                 onClick={() => {
                   setIsCartOpen(false);
-                  setIsCheckoutOpen(true);
+                  setActivePage('prebooking');
                   playTempleBell();
                 }}
                 className="w-full py-3.5 min-h-[48px] rounded-lg bg-[#7A1126] text-[#FFF8F0] font-extrabold text-sm hover:bg-[#D98C1F] hover:text-[#2B1A16] transition-all shadow-xl flex items-center justify-center gap-2"

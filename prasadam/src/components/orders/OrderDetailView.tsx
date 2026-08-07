@@ -14,12 +14,16 @@ interface OrderDetailViewProps {
 }
 
 export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack }) => {
-  const { updateOrderStatus, updateOrderPaymentStatus, updateOrderNotes, updateOrderAddress, updateOrderTracking, addTimelineEvent, adminProfile } = useAdmin();
+  const { updateOrderStatus, updateOrderPaymentStatus, updateOrderPaymentMethod, updateOrderNotes, updateOrderAddress, updateOrderTracking, addTimelineEvent, adminProfile, products, updateOrderItems } = useAdmin();
 
   // Local state for editing
   const [isMoreActionsOpen, setIsMoreActionsOpen] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [noteInput, setNoteInput] = useState(order.notes || '');
+
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [addProductQty, setAddProductQty] = useState(1);
 
   const [isEditingContact, setIsEditingContact] = useState(false);
   const [contactInput, setContactInput] = useState({
@@ -44,7 +48,8 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
   });
 
   const [timelineInput, setTimelineInput] = useState('');
-  const isUnpaid = (order.paymentMethod || '').toUpperCase() === 'COD' && order.orderStatus !== 'DELIVERED';
+  const isUnpaid = order.paymentStatus !== 'PAID' && order.paymentStatus !== 'REFUNDED';
+  const remainingAmount = Math.max(0, (order.totalAmount || 0) - (order.prebookingAmountPaid || 0));
 
   const paymentPillClass = order.paymentStatus === 'PAID'
     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
@@ -174,6 +179,31 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
     alert(`Invoice sent successfully to customer via ${method === 'whatsapp' ? 'WhatsApp' : 'Email'}.`);
   };
 
+  const handleAddProduct = () => {
+    if (!selectedProductId || addProductQty < 1) return;
+    const prod = products.find(p => p.id === selectedProductId);
+    if (!prod) return;
+
+    const newItem = {
+      product: prod,
+      quantity: addProductQty
+    };
+
+    const newItems = [...(order.items || []), newItem];
+    const newSubtotal = newItems.reduce((acc, item) => acc + ((item.product?.price || 0) * (item.quantity || 1)), 0);
+    const newTotal = newSubtotal - (order.discount || 0) + (order.shipping || 0);
+
+    updateOrderItems(order.id, newItems, newSubtotal, newTotal);
+    
+    setIsAddingProduct(false);
+    setSelectedProductId('');
+    setAddProductQty(1);
+  };
+
+  const handleSendPaymentLink = () => {
+    alert(`Payment link sent to ${order.address?.phone || 'customer'} via WhatsApp.`);
+  };
+
   return (
     <div className="w-full pt-4 sm:pt-6 space-y-6 font-sans pb-12 animate-fade-in text-[13px] text-[#FFF8F0]">
       
@@ -273,8 +303,55 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
                 <div className="text-[#FFF8F0]/50 mb-0.5">Delivery method</div>
                 <div className="font-medium">Shipping</div>
               </div>
-              <button className="text-[#FFF8F0]/40 hover:text-white transition-colors"><MoreHorizontal className="w-5 h-5" /></button>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setIsAddingProduct(!isAddingProduct)}
+                  className="px-3 py-1 font-semibold rounded bg-white/10 hover:bg-white/15 text-white transition-colors text-xs"
+                >
+                  {isAddingProduct ? 'Cancel' : 'Add product'}
+                </button>
+                <button className="text-[#FFF8F0]/40 hover:text-white transition-colors"><MoreHorizontal className="w-5 h-5" /></button>
+              </div>
             </div>
+            
+            {isAddingProduct && (
+              <div className="p-4 bg-[#250d12] border-b border-white/10 animate-fade-in space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium text-[#FFF8F0]/50 mb-1">Select Product</label>
+                    <select
+                      value={selectedProductId}
+                      onChange={(e) => setSelectedProductId(e.target.value)}
+                      className="w-full bg-[#1C080C] border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-[#F4A62A]/50"
+                    >
+                      <option value="">-- Choose a product --</option>
+                      {products.map(p => (
+                        <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-24">
+                    <label className="block text-xs font-medium text-[#FFF8F0]/50 mb-1">Qty</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={addProductQty}
+                      onChange={(e) => setAddProductQty(Number(e.target.value) || 1)}
+                      className="w-full bg-[#1C080C] border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-[#F4A62A]/50"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-1">
+                  <button
+                    onClick={handleAddProduct}
+                    disabled={!selectedProductId}
+                    className="px-4 py-1.5 font-semibold rounded-lg bg-[#F4A62A] hover:bg-[#F4A62A]/90 text-[#120508] transition-colors text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Add to order
+                  </button>
+                </div>
+              </div>
+            )}
             
             <div className="p-4 space-y-4">
               {(order.items || []).map((item, idx) => (
@@ -317,11 +394,38 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
 
           {/* Payment Card */}
           <div className="bg-[#1C080C] border border-white/10 rounded-xl shadow-md p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border font-medium text-xs ${paymentPillClass}`}>
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                {order.paymentStatus === 'REFUNDED' ? 'Refunded' : isUnpaid ? 'Payment pending' : 'Paid'}
-              </span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border font-medium text-xs ${paymentPillClass}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {order.paymentStatus === 'REFUNDED' ? 'Refunded' : isUnpaid ? 'Payment pending' : 'Paid'}
+                </span>
+                {order.paymentMethod === 'ONLINE_LINK' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-purple-500/20 bg-purple-500/10 text-purple-300 font-medium text-xs">
+                    Online Link
+                  </span>
+                )}
+                {order.paymentMethod === 'COD' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-amber-500/20 bg-amber-500/10 text-amber-300 font-medium text-xs">
+                    COD
+                  </span>
+                )}
+              </div>
+              
+              {isUnpaid && (
+                <div className="flex items-center gap-2">
+                  <select 
+                    value={order.paymentMethod || 'COD'}
+                    onChange={(e) => updateOrderPaymentMethod(order.id, e.target.value as Order['paymentMethod'])}
+                    className="bg-[#2B1217] border border-white/10 rounded p-1 text-xs text-white focus:outline-none"
+                  >
+                    <option value="ONLINE_LINK">Online Link</option>
+                    <option value="COD">COD</option>
+                    <option value="UPI">UPI</option>
+                    <option value="CARD">Card</option>
+                  </select>
+                </div>
+              )}
             </div>
             
             <div className="space-y-2.5 text-[14px]">
@@ -329,15 +433,38 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBack 
                 <span>Subtotal <span className="text-[#FFF8F0]/50 text-xs ml-1">{totalItems} items</span></span>
                 <span>₹{Number(order.subtotal || order.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
+              
+              {order.prebookingAmountPaid ? (
+                <div className="flex justify-between text-emerald-400">
+                  <span>Prebooking Paid</span>
+                  <span>- ₹{Number(order.prebookingAmountPaid).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              ) : null}
+
               <div className="flex justify-between font-bold text-white pt-2 border-t border-white/5">
-                <span>Total</span>
-                <span>₹{Number(order.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-              </div>
-              <div className="flex justify-between text-[#FFF8F0]/80 pt-2 border-t border-white/5">
-                <span>{isUnpaid ? 'To be paid (COD)' : 'Paid'}</span>
-                <span>₹{Number(order.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                <span>{order.prebookingAmountPaid ? 'Remaining Total' : 'Total'}</span>
+                <span>₹{Number(remainingAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
+
+            {isUnpaid && remainingAmount > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/5 flex flex-col gap-2">
+                {order.paymentMethod === 'ONLINE_LINK' && (
+                  <button 
+                    onClick={handleSendPaymentLink}
+                    className="w-full py-2 font-semibold rounded-lg bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/20 transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                  >
+                    <Phone className="w-4 h-4" /> Send Payment Link on WhatsApp
+                  </button>
+                )}
+                <button 
+                  onClick={() => updateOrderPaymentStatus(order.id, 'PAID')}
+                  className="w-full py-2 font-semibold rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/20 transition-colors shadow-sm"
+                >
+                  Mark as Paid
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Tracking Card */}

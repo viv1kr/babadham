@@ -8,6 +8,16 @@ export type ProductCategory =
   | 'kits'
   | (string & {});
 
+export interface HeroBannerItem {
+  id: string;
+  title?: string;
+  mediaType: 'image' | 'video';
+  desktopUrl: string;
+  mobileUrl?: string;
+  displayOrder: number;
+  createdAt: string;
+}
+
 export interface ProductVariant {
   id: string;
   name: string;
@@ -161,7 +171,8 @@ export interface Order {
   discount: number;
   shipping: number;
   totalAmount: number;
-  paymentMethod: 'UPI' | 'CARD' | 'COD';
+  prebookingAmountPaid?: number;
+  paymentMethod: 'UPI' | 'CARD' | 'COD' | 'ONLINE_LINK';
   paymentStatus: 'PAID' | 'PENDING' | 'REFUNDED';
   orderStatus: 'ORDER_PLACED' | 'TEMPLE_BLESSING' | 'PACKED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
   trackingSteps: TrackingStep[];
@@ -208,14 +219,6 @@ export interface CustomDetail {
   id: string;
   label: string;
   value: string;
-}
-
-export interface PrasadiRequestItem {
-  id: string;
-  devoteeName: string;
-  location: string;
-  prasadItem: string;
-  timeAgo: string;
 }
 
 export interface PaymentGatewayConfig {
@@ -280,12 +283,16 @@ export interface BrandSettings {
   tickerSpeedSeconds?: number;
   todayTotalBookingsCount?: string;
   tickerAnnouncementText?: string;
-  livePrasadiRequests?: PrasadiRequestItem[];
   feature1: string;
   feature2: string;
   feature3: string;
   feature4: string;
   heroSlides?: HeroSlide[];
+  prebookingHeroSlides?: HeroSlide[];
+  prebookTitle?: string;
+  prebookSubtitle?: string;
+  prebookAmount?: number;
+  prebookHelpPhone?: string;
   customDetails?: CustomDetail[];
   headerScripts?: string;
   bodyScripts?: string;
@@ -297,29 +304,6 @@ export interface BrandSettings {
   shippingPolicy?: string;
   paymentGateways?: PaymentGatewayConfig;
   emailWhatsappConfig?: EmailWhatsappConfig;
-  orderRequestTrustBadges?: OrderRequestTrustBadge[];
-  orderRequestMediaConfig?: OrderRequestMediaConfig;
-  orderRequestHeroSlides?: HeroSlide[];
-}
-
-export interface OrderRequestTrustBadge {
-  id: string;
-  iconName: string;
-  title: string;
-  subtitle: string;
-}
-
-export interface OrderRequestMediaConfig {
-  videoUrl?: string;
-  youtubeUrl?: string;
-  uploadedVideoUrl?: string;
-  videoSourceType?: 'youtube' | 'upload';
-  videoTitle?: string;
-  videoSubtitle?: string;
-  bannerBgImageUrl?: string;
-  bellAudioUrl?: string;
-  videoCtaUrl?: string;
-  videoCtaText?: string;
 }
 
 export interface AdminUserProfile {

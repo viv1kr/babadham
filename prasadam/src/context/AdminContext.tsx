@@ -33,8 +33,10 @@ interface AdminContextType {
   addOrder: (orderData: Omit<Order, 'id' | 'createdAt'>) => Order;
   updateOrderStatus: (orderId: string, status: Order['orderStatus']) => void;
   updateOrderPaymentStatus: (orderId: string, status: Order['paymentStatus']) => void;
+  updateOrderPaymentMethod: (orderId: string, method: Order['paymentMethod']) => void;
   updateOrderNotes: (orderId: string, notes: string) => void;
   updateOrderAddress: (orderId: string, addressType: 'shipping' | 'billing', address: Partial<OrderAddress>) => void;
+  updateOrderItems: (orderId: string, items: any[], subtotal: number, totalAmount: number) => void;
   updateOrderTracking: (orderId: string, courierName: string, trackingNumber: string, trackingUrl: string) => void;
   addTimelineEvent: (orderId: string, event: Omit<TimelineEvent, 'id' | 'createdAt'>) => void;
   addProduct: (product: Omit<Product, 'id'>) => Product | void;
@@ -237,6 +239,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Order payment status updated to ${status}`);
   };
 
+  const updateOrderPaymentMethod = (orderId: string, method: Order['paymentMethod']) => {
+    db.updateOrderPaymentMethod(orderId, method);
+    setOrders([...db.getOrders()]);
+    showToast(`Order payment method updated to ${method}`);
+  };
+
   const updateOrderNotes = (orderId: string, notes: string) => {
     db.updateOrderNotes(orderId, notes);
     setOrders([...db.getOrders()]);
@@ -247,6 +255,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     db.updateOrderAddress(orderId, addressType, address);
     setOrders([...db.getOrders()]);
     showToast(`Customer ${addressType} address updated`);
+  };
+
+  const updateOrderItems = (orderId: string, items: any[], subtotal: number, totalAmount: number) => {
+    db.updateOrderItems(orderId, items, subtotal, totalAmount);
+    setOrders([...db.getOrders()]);
+    showToast(`Order ${orderId} items updated successfully`);
   };
 
   const addTimelineEvent = (orderId: string, event: Omit<TimelineEvent, 'id' | 'createdAt'>) => {
@@ -406,8 +420,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addOrder,
         updateOrderStatus,
         updateOrderPaymentStatus,
+        updateOrderPaymentMethod,
         updateOrderNotes,
         updateOrderAddress,
+        updateOrderItems,
         updateOrderTracking,
         addTimelineEvent,
         addProduct,

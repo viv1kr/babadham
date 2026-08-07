@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
 import { Palette, Save, Phone, Mail, MapPin, FileText, ShieldCheck, Plus, Trash2, Globe, Image as ImageIcon, Upload, MessageCircle, Bookmark, LayoutGrid, Tv, Link as LinkIcon, MoveUp, MoveDown, Sparkles } from 'lucide-react';
-import type { CustomDetail, HeroSlide } from '../../types/ecommerce';
+import type { CustomDetail, HeroSlide, HeroBannerItem } from '../../types/ecommerce';
+import { compressImage, setPersistentMedia, getPersistentMedia } from '../../utils/mediaDB';
+import { db } from '../../db/mysqlSim';
 
 export const BrandingView: React.FC = () => {
   const { brandSettings, saveBrandSettings } = useAdmin();
@@ -31,29 +33,122 @@ export const BrandingView: React.FC = () => {
   const [bTickerAnnouncement, setBTickerAnnouncement] = useState(brandSettings?.tickerAnnouncementText || '✨ Direct Garbhagriha Bhog Prasad Blessed at Baidyanath Jyotirlinga Temple & Express 24-Hour Dispatch across India! 🚩 Order Online or on WhatsApp 🔱');
   const [bTickerSpeed, setBTickerSpeed] = useState<number>(brandSettings?.tickerSpeedSeconds || 30);
 
-  // Hero Slides List State
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(
-    brandSettings?.heroSlides && brandSettings.heroSlides.length > 0 ? brandSettings.heroSlides : [
-      {
-        id: 'slide-1',
-        type: 'image',
-        mediaUrl: 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?auto=format&fit=crop&w=1600&q=80',
-        heading: 'Direct Garbhagriha Bhog Prasad Delivery',
-        description: 'Touch-offered directly at Baidyanath Jyotirlinga & delivered home with express 24-hour dispatch.',
-        buttonText: 'Order Bhog Prasad on WhatsApp',
-        buttonLink: 'https://wa.me/919876543211'
-      },
-      {
-        id: 'slide-2',
-        type: 'video',
-        mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-temple-bell-ringing-in-a-sacred-ritual-41566-large.mp4',
-        heading: 'Deoghar Dham Divine Darshan & Peda',
-        description: 'Pure Desi Ghee Peda Prasad, 5-Mukhi Rudraksh & Uttarvahini Ganga Jal.',
-        buttonText: 'Explore Sacred Store',
-        buttonLink: '#products'
+  // Dedicated Hero Banner Table State
+  const [heroBanners, setHeroBanners] = useState<HeroBannerItem[]>(() => {
+    return db.getHeroBanners();
+  });
+
+  useEffect(() => {
+    if (brandSettings?.heroBanners && Array.isArray(brandSettings.heroBanners)) {
+      setHeroBanners(brandSettings.heroBanners);
+    } else {
+      const active = db.getHeroBanners();
+      if (active && Array.isArray(active)) {
+        setHeroBanners(active);
       }
-    ]
-  );
+    }
+  }, [brandSettings?.heroBanners]);
+
+  const handleAddHeroBanner = () => {
+    const newBanner: HeroBannerItem = {
+      id: Date.now().toString(),
+      title: `Hero Banner ${heroBanners.length + 1}`,
+      mediaType: 'image',
+      desktopUrl: '',
+      mobileUrl: '',
+      displayOrder: heroBanners.length,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [...heroBanners, newBanner];
+    setHeroBanners(updated);
+    db.saveHeroBanners(updated);
+    try { localStorage.setItem('babadham_hero_banners', JSON.stringify(updated)); } catch(e) {}
+    saveBrandSettings({ heroBanners: updated });
+    syncToStorefront(undefined, undefined, { ...brandSettings, heroBanners: updated });
+  };
+
+  const handleUpdateHeroBanner = (id: string, updates: Partial<HeroBannerItem>) => {
+    const updated = heroBanners.map(b => b.id === id ? { ...b, ...updates } : b);
+    setHeroBanners(updated);
+    db.saveHeroBanners(updated);
+    try { localStorage.setItem('babadham_hero_banners', JSON.stringify(updated)); } catch(e) {}
+    saveBrandSettings({ heroBanners: updated });
+    syncToStorefront(undefined, undefined, { ...brandSettings, heroBanners: updated });
+  };
+
+  const handleRemoveHeroBanner = (id: string) => {
+    const updated = heroBanners.filter(b => b.id !== id);
+    setHeroBanners(updated);
+    db.saveHeroBanners(updated);
+    try { localStorage.setItem('babadham_hero_banners', JSON.stringify(updated)); } catch(e) {}
+    saveBrandSettings({ heroBanners: updated });
+    syncToStorefront(undefined, undefined, { ...brandSettings, heroBanners: updated });
+  };
+
+  const handleMoveHeroBanner = (index: number, direction: 'up' | 'down') => {
+    const newBanners = [...heroBanners];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex >= 0 && targetIndex < newBanners.length) {
+      const temp = newBanners[index];
+      newBanners[index] = newBanners[targetIndex];
+      newBanners[targetIndex] = temp;
+      setHeroBanners(newBanners);
+      db.saveHeroBanners(newBanners);
+      try { localStorage.setItem('babadham_hero_banners', JSON.stringify(newBanners)); } catch(e) {}
+      saveBrandSettings({ heroBanners: newBanners });
+      syncToStorefront(undefined, undefined, { ...brandSettings, heroBanners: newBanners });
+    }
+  };
+
+  const handleClearAllHeroBanners = () => {
+    setHeroBanners([]);
+    db.saveHeroBanners([]);
+    try {
+      localStorage.setItem('babadham_hero_banners', JSON.stringify([]));
+    } catch(e) {}
+    saveBrandSettings({ heroBanners: [] });
+    syncToStorefront(undefined, undefined, { ...brandSettings, heroBanners: [] });
+  };
+
+  const handleHeroBannerMediaUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>, isMobile: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      let payloadData: string;
+      const isVideo = file.type.startsWith('video');
+      if (isVideo) {
+        payloadData = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      } else {
+        payloadData = await compressImage(file);
+      }
+
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: payloadData,
+          type: 'hero-banner'
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.path) {
+        const freshUrl = `${data.path}?t=${Date.now()}`;
+        if (isMobile) {
+          handleUpdateHeroBanner(id, { mobileUrl: freshUrl, ...(isVideo ? { mediaType: 'video' } : {}) });
+        } else {
+          handleUpdateHeroBanner(id, { desktopUrl: freshUrl, ...(isVideo ? { mediaType: 'video' } : {}) });
+        }
+      }
+    } catch (err) {
+      console.warn('Upload error', err);
+    }
+  };
 
   // Custom Details List State
   const [customDetails, setCustomDetails] = useState<CustomDetail[]>(
@@ -67,6 +162,26 @@ export const BrandingView: React.FC = () => {
   const [newValue, setNewValue] = useState('');
 
   const syncToStorefront = (logo?: string, favicon?: string, settings?: any) => {
+    // Broadcast hero banners update
+    try {
+      const channel = new BroadcastChannel('bbp_brand_sync');
+      const banners = settings?.heroBanners !== undefined ? settings.heroBanners : heroBanners;
+      channel.postMessage({ type: 'HERO_BANNERS_UPDATED', banners });
+      channel.close();
+    } catch(e) {}
+
+    // Broadcast brand settings update (logo, favicon, etc.)
+    try {
+      const settingsToSync = settings !== undefined ? settings : db.getBrandSettings();
+      if (logo !== undefined) settingsToSync.logoImageUrl = logo;
+      if (favicon !== undefined) settingsToSync.faviconUrl = favicon;
+      const channel2 = new BroadcastChannel('bbp_brand_sync');
+      channel2.postMessage({ type: 'BRAND_SETTINGS_UPDATED', settings: settingsToSync });
+      channel2.close();
+    } catch(e) {}
+
+    window.dispatchEvent(new Event('bbp_db_updated'));
+
     const frame = document.getElementById('babadham-sync-frame') as HTMLIFrameElement;
     if (frame && frame.contentWindow) {
       frame.contentWindow.postMessage({
@@ -74,7 +189,7 @@ export const BrandingView: React.FC = () => {
         logo: logo !== undefined ? logo : localStorage.getItem('babadham_logo_image'),
         favicon: favicon !== undefined ? favicon : localStorage.getItem('babadham_favicon_image'),
         settings: settings !== undefined ? JSON.stringify(settings) : localStorage.getItem('babadham_brand_settings')
-      }, 'http://localhost:5173');
+      }, '*');
     }
   };
 
@@ -131,9 +246,21 @@ export const BrandingView: React.FC = () => {
                 if (key === 'babadham_logo_image') {
                   saveBrandSettings({ logoImageUrl: freshUrl });
                   syncToStorefront(freshUrl, undefined, undefined);
+                  // Directly write to server DB so polling doesn't overwrite
+                  fetch('/api/db', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ brandSettings: { logoImageUrl: freshUrl } })
+                  }).catch(() => {});
                 } else if (key === 'babadham_favicon_image') {
                   saveBrandSettings({ faviconUrl: freshUrl });
                   syncToStorefront(undefined, freshUrl, undefined);
+                  // Directly write to server DB so polling doesn't overwrite
+                  fetch('/api/db', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ brandSettings: { faviconUrl: freshUrl } })
+                  }).catch(() => {});
                 }
               } catch (err) {
                 console.warn('Instant save error', err);
@@ -192,69 +319,6 @@ export const BrandingView: React.FC = () => {
     });
   };
 
-  // Hero Slides Handlers
-  const handleAddSlide = () => {
-    const newSlide: HeroSlide = {
-      id: `slide-${Date.now()}`,
-      type: 'image',
-      mediaUrl: '',
-      heading: '',
-      description: '',
-      buttonText: '',
-      buttonLink: ''
-    };
-    setHeroSlides([...heroSlides, newSlide]);
-  };
-
-  const handleUpdateSlide = (id: string, updatedFields: Partial<HeroSlide>) => {
-    const updated = heroSlides.map(slide => slide.id === id ? { ...slide, ...updatedFields } : slide);
-    setHeroSlides(updated);
-    saveBrandSettings({ heroSlides: updated });
-    syncToStorefront(undefined, undefined, { ...brandSettings, heroSlides: updated });
-  };
-
-  const handleRemoveSlide = (id: string) => {
-    const updated = heroSlides.filter(slide => slide.id !== id);
-    setHeroSlides(updated);
-    saveBrandSettings({ heroSlides: updated });
-    syncToStorefront(undefined, undefined, { ...brandSettings, heroSlides: updated });
-  };
-
-  const handleMoveSlide = (index: number, direction: 'up' | 'down') => {
-    const newSlides = [...heroSlides];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex >= 0 && targetIndex < newSlides.length) {
-      const temp = newSlides[index];
-      newSlides[index] = newSlides[targetIndex];
-      newSlides[targetIndex] = temp;
-      setHeroSlides(newSlides);
-      saveBrandSettings({ heroSlides: newSlides });
-      syncToStorefront(undefined, undefined, { ...brandSettings, heroSlides: newSlides });
-    }
-  };
-
-  const handleSlideMediaUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>, isVideo: boolean = false, isMobile: boolean = false) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const fieldKey = isMobile ? 'mobileMediaUrl' : 'mediaUrl';
-
-    if (isVideo) {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const resUrl = evt.target?.result as string;
-        handleUpdateSlide(id, { [fieldKey]: resUrl, type: 'video' });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      const maxW = isMobile ? 800 : 1600;
-      const maxH = isMobile ? 1200 : 900;
-      compressAndSaveImage(file, maxW, maxH, `babadham_hero_${id}_${isMobile ? 'mob' : 'desk'}`, (resUrl) => {
-        handleUpdateSlide(id, { [fieldKey]: resUrl, type: 'image' });
-      });
-    }
-  };
-
   const handleAddCustomDetail = () => {
     if (!newLabel.trim() || !newValue.trim()) return;
     setCustomDetails([
@@ -269,7 +333,7 @@ export const BrandingView: React.FC = () => {
     setCustomDetails(customDetails.filter(item => item.id !== id));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const newSettings = {
       ...brandSettings,
@@ -292,8 +356,17 @@ export const BrandingView: React.FC = () => {
       tickerAnnouncementText: bTickerAnnouncement,
       tickerSpeedSeconds: bTickerSpeed,
       customDetails: customDetails,
-      heroSlides: heroSlides
+      heroBanners: heroBanners
     };
+
+    db.saveHeroBanners(heroBanners);
+    db.saveBrandSettings(newSettings);
+
+    try {
+      localStorage.setItem('babadham_hero_banners', JSON.stringify(heroBanners));
+      localStorage.setItem('babadham_brand_settings', JSON.stringify(newSettings));
+    } catch (err) {}
+
     saveBrandSettings(newSettings);
     syncToStorefront(undefined, undefined, newSettings);
   };
@@ -301,7 +374,7 @@ export const BrandingView: React.FC = () => {
   // Sub-Navigation Desk Items (Second Sidebar) - Clean, Minimalist & Badge-Free
   const deskNavItems = [
     { id: 'all', label: 'ALL CONFIGURATIONS', icon: LayoutGrid },
-    { id: 'hero', label: 'HERO SLIDER & MEDIA', icon: Tv },
+    { id: 'hero-banner', label: 'HERO BANNER MANAGER', icon: Tv },
     { id: 'logo', label: 'LOGO & FAVICON', icon: ImageIcon },
     { id: 'identity', label: 'BRAND IDENTITY', icon: Palette },
     { id: 'contact', label: 'CONTACT & SUPPORT', icon: Phone },
@@ -360,258 +433,213 @@ export const BrandingView: React.FC = () => {
         {/* Main Content Sections Column */}
         <div className="flex-1 p-6 sm:p-8 space-y-6 w-full bg-[#120508]">
 
-          {/* 0. Hero Banner Slides & Video Media Manager */}
-          {(activeSubTab === 'all' || activeSubTab === 'hero') && (
+          {/* Dedicated Hero Banner Table Manager */}
+          {(activeSubTab === 'all' || activeSubTab === 'hero-banner') && (
             <div className="bg-[#2B1217] p-5 sm:p-6 rounded-2xl border border-[#F4A62A]/30 space-y-6 shadow-lg w-full">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F4A62A]/20 pb-4">
                 <div>
                   <h3 className="font-serif-temple text-base sm:text-lg font-bold text-[#F4A62A] flex items-center gap-2">
-                    <Tv className="w-5 h-5" /> Storefront Hero Banner & Video Slides ({heroSlides.length})
+                    <Tv className="w-5 h-5" /> Dedicated Hero Banner Table Manager ({heroBanners.length})
                   </h3>
                   <p className="text-xs text-[#FFF8F0]/60 mt-0.5">
-                    Add photos or promotional videos with custom headings, descriptions, and direct order buttons.
+                    Upload separate photo or video hero banners for desktop and mobile screens.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleAddSlide}
-                  className="h-10 px-4 rounded-xl bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] font-bold text-xs border border-[#F4A62A]/40 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shrink-0"
-                >
-                  <Plus className="w-4 h-4" /> Add New Hero Slide
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {heroBanners.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAllHeroBanners}
+                      className="h-10 px-3 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-300 font-bold text-xs border border-red-500/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                    >
+                      <Trash2 className="w-4 h-4" /> Delete All Banners
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleAddHeroBanner}
+                    className="h-10 px-4 rounded-xl bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] font-bold text-xs border border-[#F4A62A]/40 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <Plus className="w-4 h-4" /> Add New Hero Banner
+                  </button>
+                </div>
               </div>
 
-              {/* Slides Grid / List */}
+              {/* Banners List */}
               <div className="space-y-6">
-                {heroSlides.map((slide, index) => (
+                {heroBanners.map((banner, index) => (
                   <div 
-                    key={slide.id}
+                    key={banner.id}
                     className="p-5 rounded-2xl bg-[#1A0B0E] border border-[#F4A62A]/20 space-y-4 relative shadow-md"
                   >
-                    {/* Slide Top Header Bar */}
+                    {/* Banner Card Header */}
                     <div className="flex items-center justify-between border-b border-[#F4A62A]/10 pb-3">
                       <div className="flex items-center gap-3">
                         <span className="w-7 h-7 rounded-full bg-[#7A1126] text-[#F4A62A] font-bold text-xs flex items-center justify-center border border-[#F4A62A]/30">
                           #{index + 1}
                         </span>
-                        <span className="font-bold text-sm text-[#FFF8F0]">
-                          {slide.type === 'video' ? '🎬 Video Slide Banner' : '🖼️ Photo Slide Banner'}
-                        </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border ${
-                          slide.type === 'video' ? 'bg-purple-950/80 text-purple-300 border-purple-500/30' : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/30'
+                        <input
+                          type="text"
+                          value={banner.title || ''}
+                          onChange={(e) => handleUpdateHeroBanner(banner.id, { title: e.target.value })}
+                          placeholder="Banner Title / Reference Name"
+                          className="bg-[#120508] border border-[#F4A62A]/30 rounded-lg px-3 py-1 text-xs font-bold text-white focus:outline-none focus:border-[#F4A62A] w-48 sm:w-64"
+                        />
+                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${
+                          banner.mediaType === 'video' ? 'bg-purple-950/80 text-purple-300 border-purple-500/30' : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/30'
                         }`}>
-                          {slide.type}
+                          {banner.mediaType}
                         </span>
                       </div>
 
-                      {/* Reorder & Remove Slide Controls */}
+                      {/* Reorder & Remove Controls */}
                       <div className="flex items-center gap-1.5">
                         {index > 0 && (
                           <button
                             type="button"
-                            onClick={() => handleMoveSlide(index, 'up')}
+                            onClick={() => handleMoveHeroBanner(index, 'up')}
                             className="p-1.5 text-[#F4A62A] hover:bg-[#2B1217] rounded-lg transition-colors cursor-pointer"
-                            title="Move Slide Up"
+                            title="Move Banner Up"
                           >
                             <MoveUp className="w-4 h-4" />
                           </button>
                         )}
-                        {index < heroSlides.length - 1 && (
+                        {index < heroBanners.length - 1 && (
                           <button
                             type="button"
-                            onClick={() => handleMoveSlide(index, 'down')}
+                            onClick={() => handleMoveHeroBanner(index, 'down')}
                             className="p-1.5 text-[#F4A62A] hover:bg-[#2B1217] rounded-lg transition-colors cursor-pointer"
-                            title="Move Slide Down"
+                            title="Move Banner Down"
                           >
                             <MoveDown className="w-4 h-4" />
                           </button>
                         )}
                         <button
                           type="button"
-                          onClick={() => handleRemoveSlide(slide.id)}
+                          onClick={() => handleRemoveHeroBanner(banner.id)}
                           className="p-1.5 text-red-400 hover:text-red-200 hover:bg-red-950/60 rounded-lg transition-colors cursor-pointer ml-1"
-                          title="Delete Slide"
+                          title="Delete Banner"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
 
-                    <div className="space-y-6">
+                    {/* Media Columns */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                       
-                      {/* Top Row: Desktop & Mobile Media Uploaders */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                        
-                        {/* 1. Desktop Media Column */}
-                        <div className="space-y-3 p-4 rounded-xl bg-[#120508] border border-[#F4A62A]/20">
-                          <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold text-[#F4A62A] flex items-center gap-1.5">
-                              🖥️ Desktop Media (Wide Screen)
-                            </label>
-                            <div className="flex items-center gap-1 bg-[#1A0B0E] p-1 rounded-lg border border-[#F4A62A]/20">
-                              <button
-                                type="button"
-                                onClick={() => handleUpdateSlide(slide.id, { type: 'image' })}
-                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-                                  slide.type === 'image' ? 'bg-[#7A1126] text-[#F4A62A]' : 'text-[#FFF8F0]/60 hover:text-white'
-                                }`}
-                              >
-                                Photo
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleUpdateSlide(slide.id, { type: 'video' })}
-                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-                                  slide.type === 'video' ? 'bg-purple-900 text-purple-200' : 'text-[#FFF8F0]/60 hover:text-white'
-                                }`}
-                              >
-                                Video
-                              </button>
-                            </div>
+                      {/* Desktop Media Column */}
+                      <div className="space-y-3 p-4 rounded-xl bg-[#120508] border border-[#F4A62A]/20">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-[#F4A62A] flex items-center gap-1.5">
+                            🖥️ Desktop Media (Wide Screen)
+                          </label>
+                          <div className="flex items-center gap-1 bg-[#1A0B0E] p-1 rounded-lg border border-[#F4A62A]/20">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateHeroBanner(banner.id, { mediaType: 'image' })}
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
+                                banner.mediaType === 'image' ? 'bg-[#7A1126] text-[#F4A62A]' : 'text-[#FFF8F0]/60 hover:text-white'
+                              }`}
+                            >
+                              Image
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateHeroBanner(banner.id, { mediaType: 'video' })}
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
+                                banner.mediaType === 'video' ? 'bg-purple-900 text-purple-200' : 'text-[#FFF8F0]/60 hover:text-white'
+                              }`}
+                            >
+                              Video
+                            </button>
                           </div>
+                        </div>
 
-                          {/* Desktop Preview Box */}
-                          <div className="w-full h-36 rounded-xl bg-[#2B1217]/60 border border-[#F4A62A]/30 flex items-center justify-center overflow-hidden relative shadow-inner">
-                            {slide.mediaUrl ? (
-                              slide.type === 'video' ? (
-                                <video src={slide.mediaUrl} controls autoPlay muted loop className="w-full h-full object-cover" />
-                              ) : (
-                                <img src={slide.mediaUrl} alt="Desktop Preview" className="w-full h-full object-cover" />
-                              )
+                        {/* Desktop Preview */}
+                        <div className="w-full h-36 rounded-xl bg-[#2B1217]/60 border border-[#F4A62A]/30 flex items-center justify-center overflow-hidden relative shadow-inner">
+                          {banner.desktopUrl ? (
+                            banner.mediaType === 'video' ? (
+                              <video src={banner.desktopUrl} controls autoPlay muted loop className="w-full h-full object-cover" />
                             ) : (
-                              <span className="text-[11px] text-[#FFF8F0]/40 font-medium text-center px-4">
-                                {slide.type === 'video' ? 'No Desktop Video Uploaded' : 'No Desktop Photo Uploaded'}
-                              </span>
-                            )}
-                          </div>
+                              <img src={banner.desktopUrl} alt="Desktop Preview" className="w-full h-full object-cover" />
+                            )
+                          ) : (
+                            <span className="text-[11px] text-[#FFF8F0]/40 font-medium text-center px-4">
+                              {banner.mediaType === 'video' ? 'No Desktop Video Uploaded' : 'No Desktop Image Uploaded'}
+                            </span>
+                          )}
+                        </div>
 
-                          {/* Desktop File Upload Button */}
-                          <label className="flex items-center justify-center gap-2 px-3 h-10 rounded-xl bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] font-bold text-xs border border-[#F4A62A]/40 transition-all cursor-pointer w-full text-center shadow-md">
-                            <Upload className="w-3.5 h-3.5" /> Upload Desktop {slide.type === 'video' ? 'Video' : 'Photo'}
+                        {/* Upload & Delete Buttons */}
+                        <div className="flex items-center gap-2">
+                          <label className="flex-1 flex items-center justify-center gap-2 px-3 h-10 rounded-xl bg-[#7A1126] hover:bg-[#500A18] text-[#F4A62A] font-bold text-xs border border-[#F4A62A]/40 transition-all cursor-pointer text-center shadow-md">
+                            <Upload className="w-3.5 h-3.5" /> {banner.desktopUrl ? 'Replace' : 'Upload'} Desktop {banner.mediaType === 'video' ? 'Video' : 'Image'}
                             <input 
                               type="file" 
-                              accept={slide.type === 'video' ? 'video/*' : 'image/*'} 
-                              onChange={(e) => handleSlideMediaUpload(slide.id, e, slide.type === 'video', false)} 
+                              accept={banner.mediaType === 'video' ? 'video/*' : 'image/*'} 
+                              onChange={(e) => handleHeroBannerMediaUpload(banner.id, e, false)} 
                               className="hidden" 
                             />
                           </label>
-
-                          {/* Desktop URL Input */}
-                          <input
-                            type="text"
-                            placeholder={slide.type === 'video' ? 'Or paste Desktop video URL...' : 'Or paste Desktop image URL...'}
-                            value={slide.mediaUrl || ''}
-                            onChange={(e) => handleUpdateSlide(slide.id, { mediaUrl: e.target.value })}
-                            className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none"
-                          />
+                          {banner.desktopUrl && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateHeroBanner(banner.id, { desktopUrl: '' })}
+                              className="px-3 h-10 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-300 font-bold text-xs border border-red-500/40 transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-md"
+                              title="Delete Desktop Media"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> Delete Desktop
+                            </button>
+                          )}
                         </div>
-
-                        {/* 2. Mobile Media Column (Optional) */}
-                        <div className="space-y-3 p-4 rounded-xl bg-[#120508] border border-[#F4A62A]/20">
-                          <div className="flex items-center justify-between">
-                            <label className="text-xs font-bold text-[#F4A62A] flex items-center gap-1.5">
-                              📱 Mobile Media (Phone Screen) <span className="text-[#F4A62A]/60 font-normal">(Optional)</span>
-                            </label>
-                          </div>
-
-                          {/* Mobile Preview Box */}
-                          <div className="w-full h-36 rounded-xl bg-[#2B1217]/60 border border-[#F4A62A]/30 flex items-center justify-center overflow-hidden relative shadow-inner">
-                            {slide.mobileMediaUrl ? (
-                              slide.type === 'video' ? (
-                                <video src={slide.mobileMediaUrl} controls autoPlay muted loop className="w-full h-full object-cover" />
-                              ) : (
-                                <img src={slide.mobileMediaUrl} alt="Mobile Preview" className="w-full h-full object-cover" />
-                              )
-                            ) : (
-                              <span className="text-[11px] text-[#FFF8F0]/40 font-medium text-center px-4">
-                                {slide.type === 'video' ? 'Uses Desktop Video on Mobile' : 'Uses Desktop Photo on Mobile'}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Mobile File Upload Button */}
-                          <label className="flex items-center justify-center gap-2 px-3 h-10 rounded-xl bg-[#2B1217] hover:bg-[#500A18] text-[#F4A62A] font-bold text-xs border border-[#F4A62A]/40 transition-all cursor-pointer w-full text-center shadow-md">
-                            <Upload className="w-3.5 h-3.5" /> Upload Mobile {slide.type === 'video' ? 'Video' : 'Photo'}
-                            <input 
-                              type="file" 
-                              accept={slide.type === 'video' ? 'video/*' : 'image/*'} 
-                              onChange={(e) => handleSlideMediaUpload(slide.id, e, slide.type === 'video', true)} 
-                              className="hidden" 
-                            />
-                          </label>
-
-                          {/* Mobile URL Input */}
-                          <input
-                            type="text"
-                            placeholder={slide.type === 'video' ? 'Or paste Mobile video URL...' : 'Or paste Mobile image URL...'}
-                            value={slide.mobileMediaUrl || ''}
-                            onChange={(e) => handleUpdateSlide(slide.id, { mobileMediaUrl: e.target.value })}
-                            className="w-full bg-[#1A0B0E] text-xs text-[#FFF8F0] px-3 py-2 rounded-xl border border-[#F4A62A]/20 focus:border-[#F4A62A] focus:outline-none"
-                          />
-                        </div>
-
                       </div>
 
-                      {/* Bottom Row: Slide Text Contents & CTA Links */}
-                      <div className="space-y-4 p-4 rounded-xl bg-[#120508] border border-[#F4A62A]/20">
-                        
-                        {/* Heading */}
-                        <div>
-                          <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">
-                            Slide Main Heading <span className="text-[#F4A62A]/60 font-normal ml-1">(Optional)</span>
+                      {/* Mobile Media Column */}
+                      <div className="space-y-3 p-4 rounded-xl bg-[#120508] border border-[#F4A62A]/20">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-[#F4A62A] flex items-center gap-1.5">
+                            📱 Mobile Media (Phone Screen) <span className="text-[#F4A62A]/60 font-normal">(Optional)</span>
                           </label>
-                          <input
-                            type="text"
-                            value={slide.heading || ''}
-                            onChange={(e) => handleUpdateSlide(slide.id, { heading: e.target.value })}
-                            placeholder="e.g. Direct Garbhagriha Bhog Prasad (leave empty for simple photo/video banner)"
-                            className="w-full h-11 px-4 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#F4A62A]"
-                          />
                         </div>
 
-                        {/* Description */}
-                        <div>
-                          <label className="block text-xs font-bold text-[#FFF8F0]/90 mb-1">
-                            Slide Subtitle / Devotional Description <span className="text-[#F4A62A]/60 font-normal ml-1">(Optional)</span>
+                        {/* Mobile Preview */}
+                        <div className="w-full h-36 rounded-xl bg-[#2B1217]/60 border border-[#F4A62A]/30 flex items-center justify-center overflow-hidden relative shadow-inner">
+                          {banner.mobileUrl ? (
+                            banner.mediaType === 'video' ? (
+                              <video src={banner.mobileUrl} controls autoPlay muted loop className="w-full h-full object-cover" />
+                            ) : (
+                              <img src={banner.mobileUrl} alt="Mobile Preview" className="w-full h-full object-cover" />
+                            )
+                          ) : (
+                            <span className="text-[11px] text-[#FFF8F0]/40 font-medium text-center px-4">
+                              {banner.mediaType === 'video' ? 'Uses Desktop Video on Mobile' : 'Uses Desktop Image on Mobile'}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Upload & Delete Buttons */}
+                        <div className="flex items-center gap-2">
+                          <label className="flex-1 flex items-center justify-center gap-2 px-3 h-10 rounded-xl bg-[#2B1217] hover:bg-[#500A18] text-[#F4A62A] font-bold text-xs border border-[#F4A62A]/40 transition-all cursor-pointer text-center shadow-md">
+                            <Upload className="w-3.5 h-3.5" /> {banner.mobileUrl ? 'Replace' : 'Upload'} Mobile {banner.mediaType === 'video' ? 'Video' : 'Image'}
+                            <input 
+                              type="file" 
+                              accept={banner.mediaType === 'video' ? 'video/*' : 'image/*'} 
+                              onChange={(e) => handleHeroBannerMediaUpload(banner.id, e, true)} 
+                              className="hidden" 
+                            />
                           </label>
-                          <textarea
-                            rows={2}
-                            value={slide.description || ''}
-                            onChange={(e) => handleUpdateSlide(slide.id, { description: e.target.value })}
-                            placeholder="e.g. Blessed at Baidyanath Temple & delivered home with express 24-hour dispatch (or leave empty)"
-                            className="w-full px-4 py-2.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white text-xs sm:text-sm font-medium focus:outline-none focus:border-[#F4A62A]"
-                          />
+                          {banner.mobileUrl && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateHeroBanner(banner.id, { mobileUrl: '' })}
+                              className="px-3 h-10 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-300 font-bold text-xs border border-red-500/40 transition-all flex items-center justify-center gap-1 cursor-pointer shrink-0 shadow-md"
+                              title="Delete Mobile Media"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> Delete Mobile
+                            </button>
+                          )}
                         </div>
-
-                        {/* Button Text & Button Link */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-bold text-[#F4A62A] mb-1">
-                              Order Button Text <span className="text-[#F4A62A]/60 font-normal ml-1">(Optional)</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={slide.buttonText || ''}
-                              onChange={(e) => handleUpdateSlide(slide.id, { buttonText: e.target.value })}
-                              placeholder="e.g. Order Prasad on WhatsApp (or leave empty)"
-                              className="w-full h-11 px-4 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white text-xs font-medium focus:outline-none focus:border-[#F4A62A]"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-bold text-[#F4A62A] mb-1 flex items-center gap-1">
-                              <LinkIcon className="w-3.5 h-3.5" /> Order Button Link <span className="text-[#F4A62A]/60 font-normal ml-1">(Optional)</span>
-                            </label>
-                            <input
-                              type="text"
-                              value={slide.buttonLink || ''}
-                              onChange={(e) => handleUpdateSlide(slide.id, { buttonLink: e.target.value })}
-                              placeholder="e.g. https://wa.me/919876543211 or #products"
-                              className="w-full h-11 px-4 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white text-xs font-medium focus:outline-none focus:border-[#F4A62A]"
-                            />
-                          </div>
-                        </div>
-
                       </div>
 
                     </div>
@@ -819,59 +847,112 @@ export const BrandingView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. Marquee Announcement Text & Timing Settings */}
+                {/* 3. Marquee Announcement Text & Timing Settings with ON/OFF Toggle Switch */}
                 <div className="lg:col-span-2 border-t border-[#F4A62A]/20 pt-5 mt-4 space-y-4">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h4 className="font-bold text-[#F4A62A] text-sm flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-[#F4A62A]" /> Marquee Ticker Text & Timing Settings
-                    </h4>
-                    <label className="flex items-center gap-2 cursor-pointer bg-[#1A0B0E] px-3 py-1 rounded-lg border border-[#F4A62A]/20">
-                      <span className="text-xs font-semibold text-[#FFF8F0]/80">Enable Marquee Ticker:</span>
-                      <input
-                        type="checkbox"
-                        checked={bEnableTicker}
-                        onChange={(e) => setBEnableTicker(e.target.checked)}
-                        className="w-4 h-4 accent-[#F4A62A] cursor-pointer"
-                      />
-                    </label>
-                  </div>
+                  <div className="p-4 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 space-y-4">
+                    
+                    {/* Header Row with Toggle Switch */}
+                    <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#F4A62A]/15 pb-3">
+                      <div>
+                        <h4 className="font-bold text-[#F4A62A] text-sm flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-[#F4A62A]" /> Marquee Announcement Ticker & Scroll Timing
+                        </h4>
+                        <p className="text-xs text-[#FFF8F0]/60 mt-0.5">
+                          Turn the top homepage scrolling marquee bar ON or OFF, and customize text and scroll speed.
+                        </p>
+                      </div>
 
-                  <p className="text-xs text-[#FFF8F0]/60">
-                    Manage the live scrolling announcement text and scroll timing (speed in seconds) displayed directly below the Hero Slider on the main homepage.
-                  </p>
+                      {/* Prominent ON/OFF Toggle Button */}
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-md transition-all ${
+                          bEnableTicker 
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
+                            : 'bg-red-500/20 text-red-400 border border-red-500/40'
+                        }`}>
+                          {bEnableTicker ? 'STATUS: TICKER ON 🟢' : 'STATUS: TICKER OFF 🔴'}
+                        </span>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Announcement Banner Text */}
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-[#F4A62A] mb-1">
-                        Marquee Announcement Text
-                      </label>
-                      <input
-                        type="text"
-                        value={bTickerAnnouncement}
-                        onChange={(e) => setBTickerAnnouncement(e.target.value)}
-                        placeholder="e.g. ✨ Direct Garbhagriha Bhog Prasad Blessed at Baidyanath Jyotirlinga Temple..."
-                        className="w-full h-11 px-4 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#F4A62A]"
-                      />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newStatus = !bEnableTicker;
+                            setBEnableTicker(newStatus);
+                            const updated = {
+                              ...brandSettings,
+                              enableTicker: newStatus,
+                              tickerAnnouncementText: bTickerAnnouncement,
+                              tickerSpeedSeconds: bTickerSpeed
+                            };
+                            saveBrandSettings(updated);
+                            syncToStorefront(undefined, undefined, updated);
+                          }}
+                          className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            bEnableTicker ? 'bg-emerald-600' : 'bg-red-950 border-red-800'
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                              bEnableTicker ? 'translate-x-7 bg-white' : 'translate-x-0 bg-gray-400'
+                            }`}
+                          />
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Scroll Timing / Speed */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#F4A62A] mb-1">
-                        Marquee Scroll Timing / Speed (Seconds)
-                      </label>
-                      <input
-                        type="number"
-                        min={10}
-                        max={120}
-                        value={bTickerSpeed}
-                        onChange={(e) => setBTickerSpeed(Number(e.target.value) || 30)}
-                        placeholder="e.g. 30"
-                        className="w-full h-11 px-4 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#F4A62A]"
-                      />
-                    </div>
-                  </div>
+                    {/* Announcement Inputs (Active when Ticker is ON) */}
+                    {bEnableTicker ? (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                        {/* Announcement Banner Text */}
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-[#F4A62A] mb-1">
+                            Marquee Announcement Text
+                          </label>
+                          <input
+                            type="text"
+                            value={bTickerAnnouncement}
+                            onChange={(e) => setBTickerAnnouncement(e.target.value)}
+                            placeholder="e.g. ✨ Direct Garbhagriha Bhog Prasad Blessed at Baidyanath Jyotirlinga Temple..."
+                            className="w-full h-11 px-4 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#F4A62A]"
+                          />
+                        </div>
 
+                        {/* Scroll Timing / Speed */}
+                        <div>
+                          <label className="block text-xs font-bold text-[#F4A62A] mb-1">
+                            Marquee Scroll Speed (Seconds)
+                          </label>
+                          <input
+                            type="number"
+                            min={10}
+                            max={120}
+                            value={bTickerSpeed}
+                            onChange={(e) => setBTickerSpeed(Number(e.target.value) || 30)}
+                            placeholder="e.g. 30"
+                            className="w-full h-11 px-4 rounded-xl bg-[#120508] border border-[#F4A62A]/30 text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-[#F4A62A]"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/30 text-xs text-red-200/80 flex items-center justify-between">
+                        <span>
+                          🚫 <strong>Marquee Ticker is turned OFF.</strong> It is currently hidden from the website homepage.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBEnableTicker(true);
+                            const updated = { ...brandSettings, enableTicker: true };
+                            saveBrandSettings(updated);
+                            syncToStorefront(undefined, undefined, updated);
+                          }}
+                          className="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-md text-[11px] transition-all cursor-pointer shadow"
+                        >
+                          Turn ON Ticker
+                        </button>
+                      </div>
+                    )}
+
+                  </div>
                 </div>
               </div>
             </div>

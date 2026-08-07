@@ -11,7 +11,7 @@ import { EmailWhatsappView } from './components/settings/EmailWhatsappView';
 import { ProductsView, ProductSubTab } from './components/products/ProductsView';
 import { CouponsView } from './components/coupons/CouponsView';
 import { BrandingView } from './components/branding/BrandingView';
-import { OrderRequestsView } from './components/orders/OrderRequestsView';
+import { PreBookingView } from './components/prebooking/PreBookingView';
 import { ContentView } from './components/content/ContentView';
 import { DatabaseView } from './components/database/DatabaseView';
 import { CustomScriptsView } from './components/scripts/CustomScriptsView';
@@ -57,8 +57,7 @@ export const AdminContent: React.FC = () => {
           onSelectProductSubTab={(subTab) => setSelectedProductSubTab(subTab)}
         />
 
-        {/* Dynamic Workplace Tab View */}
-        <main className={`flex-1 bg-[#120508] ${activeTab === 'branding' || activeTab === 'order-requests' || isPolicyTab || isProductTab ? 'p-0' : 'p-4 sm:p-6'} overflow-y-auto`}>
+        <main className={`flex-1 bg-[#120508] ${activeTab === 'branding' || activeTab === 'prebooking' || isPolicyTab || isProductTab ? 'p-0' : 'p-4 sm:p-6'} overflow-y-auto`}>
           {activeTab === 'analytics' && <AnalyticsView />}
           {activeTab === 'orders' && <OrdersView />}
           {activeTab === 'payments' && <PaymentsShippingView />}
@@ -67,7 +66,7 @@ export const AdminContent: React.FC = () => {
           {isProductTab && <ProductsView key={currentProductSubTab} initialSubTab={currentProductSubTab} />}
           {activeTab === 'coupons' && <CouponsView />}
           {activeTab === 'branding' && <BrandingView />}
-          {activeTab === 'order-requests' && <OrderRequestsView />}
+          {activeTab === 'prebooking' && <PreBookingView />}
           {isPolicyTab && <PoliciesView key={currentSubTab} initialSubTab={currentSubTab} />}
           {activeTab === 'userProfile' && <UserProfileView />}
           {activeTab === 'scripts' && <CustomScriptsView />}

@@ -1,5 +1,15 @@
 export type ProductCategory = string;
 
+export interface HeroBannerItem {
+  id: string;
+  title?: string;
+  mediaType: 'image' | 'video';
+  desktopUrl: string;
+  mobileUrl?: string;
+  displayOrder: number;
+  createdAt: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -131,79 +141,3 @@ export interface HeroSlide {
   buttonText?: string;
   buttonLink?: string;
 }
-
-export interface CustomDetail {
-  id: string;
-  label: string;
-  value: string;
-}
-
-export interface PrasadiRequestItem {
-  id: string;
-  devoteeName: string;
-  location: string;
-  prasadItem: string;
-  timeAgo: string;
-}
-
-export interface BrandSettings {
-  brandName: string;
-  tagline: string;
-  topBarSacredText: string;
-  helplineNumber: string;
-  whatsappNumber?: string;
-  facebookUrl?: string;
-  instagramUrl?: string;
-  supportEmail?: string;
-  address?: string;
-  cataloguePdfUrl?: string;
-  fssaiLicenseNumber?: string;
-  needHelpText: string;
-  logoIcon: string;
-  logoImageUrl?: string;
-  faviconUrl?: string;
-  headerBgImageUrl?: string;
-  mobileHeaderBgImageUrl?: string;
-  enableTicker?: boolean;
-  tickerSpeedSeconds?: number;
-  todayTotalBookingsCount?: string;
-  tickerAnnouncementText?: string;
-  livePrasadiRequests?: PrasadiRequestItem[];
-  feature1: string;
-  feature2: string;
-  feature3: string;
-  feature4: string;
-  heroSlides?: HeroSlide[];
-  customDetails?: CustomDetail[];
-  headerScripts?: string;
-  bodyScripts?: string;
-  footerScripts?: string;
-  refundPolicy?: string;
-  privacyPolicy?: string;
-  termsConditionPolicy?: string;
-  shippingPolicy?: string;
-  orderRequestTrustBadges?: OrderRequestTrustBadge[];
-  orderRequestMediaConfig?: OrderRequestMediaConfig;
-  orderRequestHeroSlides?: HeroSlide[];
-}
-
-export interface OrderRequestTrustBadge {
-  id: string;
-  iconName: string;
-  title: string;
-  subtitle: string;
-}
-
-export interface OrderRequestMediaConfig {
-  videoUrl?: string;
-  youtubeUrl?: string;
-  uploadedVideoUrl?: string;
-  videoSourceType?: 'youtube' | 'upload';
-  videoTitle?: string;
-  videoSubtitle?: string;
-  bannerBgImageUrl?: string;
-  bellAudioUrl?: string;
-  videoCtaUrl?: string;
-  videoCtaText?: string;
-}
-

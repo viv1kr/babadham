@@ -54,10 +54,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const menuItems: { id: string; label: string; icon: any; count?: number }[] = [
     { id: 'analytics', label: 'Dashboard & Analytics', icon: LayoutDashboard },
     { id: 'orders', label: 'Orders', icon: ShoppingBag },
-    { id: 'order-requests', label: 'Order Requests', icon: FileText },
     { id: 'content', label: 'Content & Media Library', icon: FolderOpen },
     { id: 'coupons', label: 'Coupons & Discounts', icon: Tag },
     { id: 'branding', label: 'Brand & Header Editor', icon: Palette },
+    { id: 'prebooking', label: 'Prebooking', icon: Calendar },
   ];
 
   const productSubItems: { id: ProductSubTab; label: string }[] = [
