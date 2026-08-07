@@ -207,7 +207,7 @@ export const PreBookingView: React.FC = () => {
                   <h3 className="font-serif-temple text-base sm:text-lg font-bold text-[#F4A62A] flex items-center gap-2">
                     <Users className="w-5 h-5" /> Submitted Prebooking Leads ({orders.length})
                   </h3>
-                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions, state/city address, amounts & actions.</p>
+                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions, city & state, amount and status controls.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -249,8 +249,8 @@ export const PreBookingView: React.FC = () => {
                       <tr className="bg-[#2B1217] text-[#F4A62A] border-b border-[#F4A62A]/20 text-xs font-bold uppercase tracking-wider">
                         <th className="py-3.5 px-4">Booking Time & ID</th>
                         <th className="py-3.5 px-4">Devotee Details</th>
-                        <th className="py-3.5 px-4">State & City Address</th>
-                        <th className="py-3.5 px-4">Amount & Discount</th>
+                        <th className="py-3.5 px-4">City & State</th>
+                        <th className="py-3.5 px-4">Amount & Payment</th>
                         <th className="py-3.5 px-4">Status</th>
                         <th className="py-3.5 px-4 text-center">Action Controls</th>
                       </tr>
@@ -269,16 +269,13 @@ export const PreBookingView: React.FC = () => {
                           ? new Date(rawTime).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) 
                           : "Just now";
 
-                        // Address extraction
+                        // Address extraction (City & State only as requested)
                         const city = lead.addressDetails?.city || "";
                         const state = lead.addressDetails?.state || "";
-                        const pincode = lead.addressDetails?.pincode || "";
-                        const fullAddress = lead.shippingAddress || `${lead.addressDetails?.address || ''}, ${city}, ${state} - ${pincode}`;
+                        const cityStateStr = [city, state].filter(Boolean).join(", ");
 
-                        // Financials & Discount
+                        // Financials
                         const prebookAmt = lead.totalAmount || 251;
-                        const origPrice = lead.originalPrice || (prebookAmt * 2);
-                        const discPercent = lead.discountPercent || Math.round(((origPrice - prebookAmt) / origPrice) * 100) || 50;
 
                         // Status
                         const status = lead.leadStatus || "PENDING";
@@ -314,36 +311,25 @@ export const PreBookingView: React.FC = () => {
                               )}
                             </td>
 
-                            {/* 3. Delivery Address State & City */}
-                            <td className="py-3.5 px-4 align-top max-w-xs">
-                              {(city || state) ? (
-                                <div className="space-y-0.5">
-                                  <span className="font-bold text-[#F4A62A] block text-[11px] flex items-center gap-1">
-                                    <MapPin className="w-3 h-3 text-[#F4A62A] shrink-0" />
-                                    {city && `${city}, `}{state} {pincode && `(${pincode})`}
-                                  </span>
-                                  <p className="text-[10px] text-[#FFF8F0]/70 line-clamp-2">{fullAddress}</p>
-                                </div>
-                              ) : (
-                                <p className="text-[10px] text-[#FFF8F0]/80 line-clamp-2">{fullAddress || "N/A"}</p>
-                              )}
+                            {/* 3. City & State Only */}
+                            <td className="py-3.5 px-4 align-top">
+                              <span className="font-bold text-[#F4A62A] text-xs flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 text-[#F4A62A] shrink-0" />
+                                {cityStateStr || lead.shippingAddress || "N/A"}
+                              </span>
                             </td>
 
-                            {/* 4. Actual Amount & Percentage Discount */}
+                            {/* 4. Amount & Payment Status Only (Paid Online / Pay Later) */}
                             <td className="py-3.5 px-4 align-top">
                               <div className="space-y-1">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="font-extrabold text-[#F4A62A] text-sm">₹{prebookAmt}</span>
-                                  <span className="text-[10px] text-[#FFF8F0]/40 line-through">₹{origPrice}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span className="inline-block px-1.5 py-0.2 bg-emerald-950 text-emerald-300 font-extrabold text-[10px] rounded border border-emerald-500/30">
-                                    {discPercent}% OFF
-                                  </span>
-                                  <span className={`text-[10px] font-bold ${isOnline ? "text-emerald-400" : "text-amber-400"}`}>
-                                    {isOnline ? "• Paid Online" : "• Pay Later"}
-                                  </span>
-                                </div>
+                                <span className="font-extrabold text-[#F4A62A] text-sm block">₹{prebookAmt}</span>
+                                <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                                  isOnline 
+                                    ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/30"
+                                    : "bg-amber-950/80 text-amber-300 border-amber-500/30"
+                                }`}>
+                                  {isOnline ? "Paid Online" : "Pay Later"}
+                                </span>
                               </div>
                             </td>
 
@@ -362,7 +348,7 @@ export const PreBookingView: React.FC = () => {
                               </span>
                             </td>
 
-                            {/* 6. Action Buttons (Approve, Reject, Convert, See Details, WhatsApp) */}
+                            {/* 6. Action Buttons */}
                             <td className="py-3.5 px-4 align-top">
                               <div className="flex flex-col gap-1.5 items-center justify-center">
 
@@ -400,7 +386,7 @@ export const PreBookingView: React.FC = () => {
                                   </>
                                 )}
 
-                                {/* If PENDING, REJECTED, or CONVERTED: show Approve, Reject, Convert, See Details */}
+                                {/* If PENDING, REJECTED, or CONVERTED */}
                                 {!isApproved && (
                                   <div className="flex flex-wrap items-center justify-center gap-1">
                                     <button
@@ -658,23 +644,21 @@ export const PreBookingView: React.FC = () => {
               <p className="text-white/90 leading-relaxed">{selectedLeadModal.shippingAddress || "N/A"}</p>
             </div>
 
-            {/* Financial Metrics */}
-            <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 flex items-center justify-between text-xs flex-wrap gap-2">
+            {/* Financial Metrics (Only Amount & Payment Status as requested) */}
+            <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 flex items-center justify-between text-xs">
               <div>
-                <span className="text-[#FFF8F0]/60 block text-[11px]">Actual Prebooking Paid</span>
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Prebooking Amount Paid</span>
                 <span className="text-lg font-black text-[#F4A62A]">₹{selectedLeadModal.totalAmount || 251}</span>
               </div>
               <div>
-                <span className="text-[#FFF8F0]/60 block text-[11px]">Original Product Price</span>
-                <span className="text-sm font-bold text-[#FFF8F0]/40 line-through">₹{selectedLeadModal.originalPrice || 502}</span>
-              </div>
-              <div>
-                <span className="text-[#FFF8F0]/60 block text-[11px]">Discount %</span>
-                <span className="text-xs font-extrabold text-emerald-400">{selectedLeadModal.discountPercent || 50}% OFF</span>
-              </div>
-              <div>
-                <span className="text-[#FFF8F0]/60 block text-[11px]">Payment Method</span>
-                <span className="text-xs font-extrabold text-white">{selectedLeadModal.paymentMethod === 'ONLINE' ? 'Paid Online' : 'Pay Later (COD)'}</span>
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Payment Mode</span>
+                <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md border ${
+                  selectedLeadModal.paymentMethod === 'ONLINE'
+                    ? "bg-emerald-950 text-emerald-300 border-emerald-500/30"
+                    : "bg-amber-950 text-amber-300 border-amber-500/30"
+                }`}>
+                  {selectedLeadModal.paymentMethod === 'ONLINE' ? 'Paid Online' : 'Pay Later (COD)'}
+                </span>
               </div>
             </div>
 
