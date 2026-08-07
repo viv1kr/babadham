@@ -356,8 +356,8 @@ export const PreBookingPage: React.FC = () => {
                         <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
                         <p className="text-xs sm:text-sm font-bold text-emerald-800 tracking-wide text-left">
                           {offerLang === 'EN' 
-                            ? "Pay online now & get FREE Shipping + ₹200 to ₹250 instant discount! 🚚" 
-                            : "अभी ऑनलाइन भुगतान करें और पाएं मुफ़्त डिलीवरी + ₹200 से ₹250 की भारी छूट! 🚚"
+                            ? "Pay online now & get FREE Shipping + ₹200 to ₹250 instant discount!" 
+                            : "अभी ऑनलाइन भुगतान करें और पाएं मुफ़्त डिलीवरी + ₹200 से ₹250 की भारी छूट!"
                           }
                         </p>
                       </motion.div>
