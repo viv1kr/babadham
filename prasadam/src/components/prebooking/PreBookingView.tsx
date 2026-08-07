@@ -80,8 +80,7 @@ export const PreBookingView: React.FC = () => {
   const getWhatsAppMessage = (lead: any) => {
     const name = lead.customerName || lead.address?.fullName || "Devotee";
     const leadId = lead.orderId || lead.id || "BBP-PRE-BOOKING";
-    const amt = lead.totalAmount || 251;
-    const msg = `Namaste ${name} Ji 🙏,\n\nYour sacred prebooking (${leadId}) for Baba Baidyanath Bhog Prasad of ₹${amt} has been APPROVED! 🔱\n\nYour Garbhagriha offered Prasad is being dispatched. Track updates at http://localhost:5173/prebooking\n\nHar Har Mahadev! 🚩`;
+    const msg = `Namaste ${name} Ji 🙏,\n\nYour sacred prebooking (${leadId}) for Baba Baidyanath Bhog Prasad has been APPROVED! 🔱\n\nYour Garbhagriha offered Prasad is being dispatched. Track updates at http://localhost:5173/prebooking\n\nHar Har Mahadev! 🚩`;
     return encodeURIComponent(msg);
   };
 
@@ -207,7 +206,7 @@ export const PreBookingView: React.FC = () => {
                   <h3 className="font-serif-temple text-base sm:text-lg font-bold text-[#F4A62A] flex items-center gap-2">
                     <Users className="w-5 h-5" /> Submitted Prebooking Leads ({orders.length})
                   </h3>
-                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions, city & state, amount and status controls.</p>
+                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions, city & state, payment status and controls.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -250,7 +249,7 @@ export const PreBookingView: React.FC = () => {
                         <th className="py-3.5 px-4">Booking Time & ID</th>
                         <th className="py-3.5 px-4">Devotee Details</th>
                         <th className="py-3.5 px-4">City & State</th>
-                        <th className="py-3.5 px-4">Amount & Payment</th>
+                        <th className="py-3.5 px-4">Payment Status</th>
                         <th className="py-3.5 px-4">Status</th>
                         <th className="py-3.5 px-4 text-center">Action Controls</th>
                       </tr>
@@ -273,9 +272,6 @@ export const PreBookingView: React.FC = () => {
                         const city = lead.addressDetails?.city || "";
                         const state = lead.addressDetails?.state || "";
                         const cityStateStr = [city, state].filter(Boolean).join(", ");
-
-                        // Financials
-                        const prebookAmt = lead.totalAmount || 251;
 
                         // Status
                         const status = lead.leadStatus || "PENDING";
@@ -319,18 +315,15 @@ export const PreBookingView: React.FC = () => {
                               </span>
                             </td>
 
-                            {/* 4. Amount & Payment Status Only (Paid Online / Pay Later) */}
+                            {/* 4. Payment Status Only (Paid Online / Pay Later - No Amount Shown) */}
                             <td className="py-3.5 px-4 align-top">
-                              <div className="space-y-1">
-                                <span className="font-extrabold text-[#F4A62A] text-sm block">₹{prebookAmt}</span>
-                                <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
-                                  isOnline 
-                                    ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/30"
-                                    : "bg-amber-950/80 text-amber-300 border-amber-500/30"
-                                }`}>
-                                  {isOnline ? "Paid Online" : "Pay Later"}
-                                </span>
-                              </div>
+                              <span className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                                isOnline 
+                                  ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/30"
+                                  : "bg-amber-950/80 text-amber-300 border-amber-500/30"
+                              }`}>
+                                {isOnline ? "Paid Online" : "Pay Later"}
+                              </span>
                             </td>
 
                             {/* 5. Status Badge */}
@@ -644,20 +637,16 @@ export const PreBookingView: React.FC = () => {
               <p className="text-white/90 leading-relaxed">{selectedLeadModal.shippingAddress || "N/A"}</p>
             </div>
 
-            {/* Financial Metrics (Only Amount & Payment Status as requested) */}
+            {/* Payment Status Only (No amount shown) */}
             <div className="bg-[#2B1217] p-3.5 rounded-xl border border-[#F4A62A]/20 flex items-center justify-between text-xs">
               <div>
-                <span className="text-[#FFF8F0]/60 block text-[11px]">Prebooking Amount Paid</span>
-                <span className="text-lg font-black text-[#F4A62A]">₹{selectedLeadModal.totalAmount || 251}</span>
-              </div>
-              <div>
-                <span className="text-[#FFF8F0]/60 block text-[11px]">Payment Mode</span>
-                <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md border ${
+                <span className="text-[#FFF8F0]/60 block text-[11px]">Payment Status</span>
+                <span className={`inline-block text-xs font-extrabold px-3 py-1 rounded-md border mt-1 ${
                   selectedLeadModal.paymentMethod === 'ONLINE'
                     ? "bg-emerald-950 text-emerald-300 border-emerald-500/30"
                     : "bg-amber-950 text-amber-300 border-amber-500/30"
                 }`}>
-                  {selectedLeadModal.paymentMethod === 'ONLINE' ? 'Paid Online' : 'Pay Later (COD)'}
+                  {selectedLeadModal.paymentMethod === 'ONLINE' ? 'Paid Online' : 'Pay Later'}
                 </span>
               </div>
             </div>
