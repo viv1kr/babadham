@@ -342,7 +342,7 @@ export const PreBookingPage: React.FC = () => {
                     <span className="text-2xl font-black text-[#7A1126]">₹{totalAmount}</span>
                   </div>
 
-                  {/* Animated Free Shipping Offer Banner (Smooth English <-> Hindi Cycle) */}
+                  {/* Animated Free Shipping & Discount Offer Banner (Smooth English <-> Hindi Cycle) */}
                   <div className="pt-3 border-t border-orange-200/60 overflow-hidden">
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -351,13 +351,13 @@ export const PreBookingPage: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
                         transition={{ duration: 0.45, ease: "easeInOut" }}
-                        className="flex items-center justify-center gap-2 text-center py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200/80 shadow-2xs"
+                        className="flex items-center justify-start gap-2.5 text-left py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200/80 shadow-2xs"
                       >
                         <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <p className="text-xs sm:text-sm font-bold text-emerald-800 tracking-wide">
+                        <p className="text-xs sm:text-sm font-bold text-emerald-800 tracking-wide text-left">
                           {offerLang === 'EN' 
-                            ? "Pay Online Now & Get FREE Shipping Across All India! 🚚" 
-                            : "अभी ऑनलाइन भुगतान करें और संपूर्ण भारत में मुफ़्त डिलीवरी पाएं! 🚚"
+                            ? "Pay online now & get FREE Shipping + ₹200 to ₹250 instant discount! 🚚" 
+                            : "अभी ऑनलाइन भुगतान करें और पाएं मुफ़्त डिलीवरी + ₹200 से ₹250 की भारी छूट! 🚚"
                           }
                         </p>
                       </motion.div>
