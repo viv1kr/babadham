@@ -12,6 +12,7 @@ export const PreBookingPage: React.FC = () => {
   const [step, setStep] = useState<'FORM' | 'PAYMENT'>('FORM');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
 
   // Form State
   const [name, setName] = useState('');
@@ -345,43 +346,86 @@ export const PreBookingPage: React.FC = () => {
                 )}
 
                 <div className="space-y-4">
-                  <button 
-                    onClick={handlePayNow}
-                    disabled={loading}
-                    className="w-full p-5 rounded-2xl border-2 border-[#7A1126]/20 bg-[#7A1126]/5 hover:bg-[#7A1126]/10 hover:border-[#7A1126] transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  {/* Pay Now (Online) Card */}
+                  <div 
+                    onClick={() => setSelectedPaymentMethod('ONLINE')}
+                    className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${
+                      selectedPaymentMethod === 'ONLINE'
+                        ? 'border-[#7A1126] bg-[#7A1126]/5 shadow-sm'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center">
-                        <CreditCard className="w-6 h-6 text-[#7A1126]" />
+                      <div className={`w-12 h-12 rounded-full shadow-xs flex items-center justify-center ${
+                        selectedPaymentMethod === 'ONLINE' ? 'bg-[#7A1126] text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <CreditCard className="w-6 h-6" />
                       </div>
                       <div className="text-left">
-                        <h3 className="font-bold text-gray-900 text-lg group-hover:text-[#7A1126] transition-colors">Pay Now (Online)</h3>
+                        <h3 className="font-bold text-gray-900 text-lg">Pay Now (Online)</h3>
                         <p className="text-xs text-gray-500 mt-1">UPI, QR Code, Cards, NetBanking via Razorpay</p>
                       </div>
                     </div>
-                    <div className="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-[#7A1126] flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-[#7A1126] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedPaymentMethod === 'ONLINE' ? 'border-[#7A1126]' : 'border-gray-300'
+                    }`}>
+                      {selectedPaymentMethod === 'ONLINE' && (
+                        <div className="w-3 h-3 rounded-full bg-[#7A1126]" />
+                      )}
                     </div>
-                  </button>
+                  </div>
 
-                  <button 
-                    onClick={handlePayLater}
-                    disabled={loading}
-                    className="w-full p-5 rounded-2xl border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  {/* Pay Later Card */}
+                  <div 
+                    onClick={() => setSelectedPaymentMethod('COD')}
+                    className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${
+                      selectedPaymentMethod === 'COD'
+                        ? 'border-[#7A1126] bg-[#7A1126]/5 shadow-sm'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                        <Banknote className="w-6 h-6 text-gray-600" />
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        selectedPaymentMethod === 'COD' ? 'bg-[#7A1126] text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        <Banknote className="w-6 h-6" />
                       </div>
                       <div className="text-left">
-                        <h3 className="font-bold text-gray-900 text-lg transition-colors">Pay Later</h3>
+                        <h3 className="font-bold text-gray-900 text-lg">Pay Later</h3>
                         <p className="text-xs text-gray-500 mt-1">Cash on Delivery / Pay at Temple</p>
                       </div>
                     </div>
-                    <div className="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-gray-400 flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedPaymentMethod === 'COD' ? 'border-[#7A1126]' : 'border-gray-300'
+                    }`}>
+                      {selectedPaymentMethod === 'COD' && (
+                        <div className="w-3 h-3 rounded-full bg-[#7A1126]" />
+                      )}
                     </div>
-                  </button>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        if (selectedPaymentMethod === 'ONLINE') {
+                          handlePayNow();
+                        } else {
+                          handlePayLater();
+                        }
+                      }}
+                      className="w-full py-4 bg-[#7A1126] hover:bg-[#500A18] text-white rounded-xl font-extrabold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span>
+                        {selectedPaymentMethod === 'ONLINE' 
+                          ? `Pay ₹${totalAmount} Online Now` 
+                          : `Confirm Booking & Pay Later (₹${totalAmount})`}
+                      </span>
+                      <Zap className="w-5 h-5 text-[#F4A62A] group-hover:scale-110 transition-transform" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
