@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ShieldCheck, MapPin, Phone, User, Landmark, Building, Navigation, Zap, CreditCard, Banknote } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Phone, User, Landmark, Building, Navigation, Zap, CreditCard, Banknote, Sparkles, Truck } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useAudio } from '../../context/AudioContext';
 import { PrebookingHeroSection } from './PrebookingHeroSection';
@@ -13,6 +13,15 @@ export const PreBookingPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
+  const [offerLang, setOfferLang] = useState<'EN' | 'HI'>('EN');
+
+  // Cycle offer language between English & Hindi smoothly every 3.5s
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setOfferLang(prev => (prev === 'EN' ? 'HI' : 'EN'));
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
 
   // Form State
   const [name, setName] = useState('');
@@ -331,6 +340,28 @@ export const PreBookingPage: React.FC = () => {
                   <div className="pt-4 border-t border-orange-200/50 flex justify-between items-center">
                     <span className="font-extrabold text-gray-900">Total Payable</span>
                     <span className="text-2xl font-black text-[#7A1126]">₹{totalAmount}</span>
+                  </div>
+
+                  {/* Animated Free Shipping Offer Banner (Smooth English <-> Hindi Cycle) */}
+                  <div className="pt-3 border-t border-orange-200/60 overflow-hidden">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={offerLang}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.45, ease: "easeInOut" }}
+                        className="flex items-center justify-center gap-2 text-center py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 border border-emerald-200/80 shadow-2xs"
+                      >
+                        <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <p className="text-xs sm:text-sm font-bold text-emerald-800 tracking-wide">
+                          {offerLang === 'EN' 
+                            ? "Pay Online Now & Get FREE Shipping Across All India! 🚚" 
+                            : "अभी ऑनलाइन भुगतान करें और संपूर्ण भारत में मुफ़्त डिलीवरी पाएं! 🚚"
+                          }
+                        </p>
+                      </motion.div>
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>
