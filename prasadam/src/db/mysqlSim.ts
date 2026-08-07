@@ -402,6 +402,37 @@ class MySQLSim {
     return this.store.reviews;
   }
 
+  public getOrders(): any[] {
+    this.store = this.loadFromStorage();
+    let ordersArr = this.store.orders || [];
+    try {
+      const saved = localStorage.getItem('babadham_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          ordersArr = parsed;
+        }
+      }
+    } catch(e) {}
+    return ordersArr;
+  }
+
+  public deleteOrder(orderId: string): any[] {
+    this.store = this.loadFromStorage();
+    if (this.store.orders) {
+      this.store.orders = this.store.orders.filter((o: any) => o.orderId !== orderId && o.id !== orderId);
+    }
+    try {
+      const saved = localStorage.getItem('babadham_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved).filter((o: any) => o.orderId !== orderId && o.id !== orderId);
+        localStorage.setItem('babadham_orders', JSON.stringify(parsed));
+      }
+    } catch(e) {}
+    this.saveToStorage();
+    return this.getOrders();
+  }
+
   public getBrandSettings(): any {
     this.store = this.loadFromStorage();
     const settings = this.store.brandSettings || {};
