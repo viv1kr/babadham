@@ -242,19 +242,19 @@ export const PreBookingView: React.FC = () => {
                   }
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-[#F4A62A]/20">
+                <div className="overflow-x-auto rounded-xl border-2 border-[#F4A62A]/30 bg-[#1A0B0E] shadow-2xl">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-[#2B1217] text-[#F4A62A] border-b border-[#F4A62A]/20 text-xs font-bold uppercase tracking-wider">
-                        <th className="py-3.5 px-4">Booking Time & ID</th>
-                        <th className="py-3.5 px-4">Devotee Details</th>
-                        <th className="py-3.5 px-4">City & State</th>
-                        <th className="py-3.5 px-4">Payment Status</th>
-                        <th className="py-3.5 px-4">Status</th>
-                        <th className="py-3.5 px-4 text-center">Action Controls</th>
+                      <tr className="bg-[#2B1217] text-[#F4A62A] border-b-2 border-[#F4A62A]/40 text-xs font-bold uppercase tracking-wider">
+                        <th className="py-4 px-4">Booking Time & ID</th>
+                        <th className="py-4 px-4">Devotee Details</th>
+                        <th className="py-4 px-4">City & State</th>
+                        <th className="py-4 px-4">Payment Status</th>
+                        <th className="py-4 px-4">Status</th>
+                        <th className="py-4 px-4 text-center">Action Controls</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#F4A62A]/10 text-xs text-[#FFF8F0]/90">
+                    <tbody className="divide-y-2 divide-[#F4A62A]/25 text-xs text-[#FFF8F0]/90">
                       {filteredOrders.map((lead, idx) => {
                         const leadId = lead.orderId || lead.id || `BBP-PRE-${idx + 1}`;
                         const name = lead.customerName || lead.address?.fullName || "Devotee";
@@ -280,7 +280,7 @@ export const PreBookingView: React.FC = () => {
                         const isConverted = status === "CONVERTED";
 
                         return (
-                          <tr key={leadId + idx} className="hover:bg-[#2B1217]/60 transition-colors">
+                          <tr key={leadId + idx} className="hover:bg-[#2B1217]/80 transition-colors border-b border-[#F4A62A]/30">
                             
                             {/* 1. Booking Time & ID */}
                             <td className="py-3.5 px-4 align-top">
