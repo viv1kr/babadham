@@ -189,7 +189,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const hash = window.location.hash.toLowerCase();
       const search = window.location.search.toLowerCase();
       
-      if (
+      if (pathname.endsWith('/success')) {
+        setActivePageState('success');
+      } else if (
         pathname.endsWith('/order-request') ||
         pathname.endsWith('/order-request/') ||
         pathname.endsWith('/request') ||
@@ -201,7 +203,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         search.includes('request=true') ||
         pathname.endsWith('/prebooking')
       ) {
-        setActivePage('prebooking');
+        setActivePageState('prebooking');
+      } else if (pathname.endsWith('/categories')) {
+        setActivePageState('categories');
       } else if (
         hash === '#prebook' || 
         hash === '#pre-booking' || 
@@ -213,30 +217,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         search.includes('page=prebook')
       ) {
         setIsPreBookingOpen(true);
-      }
-      
-      // Explicit route checks
-      if (pathname.endsWith('/success')) {
-        setActivePage('success');
-      } else if (pathname.endsWith('/categories')) {
-        setActivePage('categories');
-      } else if (
-        !pathname.endsWith('/order-request') &&
-        !pathname.endsWith('/prebooking') &&
-        pathname !== '/' && 
-        pathname !== '' && 
-        pathname !== '/babadham' && 
-        pathname !== '/babadham/'
-      ) {
-        setActivePage('not-found');
-      } else if (pathname === '/' || pathname === '' || pathname === '/babadham' || pathname === '/babadham/') {
-        // If it's the root path, check localStorage for previous state, otherwise default to home
-        const saved = localStorage.getItem('bbp_store_active_page');
-        if (saved === 'categories' || saved === 'prebooking' || saved === 'success' || saved === 'not-found') {
-          setActivePage(saved as any);
-        } else {
-          setActivePage('home');
-        }
       }
     };
     checkPathAndHash();
@@ -591,7 +571,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       localStorage.setItem('bbp_active_order', JSON.stringify(orderData));
     } catch (e) {}
-    showToast('Sacred Prebooking Order Placed!', 'success');
   };
 
   return (
