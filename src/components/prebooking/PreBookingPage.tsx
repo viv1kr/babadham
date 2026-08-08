@@ -208,87 +208,96 @@ export const PreBookingPage: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleBookNow} className="space-y-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-[#F4A62A]" /> Full Name *
-                    </label>
-                    <input 
-                      type="text"
-                      required
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="e.g. Rahul Sharma"
-                      className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
-                    />
-                  </div>
-                  
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-[#F4A62A]" /> WhatsApp Number *
+              <form onSubmit={handleBookNow} className="space-y-4 sm:space-y-5">
+                {/* Full Name */}
+                <div className="space-y-1">
+                  <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-[#F4A62A]" /> Full Name *
+                  </label>
+                  <input 
+                    type="text"
+                    required
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="e.g. Rahul Sharma"
+                    className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                  />
+                </div>
+
+                {/* Inline WhatsApp Number & Pincode on Mobile */}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                  {/* WhatsApp Number */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1 truncate">
+                      <Phone className="w-3 h-3 text-[#F4A62A] shrink-0" /> WhatsApp *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">+91</span>
+                      <span className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-xs">+91</span>
                       <input 
                         type="tel"
                         required
                         value={whatsapp}
                         onChange={e => setWhatsapp(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="9876543210"
-                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
+                        className="w-full pl-9 sm:pl-11 pr-2 sm:pr-3 py-2.5 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                       />
                     </div>
                   </div>
+
+                  {/* Pincode */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1 truncate">
+                      <MapPin className="w-3 h-3 text-[#F4A62A] shrink-0" /> Pincode *
+                    </label>
+                    <input 
+                      type="text"
+                      required
+                      maxLength={6}
+                      value={pincode}
+                      onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="814112"
+                      className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                    />
+                  </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-100">
-                  <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-[#F4A62A]" /> Delivery Address
+                {/* Delivery Address Header & City/State Inline */}
+                <div className="pt-3 border-t border-gray-100 space-y-3 sm:space-y-4">
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#F4A62A]" /> Delivery Address Details
                   </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Pincode *</label>
-                      <input 
-                        type="text"
-                        required
-                        maxLength={6}
-                        value={pincode}
-                        onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
-                        placeholder="123456"
-                        className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">City *</label>
+
+                  {/* Inline City & State on Mobile */}
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider">City *</label>
                       <input 
                         type="text"
                         required
                         value={city}
                         onChange={e => setCity(e.target.value)}
                         placeholder="City"
-                        className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                         readOnly={fetchingPincode}
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">State *</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider">State *</label>
                       <input 
                         type="text"
                         required
                         value={state}
                         onChange={e => setState(e.target.value)}
                         placeholder="State"
-                        className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                         readOnly={fetchingPincode}
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-5">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                         <Building className="w-3.5 h-3.5 text-[#F4A62A]" /> House / Flat / Street Address *
                       </label>
                       <input 
@@ -297,12 +306,12 @@ export const PreBookingPage: React.FC = () => {
                         value={address}
                         onChange={e => setAddress(e.target.value)}
                         placeholder="e.g. Flat 101, Omkar Apartments, Main Road"
-                        className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
+                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                         <Navigation className="w-3.5 h-3.5 text-[#F4A62A]" /> Landmark (Optional)
                       </label>
                       <input 
@@ -310,16 +319,16 @@ export const PreBookingPage: React.FC = () => {
                         value={landmark}
                         onChange={e => setLandmark(e.target.value)}
                         placeholder="e.g. Near Shiv Temple"
-                        className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium outline-none"
+                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-6">
+                <div className="pt-4">
                   <button 
                     type="submit"
-                    className="w-full py-4 bg-[#7A1126] hover:bg-[#500A18] text-white rounded-xl font-extrabold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer"
+                    className="w-full py-3.5 sm:py-4 bg-[#7A1126] hover:bg-[#500A18] text-white rounded-xl font-extrabold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer"
                   >
                     <span>Proceed to Book Now</span>
                     <Zap className="w-5 h-5 text-[#F4A62A] group-hover:scale-110 transition-transform" />
