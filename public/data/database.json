@@ -264,6 +264,29 @@
   "collections": [],
   "orders": [
     {
+      "orderId": "BBP-PRE-903783",
+      "leadStatus": "PENDING",
+      "status": "pending",
+      "customerName": "VARSHA NIDHI",
+      "customerPhone": "8541241241",
+      "addressDetails": {
+        "address": "Vill_ Nighwan, Post-kurtha",
+        "landmark": "804421",
+        "city": "Gaya",
+        "state": "Bihar",
+        "pincode": "804421"
+      },
+      "shippingAddress": "Vill_ Nighwan, Post-kurtha, Landmark: 804421, Gaya, Bihar - 804421",
+      "totalAmount": 251,
+      "originalPrice": 502,
+      "discountPercent": 50,
+      "items": [],
+      "paymentMethod": "COD",
+      "transactionId": "",
+      "bookingTime": "2026-08-07T23:59:52.025Z",
+      "date": "2026-08-07T23:59:52.025Z"
+    },
+    {
       "orderId": "BBP-PRE-683487",
       "leadStatus": "PENDING",
       "status": "pending",
