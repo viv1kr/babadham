@@ -23,7 +23,9 @@ import {
   Eye,
   X,
   MapPin,
-  Calendar
+  Calendar,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import type { HeroBannerItem } from "../../types/ecommerce";
 import { compressImage } from "../../utils/mediaDB";
@@ -38,10 +40,12 @@ export const PreBookingView: React.FC = () => {
   const [prebookHelpPhone, setPrebookHelpPhone] = useState(brandSettings?.prebookHelpPhone || "+91 98765 43210");
   const [prebookingBanners, setPrebookingBanners] = useState<HeroBannerItem[]>(() => db.getPrebookingHeroBanners());
 
-  // Real-time Prebooking Leads / Orders State
+  // Real-time Prebooking Leads / Orders State & 25-Entry Pagination State
   const [orders, setOrders] = useState<any[]>(() => db.getOrders());
   const [leadSearch, setLeadSearch] = useState("");
   const [selectedLeadModal, setSelectedLeadModal] = useState<any | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 25;
 
   const refreshOrders = () => {
     setOrders(db.getOrders());
@@ -58,6 +62,11 @@ export const PreBookingView: React.FC = () => {
       clearInterval(interval);
     };
   }, []);
+
+  // Reset pagination to page 1 whenever user searches
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [leadSearch]);
 
   const handleUpdateStatus = (orderId: string, newStatus: string) => {
     const updated = db.updateOrderLeadStatus(orderId, newStatus);
@@ -149,6 +158,13 @@ export const PreBookingView: React.FC = () => {
     return name.includes(q) || phone.includes(q) || id.includes(q) || addr.includes(q) || city.includes(q) || state.includes(q);
   });
 
+  // Pagination calculation for 25 entries per page
+  const totalEntries = filteredOrders.length;
+  const totalPages = Math.ceil(totalEntries / pageSize) || 1;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalEntries);
+  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+
   return (
     <form onSubmit={handleSave} className="w-full min-h-full flex flex-col text-xs sm:text-sm select-none">
       <div className="flex flex-col lg:flex-row gap-0 w-full min-h-full items-stretch">
@@ -206,7 +222,7 @@ export const PreBookingView: React.FC = () => {
                   <h3 className="font-serif-temple text-base sm:text-lg font-bold text-[#F4A62A] flex items-center gap-2">
                     <Users className="w-5 h-5" /> Submitted Prebooking Leads ({orders.length})
                   </h3>
-                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions, city & state, payment status and controls.</p>
+                  <p className="text-xs text-[#FFF8F0]/60">Real-time devotee prebooking submissions (Showing max 25 entries per page).</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -242,195 +258,225 @@ export const PreBookingView: React.FC = () => {
                   }
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border-2 border-[#F4A62A]/30 bg-[#1A0B0E] shadow-2xl">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-[#2B1217] text-[#F4A62A] border-b-2 border-[#F4A62A]/40 text-xs font-bold uppercase tracking-wider">
-                        <th className="py-4 px-4">Booking Time & ID</th>
-                        <th className="py-4 px-4">Devotee Details</th>
-                        <th className="py-4 px-4">City & State</th>
-                        <th className="py-4 px-4">Payment Status</th>
-                        <th className="py-4 px-4">Status</th>
-                        <th className="py-4 px-4 text-center">Action Controls</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y-2 divide-[#F4A62A]/25 text-xs text-[#FFF8F0]/90">
-                      {filteredOrders.map((lead, idx) => {
-                        const leadId = lead.orderId || lead.id || `BBP-PRE-${idx + 1}`;
-                        const name = lead.customerName || lead.address?.fullName || "Devotee";
-                        const phone = lead.customerPhone || lead.address?.phone || "";
-                        const cleanPhone = phone.replace(/\D/g, "");
-                        const isOnline = lead.paymentMethod === "ONLINE";
-                        
-                        // Time formatting
-                        const rawTime = lead.bookingTime || lead.date;
-                        const dateFormatted = rawTime 
-                          ? new Date(rawTime).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) 
-                          : "Just now";
+                <div className="space-y-4">
+                  <div className="overflow-x-auto rounded-xl border-2 border-[#F4A62A]/30 bg-[#1A0B0E] shadow-2xl">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-[#2B1217] text-[#F4A62A] border-b-2 border-[#F4A62A]/40 text-xs font-bold uppercase tracking-wider">
+                          <th className="py-4 px-4">Booking Time & ID</th>
+                          <th className="py-4 px-4">Devotee Details</th>
+                          <th className="py-4 px-4">City & State</th>
+                          <th className="py-4 px-4">Payment Status</th>
+                          <th className="py-4 px-4">Status</th>
+                          <th className="py-4 px-4 text-center">Action Controls</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y-2 divide-[#F4A62A]/25 text-xs text-[#FFF8F0]/90">
+                        {paginatedOrders.map((lead, idx) => {
+                          const leadId = lead.orderId || lead.id || `BBP-PRE-${startIndex + idx + 1}`;
+                          const name = lead.customerName || lead.address?.fullName || "Devotee";
+                          const phone = lead.customerPhone || lead.address?.phone || "";
+                          const cleanPhone = phone.replace(/\D/g, "");
+                          const isOnline = lead.paymentMethod === "ONLINE";
+                          
+                          // Time formatting
+                          const rawTime = lead.bookingTime || lead.date;
+                          const dateFormatted = rawTime 
+                            ? new Date(rawTime).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) 
+                            : "Just now";
 
-                        // Address extraction (City & State only as requested)
-                        const city = lead.addressDetails?.city || "";
-                        const state = lead.addressDetails?.state || "";
-                        const cityStateStr = [city, state].filter(Boolean).join(", ");
+                          // Address extraction (City & State only as requested)
+                          const city = lead.addressDetails?.city || "";
+                          const state = lead.addressDetails?.state || "";
+                          const cityStateStr = [city, state].filter(Boolean).join(", ");
 
-                        // Status
-                        const status = lead.leadStatus || "PENDING";
-                        const isApproved = status === "APPROVED";
-                        const isRejected = status === "REJECTED";
-                        const isConverted = status === "CONVERTED";
+                          // Status
+                          const status = lead.leadStatus || "PENDING";
+                          const isApproved = status === "APPROVED";
+                          const isRejected = status === "REJECTED";
+                          const isConverted = status === "CONVERTED";
 
-                        return (
-                          <tr key={leadId + idx} className="hover:bg-[#2B1217]/80 transition-colors border-b border-[#F4A62A]/30">
-                            
-                            {/* 1. Booking Time & ID */}
-                            <td className="py-3.5 px-4 align-top">
-                              <span className="font-mono font-bold text-[#F4A62A] block text-xs">{leadId}</span>
-                              <span className="text-[10px] text-[#FFF8F0]/60 flex items-center gap-1 mt-1">
-                                <Calendar className="w-3 h-3 text-[#F4A62A]/60 shrink-0" />
-                                {dateFormatted}
-                              </span>
-                            </td>
+                          return (
+                            <tr key={leadId + idx} className="hover:bg-[#2B1217]/80 transition-colors border-b border-[#F4A62A]/30">
+                              
+                              {/* 1. Booking Time & ID */}
+                              <td className="py-3.5 px-4 align-top">
+                                <span className="font-mono font-bold text-[#F4A62A] block text-xs">{leadId}</span>
+                                <span className="text-[10px] text-[#FFF8F0]/60 flex items-center gap-1 mt-1">
+                                  <Calendar className="w-3 h-3 text-[#F4A62A]/60 shrink-0" />
+                                  {dateFormatted}
+                                </span>
+                              </td>
 
-                            {/* 2. Devotee Details */}
-                            <td className="py-3.5 px-4 align-top">
-                              <span className="font-bold text-white block text-xs">{name}</span>
-                              {phone && (
-                                <a 
-                                  href={`https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-[#25D366] hover:underline font-mono text-[11px] mt-1"
-                                >
-                                  <MessageCircle className="w-3 h-3 fill-[#25D366] text-[#1A0B0E]" />
-                                  +91 {phone}
-                                </a>
-                              )}
-                            </td>
+                              {/* 2. Devotee Details */}
+                              <td className="py-3.5 px-4 align-top">
+                                <span className="font-bold text-white block text-xs">{name}</span>
+                                {phone && (
+                                  <a 
+                                    href={`https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-[#25D366] hover:underline font-mono text-[11px] mt-1"
+                                  >
+                                    <MessageCircle className="w-3 h-3 fill-[#25D366] text-[#1A0B0E]" />
+                                    +91 {phone}
+                                  </a>
+                                )}
+                              </td>
 
-                            {/* 3. City & State Only */}
-                            <td className="py-3.5 px-4 align-top">
-                              <span className="font-bold text-[#F4A62A] text-xs flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5 text-[#F4A62A] shrink-0" />
-                                {cityStateStr || lead.shippingAddress || "N/A"}
-                              </span>
-                            </td>
+                              {/* 3. City & State Only */}
+                              <td className="py-3.5 px-4 align-top">
+                                <span className="font-bold text-[#F4A62A] text-xs flex items-center gap-1">
+                                  <MapPin className="w-3.5 h-3.5 text-[#F4A62A] shrink-0" />
+                                  {cityStateStr || lead.shippingAddress || "N/A"}
+                                </span>
+                              </td>
 
-                            {/* 4. Payment Status Only (Paid Online / Pay Later - No Amount Shown) */}
-                            <td className="py-3.5 px-4 align-top">
-                              <span className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${
-                                isOnline 
-                                  ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/30"
-                                  : "bg-amber-950/80 text-amber-300 border-amber-500/30"
-                              }`}>
-                                {isOnline ? "Paid Online" : "Pay Later"}
-                              </span>
-                            </td>
+                              {/* 4. Payment Status Only (Paid Online / Pay Later - No Amount Shown) */}
+                              <td className="py-3.5 px-4 align-top">
+                                <span className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${
+                                  isOnline 
+                                    ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/30"
+                                    : "bg-amber-950/80 text-amber-300 border-amber-500/30"
+                                }`}>
+                                  {isOnline ? "Paid Online" : "Pay Later"}
+                                </span>
+                              </td>
 
-                            {/* 5. Status Badge */}
-                            <td className="py-3.5 px-4 align-top">
-                              <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                                isApproved 
-                                  ? "bg-emerald-950 text-emerald-300 border-emerald-500/40"
-                                  : isRejected
-                                  ? "bg-red-950 text-red-300 border-red-500/40"
-                                  : isConverted
-                                  ? "bg-purple-950 text-purple-300 border-purple-500/40"
-                                  : "bg-amber-950 text-amber-300 border-amber-500/40"
-                              }`}>
-                                {status}
-                              </span>
-                            </td>
+                              {/* 5. Status Badge */}
+                              <td className="py-3.5 px-4 align-top">
+                                <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                                  isApproved 
+                                    ? "bg-emerald-950 text-emerald-300 border-emerald-500/40"
+                                    : isRejected
+                                    ? "bg-red-950 text-red-300 border-red-500/40"
+                                    : isConverted
+                                    ? "bg-purple-950 text-purple-300 border-purple-500/40"
+                                    : "bg-amber-950 text-amber-300 border-amber-500/40"
+                                }`}>
+                                  {status}
+                                </span>
+                              </td>
 
-                            {/* 6. Action Buttons */}
-                            <td className="py-3.5 px-4 align-top">
-                              <div className="flex flex-col gap-1.5 items-center justify-center">
+                              {/* 6. Action Buttons */}
+                              <td className="py-3.5 px-4 align-top">
+                                <div className="flex flex-col gap-1.5 items-center justify-center">
 
-                                {/* If APPROVED: show Send WhatsApp Confirmation, See Details, and option to Change to Reject */}
-                                {isApproved && (
-                                  <>
-                                    <a
-                                      href={`https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${getWhatsAppMessage(lead)}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="px-2.5 py-1.2 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-[#1A0B0E] font-black text-[10px] flex items-center gap-1 shadow-sm transition-all cursor-pointer whitespace-nowrap"
-                                      title="Send Confirmation Details on WhatsApp"
-                                    >
-                                      <MessageCircle className="w-3 h-3 fill-[#1A0B0E] text-[#25D366]" />
-                                      WhatsApp Confirm
-                                    </a>
+                                  {/* If APPROVED: show Send WhatsApp Confirmation, See Details, and option to Change to Reject */}
+                                  {isApproved && (
+                                    <>
+                                      <a
+                                        href={`https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${getWhatsAppMessage(lead)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-2.5 py-1.2 rounded-lg bg-[#25D366] hover:bg-[#20bd5a] text-[#1A0B0E] font-black text-[10px] flex items-center gap-1 shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                                        title="Send Confirmation Details on WhatsApp"
+                                      >
+                                        <MessageCircle className="w-3 h-3 fill-[#1A0B0E] text-[#25D366]" />
+                                        WhatsApp Confirm
+                                      </a>
 
-                                    <div className="flex items-center gap-1">
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => setSelectedLeadModal(lead)}
+                                          className="px-2 py-1 rounded-lg bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] text-[10px] font-bold border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all"
+                                        >
+                                          <Eye className="w-3 h-3" /> See Details
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateStatus(leadId, "REJECTED")}
+                                          className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 text-[10px] font-bold border border-red-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                          title="Change Status to Reject"
+                                        >
+                                          <XCircle className="w-3 h-3" /> Reject
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {/* If PENDING, REJECTED, or CONVERTED */}
+                                  {!isApproved && (
+                                    <div className="flex flex-wrap items-center justify-center gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleUpdateStatus(leadId, "APPROVED")}
+                                        className="px-2 py-1 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                        title="Approve Lead"
+                                      >
+                                        <CheckCircle className="w-3 h-3" /> Approve
+                                      </button>
+
+                                      {!isRejected && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateStatus(leadId, "REJECTED")}
+                                          className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 text-[10px] font-bold border border-red-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                          title="Reject Lead"
+                                        >
+                                          <XCircle className="w-3 h-3" /> Reject
+                                        </button>
+                                      )}
+
+                                      {!isConverted && (
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateStatus(leadId, "CONVERTED")}
+                                          className="px-2 py-1 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-300 text-[10px] font-bold border border-purple-500/30 flex items-center gap-1 cursor-pointer transition-all"
+                                          title="Convert Lead"
+                                        >
+                                          <Zap className="w-3 h-3" /> Convert
+                                        </button>
+                                      )}
+
                                       <button
                                         type="button"
                                         onClick={() => setSelectedLeadModal(lead)}
                                         className="px-2 py-1 rounded-lg bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] text-[10px] font-bold border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all"
+                                        title="See Details"
                                       >
-                                        <Eye className="w-3 h-3" /> See Details
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleUpdateStatus(leadId, "REJECTED")}
-                                        className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 text-[10px] font-bold border border-red-500/30 flex items-center gap-1 cursor-pointer transition-all"
-                                        title="Change Status to Reject"
-                                      >
-                                        <XCircle className="w-3 h-3" /> Reject
+                                        <Eye className="w-3 h-3" /> Details
                                       </button>
                                     </div>
-                                  </>
-                                )}
+                                  )}
 
-                                {/* If PENDING, REJECTED, or CONVERTED */}
-                                {!isApproved && (
-                                  <div className="flex flex-wrap items-center justify-center gap-1">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleUpdateStatus(leadId, "APPROVED")}
-                                      className="px-2 py-1 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1 cursor-pointer transition-all"
-                                      title="Approve Lead"
-                                    >
-                                      <CheckCircle className="w-3 h-3" /> Approve
-                                    </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
 
-                                    {!isRejected && (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleUpdateStatus(leadId, "REJECTED")}
-                                        className="px-2 py-1 rounded-lg bg-red-950/70 hover:bg-red-900 text-red-300 text-[10px] font-bold border border-red-500/30 flex items-center gap-1 cursor-pointer transition-all"
-                                        title="Reject Lead"
-                                      >
-                                        <XCircle className="w-3 h-3" /> Reject
-                                      </button>
-                                    )}
-
-                                    {!isConverted && (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleUpdateStatus(leadId, "CONVERTED")}
-                                        className="px-2 py-1 rounded-lg bg-purple-950 hover:bg-purple-900 text-purple-300 text-[10px] font-bold border border-purple-500/30 flex items-center gap-1 cursor-pointer transition-all"
-                                        title="Convert Lead"
-                                      >
-                                        <Zap className="w-3 h-3" /> Convert
-                                      </button>
-                                    )}
-
-                                    <button
-                                      type="button"
-                                      onClick={() => setSelectedLeadModal(lead)}
-                                      className="px-2 py-1 rounded-lg bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] text-[10px] font-bold border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all"
-                                      title="See Details"
-                                    >
-                                      <Eye className="w-3 h-3" /> Details
-                                    </button>
-                                  </div>
-                                )}
-
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  {/* 25-Entry Pagination Controls Bar */}
+                  <div className="flex items-center justify-between pt-4 border-t border-[#F4A62A]/20 flex-wrap gap-3 text-xs text-[#FFF8F0]/70">
+                    <div>
+                      Showing <strong className="text-[#F4A62A]">{startIndex + 1}</strong> to <strong className="text-[#F4A62A]">{endIndex}</strong> of <strong className="text-[#F4A62A]">{totalEntries}</strong> entries
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+                      >
+                        <ChevronLeft className="w-4 h-4" /> Previous
+                      </button>
+                      <span className="px-3.5 py-1.5 rounded-xl bg-[#1A0B0E] border border-[#F4A62A]/30 text-[#FFF8F0] font-bold text-xs">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#2B1217] hover:bg-[#3A1520] text-[#F4A62A] border border-[#F4A62A]/30 flex items-center gap-1 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold"
+                      >
+                        Next <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
