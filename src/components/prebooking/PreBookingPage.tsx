@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ShieldCheck, MapPin, Phone, User, Landmark, Building, Navigation, Zap, CreditCard, Banknote, Sparkles, Truck, Star } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Phone, User, Landmark, Building, Navigation, Zap, CreditCard, Banknote, Sparkles, Truck, Star, Gift } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { useAudio } from '../../context/AudioContext';
 import { PrebookingHeroSection } from './PrebookingHeroSection';
@@ -12,18 +12,6 @@ export const PreBookingPage: React.FC = () => {
   const [step, setStep] = useState<'FORM' | 'PAYMENT'>('FORM');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'ONLINE' | 'COD'>('ONLINE');
-  const [offerLang, setOfferLang] = useState<'EN' | 'HI'>('EN');
-
-  // Cycle offer language between English & Hindi smoothly every 3.5s
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setOfferLang(prev => (prev === 'EN' ? 'HI' : 'EN'));
-    }, 3500);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Form State
   const [name, setName] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [pincode, setPincode] = useState('');
@@ -33,51 +21,47 @@ export const PreBookingPage: React.FC = () => {
   const [landmark, setLandmark] = useState('');
   const [fetchingPincode, setFetchingPincode] = useState(false);
 
-  // Financials
-  const prebookAmount = preBookingProduct ? Math.floor(preBookingProduct.price * 0.1) || 251 : 251;
-  const convenienceFee = 0;
-  const totalAmount = prebookAmount + convenienceFee;
-
-  // Fetch City/State from Pincode
+  // Auto-fetch city & state when 6-digit pincode is typed
   useEffect(() => {
     if (pincode.length === 6) {
-      fetchPincodeDetails(pincode);
+      setFetchingPincode(true);
+      fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const po = data[0].PostOffice[0];
+            setCity(po.District || po.Block || po.Name || '');
+            setState(po.State || '');
+          }
+        })
+        .catch(err => console.warn('Pincode fetch error:', err))
+        .finally(() => setFetchingPincode(false));
     }
   }, [pincode]);
 
-  const fetchPincodeDetails = async (pin: string) => {
-    setFetchingPincode(true);
-    try {
-      const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-      const data = await res.json();
-      if (data && data[0] && data[0].Status === 'Success') {
-        const postOffice = data[0].PostOffice[0];
-        setCity(postOffice.District);
-        setState(postOffice.State);
-      }
-    } catch (err) {
-      console.warn("Pincode API failed, falling back to manual.");
-    } finally {
-      setFetchingPincode(false);
-    }
-  };
-
   const handleBookNow = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !whatsapp || !pincode || !city || !state || !address) {
-      setErrorMsg('Please fill all required fields');
+    if (!name.trim()) {
+      setErrorMsg('Please enter your Full Name');
       return;
     }
+    if (!whatsapp.trim() || whatsapp.length < 10) {
+      setErrorMsg('Please enter a valid 10-digit WhatsApp phone number');
+      return;
+    }
+    if (!pincode.trim() || pincode.length < 6) {
+      setErrorMsg('Please enter a valid 6-digit Pincode');
+      return;
+    }
+    if (!address.trim()) {
+      setErrorMsg('Please enter your Street Address');
+      return;
+    }
+
     setErrorMsg('');
     setStep('PAYMENT');
   };
 
-  const loadRazorpay = (): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
   };
@@ -195,8 +179,48 @@ export const PreBookingPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6 sm:p-8"
+              className="space-y-4"
             >
+              {/* Baba's Prasad For You Trust Card Banner */}
+              <div className="bg-[#FFF9EE] border border-[#F5E6CA] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between gap-3 relative overflow-hidden">
+                {/* Left Section: Gift Icon Circle + Text */}
+                <div className="flex items-center gap-3 min-w-0 z-10">
+                  {/* Circle Icon */}
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#E59218] flex items-center justify-center shrink-0 shadow-xs">
+                    <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-[#5E0C1E]" />
+                  </div>
+
+                  {/* Text */}
+                  <div className="space-y-0.5 min-w-0">
+                    <h3 className="font-extrabold text-sm sm:text-base text-[#3B1017] tracking-tight">
+                      Baba's Prasad For You
+                    </h3>
+                    <p className="text-xs text-[#7A6652] font-medium leading-snug">
+                      Get Baba's blessings with every order
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Stamp Seal Badge (100% शुद्ध प्रामाणिक) */}
+                <div className="relative shrink-0 flex items-center justify-center z-10 pr-0.5">
+                  <div 
+                    className="w-15 h-15 sm:w-16 sm:h-16 bg-[#6B0F24] text-[#F4A62A] rounded-full flex flex-col items-center justify-center text-center p-1 border border-dashed border-[#F4A62A]/80 shadow-md relative transition-transform"
+                    style={{
+                      clipPath: 'polygon(50% 0%, 61% 10%, 75% 4%, 79% 18%, 93% 18%, 91% 32%, 100% 43%, 93% 54%, 98% 68%, 86% 75%, 86% 90%, 72% 90%, 65% 100%, 50% 94%, 35% 100%, 28% 90%, 14% 90%, 14% 75%, 2% 68%, 7% 54%, 0% 43%, 9% 32%, 7% 18%, 21% 18%, 25% 4%, 39% 10%)'
+                    }}
+                  >
+                    <span className="text-[10px] sm:text-[11px] font-black leading-tight text-[#F4A62A] tracking-wider">
+                      100% शुद्ध
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] font-extrabold leading-tight text-[#F4A62A]">
+                      प्रामाणिक
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Devotee Form Card */}
+              <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6 sm:p-8">
               <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">Devotee Details</h1>
                 <p className="text-sm text-gray-500">Please provide your details for the sacred prebooking.</p>
