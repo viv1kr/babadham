@@ -98,9 +98,14 @@ export const PreBookingSuccess: React.FC = () => {
 
           <h1 className="text-xl font-black text-gray-900 mb-2">Booking Successful</h1>
           
-          <p className="text-gray-600 text-xs sm:text-sm mb-5 px-2 leading-relaxed">
-            Dear <strong className="text-gray-900">{customerName}</strong>, your prebooking <strong className="text-[#7A1126]">{orderId}</strong> for sacred Prasad has been confirmed!
-          </p>
+          <div className="text-gray-600 text-xs sm:text-sm mb-5 px-2 leading-relaxed space-y-2 text-center">
+            <p>
+              Dear <strong className="text-gray-900">{customerName}</strong>, your prebooking <strong className="text-[#7A1126]">{orderId}</strong> for sacred Prasad has been confirmed!
+            </p>
+            <p className="text-gray-500 font-medium text-[11px] sm:text-xs border-t border-orange-100 pt-2 text-center">
+              May Lord Baidyanath shower divine blessings, health & prosperity upon you and your family. Our temple seva team will contact you within 24 hours for dispatch details.
+            </p>
+          </div>
 
           <div className="w-full bg-[#FFF8F0] rounded-2xl p-4 border border-[#EADBC8]/80 mb-5 space-y-2 text-left text-xs">
             <div className="flex justify-between items-center">
