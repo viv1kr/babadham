@@ -62,76 +62,38 @@ export const PreBookingPage: React.FC = () => {
     setStep('PAYMENT');
   };
 
-      document.body.appendChild(script);
-    });
-  };
-
-  const handlePayNow = async () => {
+  const processOrder = (paymentMethod: 'ONLINE' | 'COD') => {
     setLoading(true);
-    const res = await loadRazorpay();
-    if (!res) {
-      setErrorMsg('Failed to load payment gateway. Please check your internet connection.');
-      setLoading(false);
-      return;
-    }
-
-    const options = {
-      key: 'rzp_live_XXXXXXXXXXXXXX', // LIVE KEY REQUIRED HERE
-      amount: (totalAmount * 100).toString(),
-      currency: 'INR',
-      name: brandSettings?.brandName || 'BABA BAIDYANATH PRASADAM',
-      description: preBookingProduct ? `Prebooking: ${preBookingProduct.name}` : 'Sacred Prebooking',
-      image: brandSettings?.logoImageUrl || 'https://babadham.vercel.app/logo.png',
-      handler: function (response: any) {
-        processOrder('ONLINE', response.razorpay_payment_id);
-      },
-      prefill: {
-        name: name,
-        contact: whatsapp,
-      },
-      theme: {
-        color: '#7A1126'
-      }
-    };
-
-    const rzp = new (window as any).Razorpay(options);
-    rzp.on('payment.failed', function (response: any) {
-      setErrorMsg('Payment Failed. Please try again.');
-    });
-    rzp.open();
-    setLoading(false);
-  };
-
-  const handlePayLater = () => {
-    processOrder('COD');
-  };
-
-  const processOrder = (method: 'ONLINE' | 'COD', transactionId?: string) => {
-    const origPrice = preBookingProduct?.originalPrice || (totalAmount * 2);
-    const discPercent = preBookingProduct?.discountPercentage || Math.round(((origPrice - totalAmount) / origPrice) * 100) || 50;
+    const prebookAmount = brandSettings?.prebookAmount || 251;
+    const finalAmount = prebookAmount;
+    
+    // Stable order ID format: BBP-PRE-XXXXXX
+    const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+    const generatedOrderId = `BBP-PRE-${randomSuffix}`;
 
     const orderData = {
-      orderId: `BBP-PRE-${Math.floor(100000 + Math.random() * 900000)}`,
-      leadStatus: 'PENDING' as 'PENDING' | 'APPROVED' | 'REJECTED' | 'CONVERTED',
-      status: 'pending' as const,
+      id: generatedOrderId,
+      orderId: generatedOrderId,
+      date: new Date().toISOString(),
+      bookingTime: new Date().toISOString(),
       customerName: name,
       customerPhone: whatsapp,
+      shippingAddress: `${address}${landmark ? ', Near ' + landmark : ''}, ${city}, ${state} - ${pincode}`,
       addressDetails: {
-        address,
+        fullName: name,
+        phone: whatsapp,
+        street: address,
         landmark,
         city,
         state,
         pincode
       },
-      shippingAddress: `${address}${landmark ? ', Landmark: ' + landmark : ''}, ${city}, ${state} - ${pincode}`,
-      totalAmount: totalAmount,
-      originalPrice: origPrice,
-      discountPercent: discPercent,
-      items: preBookingProduct ? [{ product: preBookingProduct, quantity: 1 }] : [],
-      paymentMethod: method,
-      transactionId: transactionId || '',
-      bookingTime: new Date().toISOString(),
-      date: new Date().toISOString()
+      totalAmount: finalAmount,
+      prebookAmount: prebookAmount,
+      paymentMethod,
+      paymentStatus: paymentMethod === 'ONLINE' ? 'PAID' : 'PAY_LATER',
+      leadStatus: 'PENDING',
+      orderStatus: 'ORDER_PLACED'
     };
 
     addOrder(orderData);
@@ -139,6 +101,18 @@ export const PreBookingPage: React.FC = () => {
     setActivePage('success');
     try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
   };
+
+  const handlePayNow = () => {
+    processOrder('ONLINE');
+  };
+
+  const handlePayLater = () => {
+    processOrder('COD');
+  };
+
+  const prebookAmount = brandSettings?.prebookAmount || 251;
+  const convenienceFee = 0;
+  const totalAmount = prebookAmount;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
