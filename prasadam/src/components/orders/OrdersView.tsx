@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Search, SlidersHorizontal, ArrowDown, ArrowUpDown, ChevronDown, Download, FilePlus, Bell } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowDown, ChevronDown, Bell, ChevronLeft, ChevronRight } from 'lucide-react';
 import { OrderDetailView } from './OrderDetailView';
 import { CreateOrderView } from './CreateOrderView';
 
@@ -9,6 +9,15 @@ export const OrdersView: React.FC = () => {
   const [activeFilterTab, setActiveFilterTab] = useState('All');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+
+  // Pagination State (25 bookings / orders per page)
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 25;
+
+  // Reset page to 1 whenever search query or filter tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeFilterTab]);
 
   let baseOrders = orders?.filter(o => 
     o?.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -26,6 +35,13 @@ export const OrdersView: React.FC = () => {
   } else if (activeFilterTab === 'Archived') {
     filteredOrders = baseOrders.filter(o => o.orderStatus === 'DELIVERED');
   }
+
+  // Pagination Calculations
+  const totalEntries = filteredOrders.length;
+  const totalPages = Math.ceil(totalEntries / pageSize) || 1;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalEntries);
+  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
 
   const handleExport = () => {
     if (filteredOrders.length === 0) return alert('No orders to export.');
@@ -82,19 +98,19 @@ export const OrdersView: React.FC = () => {
   }
 
   return (
-    <div className="w-full pt-4 sm:pt-6 space-y-5 font-sans pb-12 animate-fade-in">
+    <div className="w-full pt-4 sm:pt-6 space-y-5 font-sans pb-12 animate-fade-in select-none">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
         <h2 className="text-2xl font-bold text-[#FFF8F0] flex items-center gap-2">
-          Orders
+          Orders ({totalEntries})
         </h2>
         
         <div className="flex items-center gap-2">
-          <button onClick={handleExport} className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#2B1217] hover:bg-[#3d1921] text-[#FFF8F0] border border-white/10 transition-colors shadow-sm">
+          <button onClick={handleExport} className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#2B1217] hover:bg-[#3d1921] text-[#FFF8F0] border border-white/10 transition-colors shadow-sm cursor-pointer">
             Export
           </button>
-          <button onClick={handleCreateOrder} className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#14A800] hover:bg-[#118A00] text-white transition-colors shadow-sm">
+          <button onClick={handleCreateOrder} className="px-3 py-1.5 text-[13px] font-semibold rounded-lg bg-[#14A800] hover:bg-[#118A00] text-white transition-colors shadow-sm cursor-pointer">
             Create order
           </button>
         </div>
@@ -110,9 +126,9 @@ export const OrdersView: React.FC = () => {
               <button 
                 key={idx} 
                 onClick={() => setActiveFilterTab(tab)}
-                className={`px-3 py-1 text-[13px] font-medium rounded-md whitespace-nowrap transition-colors ${
+                className={`px-3 py-1 text-[13px] font-medium rounded-md whitespace-nowrap transition-colors cursor-pointer ${
                   activeFilterTab === tab 
-                    ? 'bg-[#1C080C] text-[#FFF8F0] shadow-sm' 
+                    ? 'bg-[#1C080C] text-[#FFF8F0] shadow-sm font-bold' 
                     : 'text-[#FFF8F0]/60 hover:bg-[#1C080C]/50'
                 }`}
               >
@@ -132,7 +148,7 @@ export const OrdersView: React.FC = () => {
                 className="w-full sm:w-32 pl-8 pr-2 py-1 rounded bg-transparent border-none text-[13px] text-[#FFF8F0] focus:outline-none focus:ring-1 focus:ring-[#F4A62A]/50 placeholder-white/30"
               />
             </div>
-            <button className="text-[#FFF8F0]/50 hover:text-[#FFF8F0] transition-colors">
+            <button className="text-[#FFF8F0]/50 hover:text-[#FFF8F0] transition-colors cursor-pointer">
               <SlidersHorizontal className="w-4 h-4" />
             </button>
           </div>
@@ -152,7 +168,7 @@ export const OrdersView: React.FC = () => {
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Fulfillment status</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Items</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Delivery method</th>
-                <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white">Tags</th>
+                <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white text-center">Status</th>
                 <th className="px-4 py-2.5 font-semibold text-[#FFF8F0]/70 cursor-pointer hover:text-white text-center">Notification</th>
               </tr>
             </thead>
@@ -164,12 +180,11 @@ export const OrdersView: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map(order => {
+                paginatedOrders.map(order => {
                   
-                  const isUnpaid = (order.paymentMethod || '').toUpperCase() === 'COD' && order.orderStatus !== 'DELIVERED';
                   const paymentPillClass = order.paymentStatus === 'PAID'
                     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
-                    : 'bg-white/10 text-white/60 border-white/10'; // gray for not paid / refunded
+                    : 'bg-white/10 text-white/60 border-white/10';
                   
                   const fulfillmentPillClass = order.orderStatus === 'DELIVERED'
                     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
@@ -228,9 +243,6 @@ export const OrdersView: React.FC = () => {
                       </td>
 
                       <td className="px-4 py-2.5 text-[#FFF8F0]/80">{(order.items || []).reduce((acc, it) => acc + (it.quantity || 1), 0)} item{(order.items || []).length !== 1 ? 's' : ''}</td>
-                      
-
-                      
                       <td className="px-4 py-2.5 text-[#FFF8F0]/80">Shipping</td>
                       <td className="px-4 py-2.5 text-center">
                         <div className="inline-flex items-center justify-center">
@@ -257,6 +269,37 @@ export const OrdersView: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* 25-Entry Pagination Bar */}
+        {filteredOrders.length > 0 && (
+          <div className="flex items-center justify-between border-t border-white/10 bg-[#250d12] px-4 py-3 text-xs text-[#FFF8F0]/70 flex-wrap gap-3">
+            <div>
+              Showing <strong className="text-[#F4A62A]">{startIndex + 1}</strong> to <strong className="text-[#F4A62A]">{endIndex}</strong> of <strong className="text-[#F4A62A]">{totalEntries}</strong> orders
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                className="px-3.5 py-1.5 rounded-lg bg-[#1C080C] hover:bg-[#3A1520] text-[#F4A62A] border border-white/10 flex items-center gap-1 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold"
+              >
+                <ChevronLeft className="w-4 h-4" /> Previous
+              </button>
+              <span className="px-3.5 py-1.5 rounded-lg bg-[#17060A] border border-white/10 text-[#FFF8F0] font-bold text-xs">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                className="px-3.5 py-1.5 rounded-lg bg-[#1C080C] hover:bg-[#3A1520] text-[#F4A62A] border border-white/10 flex items-center gap-1 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold"
+              >
+                Next <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
       
     </div>
