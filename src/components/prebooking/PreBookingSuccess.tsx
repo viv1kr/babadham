@@ -117,16 +117,18 @@ export const PreBookingSuccess: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full mb-6 flex flex-col items-center justify-center text-center gap-1">
-            <span className="text-gray-500 font-medium text-xs">Need Help?</span>
+          <div className="w-full mb-6 flex flex-col items-center justify-center text-center gap-0.5">
+            <span className="text-gray-400 font-normal text-[11px]">Need Help?</span>
             <a 
               href={`https://wa.me/${whatsappClean}`} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-[#25D366] hover:underline font-extrabold text-sm flex items-center justify-center gap-1.5 cursor-pointer mt-0.5"
+              className="inline-flex items-center justify-center gap-1.5 cursor-pointer mt-0.5 group hover:scale-105 transition-transform"
             >
-              <MessageCircle className="w-4 h-4 fill-[#25D366] text-white shrink-0" /> 
-              <span>Chat on WhatsApp</span>
+              <MessageCircle className="w-3.5 h-3.5 fill-[#25D366] text-white shrink-0" /> 
+              <span className="text-xs font-medium tracking-wide animate-text-shimmer">
+                Chat on WhatsApp
+              </span>
             </a>
           </div>
 

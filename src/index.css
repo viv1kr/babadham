@@ -51,6 +51,24 @@
 }
 
 /* Custom Utilities */
+@keyframes textShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-text-shimmer {
+  background: linear-gradient(90deg, #1fa84c 0%, #76FFA9 50%, #1fa84c 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: textShimmer 2.5s linear infinite;
+}
+
 @layer utilities {
   .bg-cream-pattern {
     background-color: #FFF8F0;
