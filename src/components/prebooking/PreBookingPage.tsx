@@ -220,7 +220,7 @@ export const PreBookingPage: React.FC = () => {
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Rahul Sharma"
-                    className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                    className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                   />
                 </div>
 
@@ -239,7 +239,7 @@ export const PreBookingPage: React.FC = () => {
                         value={whatsapp}
                         onChange={e => setWhatsapp(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="9876543210"
-                        className="w-full pl-9 sm:pl-11 pr-2 sm:pr-3 py-2.5 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                        className="w-full pl-9 sm:pl-11 pr-2 sm:pr-3 py-2.5 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                       />
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export const PreBookingPage: React.FC = () => {
                       value={pincode}
                       onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
                       placeholder="814112"
-                      className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                      className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                     />
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export const PreBookingPage: React.FC = () => {
                         value={city}
                         onChange={e => setCity(e.target.value)}
                         placeholder="City"
-                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                         readOnly={fetchingPincode}
                       />
                     </div>
@@ -289,7 +289,7 @@ export const PreBookingPage: React.FC = () => {
                         value={state}
                         onChange={e => setState(e.target.value)}
                         placeholder="State"
-                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                         readOnly={fetchingPincode}
                       />
                     </div>
@@ -306,7 +306,7 @@ export const PreBookingPage: React.FC = () => {
                         value={address}
                         onChange={e => setAddress(e.target.value)}
                         placeholder="e.g. Flat 101, Omkar Apartments, Main Road"
-                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                       />
                     </div>
 
@@ -319,7 +319,7 @@ export const PreBookingPage: React.FC = () => {
                         value={landmark}
                         onChange={e => setLandmark(e.target.value)}
                         placeholder="e.g. Near Shiv Temple"
-                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
+                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:bg-white focus:border-[#7A1126] focus:ring-2 focus:ring-[#7A1126]/20 transition-all font-medium text-xs sm:text-sm outline-none"
                       />
                     </div>
                   </div>
